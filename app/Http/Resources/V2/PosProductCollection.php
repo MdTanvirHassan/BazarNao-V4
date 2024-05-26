@@ -1,0 +1,54 @@
+<?php
+
+namespace App\Http\Resources\V2;
+use Auth;
+use App\Models\Wearhouse;
+use App\Models\ProductStock;
+
+use Illuminate\Http\Resources\Json\ResourceCollection;
+
+class PosProductCollection extends ResourceCollection
+{
+    public function toArray($request)
+    {
+        // Retrieve warehouse IDs associated with the authenticated user
+        $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
+    
+        // Pre-fetch product stocks for the given product IDs and warehouse IDs to avoid querying inside the loop
+        $productStocks = ProductStock::whereIn('wearhouse_id', $warehouseIds)
+                                     ->whereIn('product_id', $this->collection->pluck('id'))
+                                     ->get()
+                                     ->keyBy(function ($item) {
+                                         return $item['product_id'] . '-' . $item['wearhouse_id'];
+                                     });
+    
+        return [
+            'data' => $this->collection->map(function ($data) use ($productStocks, $warehouseIds) {
+                $pos_price = null;
+                foreach ($warehouseIds as $warehouseId) {
+                    $key = $data->id . '-' . $warehouseId;
+                    if (isset($productStocks[$key])) {
+                        $pos_price = $productStocks[$key]->price;
+                        break;
+                    }
+                }
+                return [
+                    'id' => $data->id,
+                    'name' => $data->name,
+                    'variant_product' => $data->variant_product,
+                    'thumbnail_image' => uploaded_asset($data->thumbnail_img),
+                    'price' => single_price($pos_price)
+                ];
+            })
+        ];
+    }
+    
+
+    public function with($request)
+    {
+        return [
+            'success' => true,
+            'status' => 200
+        ];
+    }
+}

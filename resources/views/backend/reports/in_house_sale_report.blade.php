@@ -1,0 +1,155 @@
+@extends('backend.layouts.app')
+
+@section('content')
+
+<div class="aiz-titlebar text-left mt-2 mb-3">
+    <div class=" align-items-center">
+        <h1 class="h3">{{translate('Product wise sales report')}}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 mx-auto">
+        <div class="card">
+            <div class="card-body">
+                <form id="prowasales" action="{{ route('in_house_sale_report.index') }}" method="get">
+                    <div class="form-group row">
+
+                        <div class="col-md-3">
+                            <label class="col-form-label">{{translate('Sort by Category')}} :</label>
+                            <select id="demo-ease" class="aiz-selectpicker select2" name="category_id" data-live-search="true">
+                                <option value=''>All</option>
+                                @foreach (\App\Models\Category::all() as $key => $category)
+                                <option @php if($sort_by==$category->id)
+                                    echo 'selected';
+                                    @endphp
+                                    value="{{ $category->id }}">{{ $category->getTranslation('name') }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        
+                        <div class="col-md-3">
+                            <label class="col-form-label">{{translate('Sort by Warehouse')}} :</label>
+                            <select id="warehouse" class="aiz-selectpicker select2" name="warehouse" data-live-search="true">
+                                <option value=''>All</option>
+                                @foreach (\App\Models\Wearhouse::all() as $key => $warehous)
+                                <option @php if($wearhouse ==$warehous->id)
+                                    echo 'selected';
+                                    @endphp
+                                    value="{{ $warehous->id }}">{{ $warehous->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="col-form-label">{{translate('Sort by Product')}} :</label>
+                            <select id="demo-ease" class="aiz-selectpicker select2" name="product_id" data-live-search="true">
+                                <option value=''>All</option>
+                                @foreach (DB::table('products')->select('id','name')->get(); as $key => $prod)
+                                <option @php if($pro_sort_by==$prod->id)
+                                    echo 'selected';
+                                    @endphp
+                                    value="{{ $prod->id }}">{{ $prod->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="col-form-label">{{ __('Sort by Sales Executive') }}:</label>
+                            <select id="demo-ease" class="aiz-selectpicker select2" name="user_id" data-live-search="true">
+                                <option value=''>{{ __('All') }}</option>
+                                @foreach (DB::table('staff')->join('users','users.id','staff.user_id')->where('role_id',9)->get() as $key => $staff)
+                                    <option @if($pro_sort_by == $staff->user_id) selected @endif value="{{ $staff->user_id }}">{{ $staff->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label>Date Range :</label>
+                            <div class="col-md-12">
+                                <input type="date" name="start_date" class="form-control" value="{{$start_date}}">
+                            </div>
+                            <div class="col-md-12">
+                                <input type="date" name="end_date" class="form-control" value="{{$end_date}}">
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="col-md-3">
+                            
+                            <label>&nbsp;</label>
+                            <br>
+                            <div class="d-flex">
+                            <button class="btn btn-sm btn-primary" onclick="submitForm ('{{ route('in_house_sale_report.index') }}')">{{ translate('Filter') }}</button>
+                            <br>
+                            <button class="btn btn-sm btn-info mx-2" onclick="printDiv()" type="button">{{ translate('Print') }}</button>
+                            <button class="btn btn-sm btn-success" onclick="submitForm('{{route('product_sales_export')}}')">Excel</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="printArea">
+                <style>
+th{text-align:center;}
+</style>
+                    <h3 style="text-align:center;">{{translate('Product wise sales report')}}</h3>
+                    <table class="table-bordered" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="width:5%">SL</th>
+                                <th style="width:30%">{{ translate('Product Name') }}</th>
+                                <th style="width:20%">{{ translate('Category') }}</th>
+                                <th style="width:10%">{{ translate('Qty') }}</th>
+                                <th style="width:10%">{{ translate('Unit Price') }}</th>
+                                <th style="width:10%">{{ translate('Amount') }}</th>
+                                <th style="width:10%">{{ translate('Num of Sales') }}</th>
+                                <th style="width:10%">{{ translate('Profit') }}</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @php $total = 0;$qty = 1;$total_profit=0; @endphp
+                            @foreach ($products as $key => $product)
+                            @php 
+                             $total = $total+($product->price);
+                             $total_profit= $total_profit + ($product->price - ($product->purchase_price*$product->quantity));
+                             @endphp
+                        
+                        <?php if(!empty($product->quantity)){
+                        $qty = $product->quantity;
+                        }else{
+                        $qty = 1;
+                        }
+                        ?>                   
+                            <tr>
+                                <td>{{ ($key+1)}}</td>
+                                <td>{{ $product->getTranslation('product_name') }}</td>
+                                <td>{{ $product->getTranslation('category_name') }}</td>
+                                <td style="text-align:right;">{{ $product->getTranslation('quantity') }}</td>
+                                <td style="text-align:right;">{{ single_price($product->getTranslation('price')/ $qty) }}</td>
+                                <td style="text-align:right;">{{ single_price($product->price) }}</td>
+                                <td style="text-align:center;">{{ $product->num_of_sale }}</td>
+                                <td style="text-align:center;">{{ single_price(($product->price - ($product->purchase_price*$product->quantity))) }}</td>
+                            </tr>
+                            @endforeach
+                            <tr>
+                    <td style="text-align:right;" colspan="5"><b>Total</b></td>
+                    <td style="text-align:right;"><b>{{single_price($total)}}</b></td>
+                    <td style="text-align:right;" colspan="1"><b>Total Profit</b></td>
+                    <td style="text-align:right;"><b>{{single_price($total_profit)}}</b></td>
+                </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+ function submitForm(url){
+    $('#prowasales').attr('action',url);
+    $('#prowasales').submit();
+ }
+</script>
+
+@endsection
