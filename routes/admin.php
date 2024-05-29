@@ -259,13 +259,16 @@ Route::post('/get_puracher_product', [OrderController::class, 'get_puracher_prod
     Route::get('/sales_history/product_wise_report', [ReportController::class, 'product_wise_sales_history_report'])->name('product_wise_sales_history_report.index');
     Route::get('/sales_history/product_wise_daily_report', [ReportController::class, 'product_wise_daily_sales_history_report'])->name('product_wise_daily_sales_history_report.index');
     Route::get('/product_sales_history/specific_day_report', [ReportController::class, 'product_specific_day_sales_history_report'])->name('product_specific_day_sales_history_report.index');
-    Route::get('/purchase_report_history', [ReportController::class, 'purchase_report_history'])->name('purchase_report_history.index');
-    Route::get('/warehouse_sales_compare', [ReportController::class, 'warehouse_sales_compare'])->name('warehouse_sales_compare.index');
-    Route::get('/warehouse_yearly_sales_compare', [ReportController::class, 'warehouse_yearly_sales_compare'])->name('warehouse_yearly_sales_compare.index');
-    Route::get('/warehouse/monthly-sales-report', [ReportController::class, 'warehouse_monthly_sales_report'])->name('warehouse_monthly_sales_report');
+    Route::get('/report/purchase_report_history', [ReportController::class, 'purchase_report_history'])->name('purchase_report_history.index');
+    Route::get('/report/warehouse_sales_compare', [ReportController::class, 'warehouse_sales_compare'])->name('warehouse_sales_compare.index');
+    Route::get('/report/warehouse_yearly_sales_compare', [ReportController::class, 'warehouse_yearly_sales_compare'])->name('warehouse_yearly_sales_compare.index');
+    Route::get('/report/warehouse/monthly-sales-report', [ReportController::class, 'warehouse_monthly_sales_report'])->name('warehouse_monthly_sales_report');
+    Route::get('/report/warehouse/warehouse_stock_summery', [ReportController::class, 'warehouse_stock_summery'])->name('warehouse_stock_summery.index');
     Route::get('/sales_report/yearly-sales-report', [ReportController::class, 'sales_report'])->name('sales_report.index');
     Route::get('/sales_report/monthly-sales-report', [ReportController::class, 'sales_report_monthly'])->name('sales_report_monthly.index');
     Route::get('/sales_report/sales_by_platform', [ReportController::class, 'sales_by_platform'])->name('sales_by_platform.index');
+    Route::any('/report/product_transfer_summery', [ReportController::class, 'product_transfer_summery'])->name('product_transfer_summery.index');
+    Route::any('/report/transfer_list_details', [ReportController::class, 'transfer_list_details'])->name('transfer_list_details.index');
 
     
     Route::any('/sale_profit_report', [ReportController::class, 'sale_profit_report'])->name('sale_profit_report.index');

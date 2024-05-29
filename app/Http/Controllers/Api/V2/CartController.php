@@ -53,11 +53,11 @@ class CartController extends Controller
             }
             $disc1 =$disc + $specialdiscount;
 
-            $shipping_skip_total = \App\BusinessSetting::where('type', 'flat_rate_shipping_cost_total')->first()->value;
+            $shipping_skip_total = \App\Models\BusinessSetting::where('type', 'flat_rate_shipping_cost_total')->first()->value;
             if($shipping_skip_total<=($sum+$coupon_amount)){
                 $calculate_shipping = 0;
             }else{
-                $calculate_shipping = \App\BusinessSetting::where('type', 'flat_rate_shipping_cost')->first()->value;
+                $calculate_shipping = \App\Models\BusinessSetting::where('type', 'flat_rate_shipping_cost')->first()->value;
             }
     
             return response()->json([

@@ -8,7 +8,15 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\User;
 use Hash;
-
+use App\Notifications\AppEmailVerificationNotification;
+use GeneaLabs\LaravelSocialiter\Facades\Socialiter;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Laravel\Sanctum\PersonalAccessToken;
+use Socialite;
+use App\Models\Cart;
+use App\Rules\Recaptcha;
+use App\Services\SocialRevoke;
 
 class AuthController extends Controller
 {
@@ -63,26 +71,29 @@ class AuthController extends Controller
             $customer->customer_id = $customer_id;
             $customer->save();
 
-            $tokenResult = $user->createToken('Personal Access Token');
+           
                 
-    
-            return response()->json([
-                'result' => true,
-                'customer' => $customer,
-                'access_token' => $tokenResult->accessToken,
-                'token_type' => 'Bearer',
-                'user' => $user,
-                'message' => 'Registration Successful. Please verify and log in to your account.',
-                'user_id' => $user->id
-            ], 201);
+            $user->createToken('tokens')->plainTextToken;
+
+            return $this->loginSuccess($user);
+        }
+            // return response()->json([
+            //     'result' => true,
+            //     'customer' => $customer,
+            //     'access_token' => $tokenResult->accessToken,
+            //     'token_type' => 'Bearer',
+            //     'user' => $user,
+            //     'message' => 'Registration Successful. Please verify and log in to your account.',
+            //     'user_id' => $user->id
+            // ], 201);
             
-           }else{
-            return response()->json([
-                'result' => false,
-                'message' => 'Please Select Area',
-                'user_id' => null
-            ], 201);
-           }
+        //    }else{
+        //     return response()->json([
+        //         'result' => false,
+        //         'message' => 'Please Select Area',
+        //         'user_id' => null
+        //     ], 201);
+        //    }
     }
 
     public function resendCode(Request $request)
@@ -216,8 +227,8 @@ class AuthController extends Controller
             $customer->customer_id = $customer_id;
             $customer->save();
         }
-        $tokenResult = $user->createToken('Personal Access Token');
-        return $this->loginSuccess($tokenResult, $user);
+        // $tokenResult = $user->createToken('Personal Access Token');
+        return $this->loginSuccess($user);
     }
 
     protected function loginSuccess($user, $token = null)

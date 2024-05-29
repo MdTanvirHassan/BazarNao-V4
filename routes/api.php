@@ -45,15 +45,15 @@ use App\Http\Controllers\Api\V2\BannerController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v2')->group(function () {
-    Route::middleware(['user', 'verified'])->group(function () {
+    Route::middleware(['auth:sanctum', 'user', 'verified'])->group(function () {
         Route::post('refund-request-send/{id}', [RefundRequestController::class, 'request_store'])->name('refund_request_send');
         Route::get('refund-request', [RefundRequestController::class, 'vendor_index'])->name('vendor_refund_request');
-        Route::get('sent-refund-request', [RefundRequestController::class, 'customer_index'])->name('customer_refund_request');
-        Route::post('refund-reuest-vendor-approval', [RefundRequestController::class, 'request_approval_vendor'])->name('vendor_refund_approval');
+        Route::get('sent-refund-request/{id}', [RefundRequestController::class, 'customer_index'])->name('customer_refund_request');
+        Route::post('refund-request-vendor-approval', [RefundRequestController::class, 'request_approval_vendor'])->name('vendor_refund_approval');
         Route::get('refund-request/{id}', [RefundRequestController::class, 'refund_request_send_page'])->name('refund_request_send_page');
     });
 
-    Route::middleware('auth')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
         Route::post('reject-refund-request', [RefundRequestController::class, 'reject_refund_request'])->name('reject_refund_request');
         Route::get('refund-request-reason/{id}', [RefundRequestController::class, 'reason_view'])->name('reason_show');
         Route::get('refund-request-reject-reason/{id}', [RefundRequestController::class, 'reject_reason_view'])->name('reject_reason_show');
@@ -72,7 +72,7 @@ Route::prefix('v2/auth')->group(function () {
     Route::post('password/confirm_reset', [PasswordResetController::class, 'confirmReset']);
     Route::post('password/resend_code', [PasswordResetController::class, 'resendCode']);
     
-    Route::middleware('auth:api')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
         Route::get('logout', [AuthController::class, 'logout']);
         Route::get('user', [AuthController::class, 'user']);
     });
@@ -102,7 +102,7 @@ Route::apiResource('customers', CustomerController::class)->only(['show']);
 Route::apiResource('general-settings', GeneralSettingController::class)->only(['index']);
 Route::apiResource('home-categories', HomeCategoryController::class)->only(['index']);
 Route::get('purchase-history/{id}', [PurchaseHistoryController::class, 'index']);
-Route::get('purchase-history-details/{id}', [PurchaseHistoryController::class, 'details']);
+Route::get('purchase-history-details/{id}', [PurchaseHistoryController::class, 'details'])->name('purchaseHistory.details');
 Route::get('purchase-history-items/{id}', [PurchaseHistoryController::class, 'items']);
 Route::get('filter/categories', [FilterController::class, 'categories']);
 Route::get('filter/brands', [FilterController::class, 'brands']);
@@ -126,21 +126,21 @@ Route::get('products/home', [ProductController::class, 'home']);
 Route::get('products/offerList', [ProductController::class, 'offerList']);
 Route::get('products/discountProduct', [ProductController::class, 'discountProduct']);
 Route::apiResource('products', ProductController::class)->except(['store', 'update', 'destroy']);
-Route::get('cart-summary/{user_id}/{owner_id}', [CartController::class, 'summary'])->middleware('auth:api');
-Route::post('carts/process', [CartController::class, 'process'])->middleware('auth:api');
-Route::post('carts/add', [CartController::class, 'add'])->middleware('auth:api');
-Route::post('carts/addMultiple', [CartController::class, 'addMultiple'])->middleware('auth:api');
-Route::post('carts/change-quantity', [CartController::class, 'changeQuantity'])->middleware('auth:api');
-Route::apiResource('carts', CartController::class)->only('destroy')->middleware('auth:api');
-Route::post('carts/{user_id}', [CartController::class, 'getList'])->middleware('auth:api');
-Route::post('cart-remove', [CartController::class, 'cartRemove'])->middleware('auth:api');
-Route::post('coupon-apply', [CheckoutController::class, 'apply_coupon_code'])->middleware('auth:api');
-Route::post('coupon-remove', [CheckoutController::class, 'remove_coupon_code'])->middleware('auth:api');
-Route::post('update-address-in-cart', [AddressController::class, 'updateAddressInCart'])->middleware('auth:api');
+Route::get('cart-summary/{user_id}/{owner_id}', [CartController::class, 'summary'])->middleware('auth:sanctum');
+Route::post('carts/process', [CartController::class, 'process'])->middleware('auth:sanctum');
+Route::post('carts/add', [CartController::class, 'add'])->middleware('auth:sanctum');
+Route::post('carts/addMultiple', [CartController::class, 'addMultiple'])->middleware('auth:sanctum');
+Route::post('carts/change-quantity', [CartController::class, 'changeQuantity'])->middleware('auth:sanctum');
+Route::apiResource('carts', CartController::class)->only('destroy')->middleware('auth:sanctum');
+Route::post('carts/{user_id}', [CartController::class, 'getList'])->middleware('auth:sanctum');
+Route::post('cart-remove', [CartController::class, 'cartRemove'])->middleware('auth:sanctum');
+Route::post('coupon-apply', [CheckoutController::class, 'apply_coupon_code'])->middleware('auth:sanctum');
+Route::post('coupon-remove', [CheckoutController::class, 'remove_coupon_code'])->middleware('auth:sanctum');
+Route::post('update-address-in-cart', [AddressController::class, 'updateAddressInCart'])->middleware('auth:sanctum');
 Route::get('payment-types', [PaymentTypesController::class, 'getList']);
 Route::get('reviews/product/{id}', [ReviewController::class, 'index'])->name('api.reviews.index');
 Route::post('reviews/submit', [ReviewController::class, 'submit'])->name('api.reviews.submit');
-Route::get('shop/user/{id}', [ShopController::class, 'shopOfUser'])->middleware('auth:api');
+Route::get('shop/user/{id}', [ShopController::class, 'shopOfUser'])->middleware('auth:sanctum');
 Route::get('shops/details/{id}', [ShopController::class, 'info'])->name('shops.info');
 Route::get('shops/products/all/{id}', [ShopController::class, 'allProducts'])->name('shops.allProducts');
 Route::get('shops/products/top/{id}', [ShopController::class, 'topSellingProducts'])->name('shops.topSellingProducts');
@@ -154,32 +154,32 @@ Route::apiResource('ad2', Ad2Controller::class)->only('index');
 Route::apiResource('ad3', Ad3Controller::class)->only('index');
 Route::apiResource('ad1', Ad1Controller::class)->only('index');
 
-Route::get('wishlists-check-product', [WishlistController::class, 'isProductInWishlist'])->middleware('auth:api');
-Route::get('wishlists-add-product', [WishlistController::class, 'add'])->middleware('auth:api');
-Route::get('wishlists-remove-product', [WishlistController::class, 'remove'])->middleware('auth:api');
-Route::get('wishlists/{id}', [WishlistController::class, 'index'])->middleware('auth:api');
+Route::get('wishlists-check-product', [WishlistController::class, 'isProductInWishlist'])->middleware('auth:sanctum');
+Route::get('wishlists-add-product', [WishlistController::class, 'add'])->middleware('auth:sanctum');
+Route::get('wishlists-remove-product', [WishlistController::class, 'remove'])->middleware('auth:sanctum');
+Route::get('wishlists/{id}', [WishlistController::class, 'index'])->middleware('auth:sanctum');
 Route::apiResource('wishlists', WishlistController::class)->except(['index', 'update', 'show']);
 Route::apiResource('settings', SettingsController::class)->only('index');
 Route::get('policies/seller', [PolicyController::class, 'sellerPolicy'])->name('policies.seller');
 Route::get('policies/support', [PolicyController::class, 'supportPolicy'])->name('policies.support');
 Route::get('policies/return', [PolicyController::class, 'returnPolicy'])->name('policies.return');
-Route::get('user/info/{id}', [UserController::class, 'info'])->middleware('auth:api');
-Route::post('user/info/update', [UserController::class, 'updateName'])->middleware('auth:api');
-Route::post('user/info/update-info', [UserController::class, 'updateinfo'])->middleware('auth:api');
-Route::get('user/shipping/address/{id}', [AddressController::class, 'addresses'])->middleware('auth:api');
-Route::post('user/shipping/create', [AddressController::class, 'createShippingAddress'])->middleware('auth:api');
-Route::post('user/shipping/update', [AddressController::class, 'updateShippingAddress'])->middleware('auth:api');
-Route::post('user/shipping/make_default', [AddressController::class, 'makeShippingAddressDefault'])->middleware('auth:api');
-Route::get('user/shipping/delete/{id}', [AddressController::class, 'deleteShippingAddress'])->middleware('auth:api');
-Route::post('user/support/create', [SupportTicketController::class, 'store'])->middleware('auth:api');
+Route::get('user/info/{id}', [UserController::class, 'info'])->middleware('auth:sanctum');
+Route::post('user/info/update', [UserController::class, 'updateName'])->middleware('auth:sanctum');
+Route::post('user/info/update-info', [UserController::class, 'updateinfo'])->middleware('auth:sanctum');
+Route::get('user/shipping/address/{id}', [AddressController::class, 'addresses'])->middleware('auth:sanctum');
+Route::post('user/shipping/create', [AddressController::class, 'createShippingAddress'])->middleware('auth:sanctum');
+Route::post('user/shipping/update', [AddressController::class, 'updateShippingAddress'])->middleware('auth:sanctum');
+Route::post('user/shipping/make_default', [AddressController::class, 'makeShippingAddressDefault'])->middleware('auth:sanctum');
+Route::get('user/shipping/delete/{id}', [AddressController::class, 'deleteShippingAddress'])->middleware('auth:sanctum');
+Route::post('user/support/create', [SupportTicketController::class, 'store'])->middleware('auth:sanctum');
 Route::post('get-user-by-access_token', [UserController::class, 'getUserInfoByAccessToken']);
 Route::get('cities', [AddressController::class, 'getCities']);
 Route::get('countries', [AddressController::class, 'getCountries']);
-Route::post('shipping_cost', [ShippingController::class, 'shipping_cost'])->middleware('auth:api');
-Route::post('coupon/apply', [CouponController::class, 'apply'])->middleware('auth:api');
+Route::post('shipping_cost', [ShippingController::class, 'shipping_cost'])->middleware('auth:sanctum');
+Route::post('coupon/apply', [CouponController::class, 'apply'])->middleware('auth:sanctum');
 
 
-Route::get('bkash/begin', [BkashController::class, 'begin'])->middleware('auth:api');
+Route::get('bkash/begin', [BkashController::class, 'begin'])->middleware('auth:sanctum');
 Route::get('bkash/api/webpage/{token}/{amount}', [BkashController::class, 'webpage'])->name('api.bkash.webpage');
 Route::any('bkash/api/checkout/{token}/{amount}', [BkashController::class, 'checkout'])->name('api.bkash.checkout');
 Route::any('bkash/api/execute/{token}', [BkashController::class, 'execute'])->name('api.bkash.execute');
@@ -188,7 +188,7 @@ Route::any('bkash/api/success', [BkashController::class, 'success'])->name('api.
 Route::post('bkash/api/process', [BkashController::class, 'process'])->name('api.bkash.process');
 
 //nagad
-Route::get('nagad/begin', [NagadController::class, 'begin'])->middleware('auth:api');
+Route::get('nagad/begin', [NagadController::class, 'begin'])->middleware('auth:sanctum');
 Route::any('nagad/verify/{payment_type}', [NagadController::class, 'verify'])->name('app.nagad.callback_url');
 Route::post('nagad/process', [NagadController::class, 'process']);
 
@@ -198,30 +198,30 @@ Route::post('sslcommerz/success', [SslCommerzController::class, 'payment_success
 Route::post('sslcommerz/fail', [SslCommerzController::class, 'payment_fail']);
 Route::post('sslcommerz/cancel', [SslCommerzController::class, 'payment_cancel']);
 
-Route::post('payments/pay/wallet', [WalletController::class, 'processPayment'])->middleware('auth:api');
-Route::post('payments/pay/cod', [PaymentController::class, 'cashOnDelivery'])->middleware('auth:api');
+Route::post('payments/pay/wallet', [WalletController::class, 'processPayment'])->middleware('auth:sanctum');
+Route::post('payments/pay/cod', [PaymentController::class, 'cashOnDelivery'])->middleware('auth:sanctum');
 
-Route::post('order/store', [OrderController::class, 'store'])->middleware('auth:api');
-Route::get('profile/counters/{user_id}', [ProfileController::class, 'counters'])->middleware('auth:api');
+Route::post('order/store', [OrderController::class, 'store'])->middleware('auth:sanctum');
+Route::get('profile/counters/{user_id}', [ProfileController::class, 'counters'])->middleware('auth:sanctum');
 Route::get('profile/getAreaCode', [ProfileController::class, 'getAreaCode']);
-Route::get('profile/getCreditInfo/{user_id}', [ProfileController::class, 'getCreditInfo'])->middleware('auth:api');
-Route::post('profile/update', [ProfileController::class, 'update'])->middleware('auth:api');
-Route::post('profile/update-image', [ProfileController::class, 'updateImage'])->middleware('auth:api');
-Route::post('profile/updateCreditForm', [ProfileController::class, 'updateCreditForm'])->middleware('auth:api');
-Route::post('profile/update-device-token', [ProfileController::class, 'update_device_token'])->middleware('auth:api');
-Route::post('referr-apply', [ProfileController::class, 'apply_referr_code'])->middleware('auth:api');
-Route::get('wallet/balance/{id}', [WalletController::class, 'balance'])->middleware('auth:api');
-Route::get('wallet/history/{id}', [WalletController::class, 'walletRechargeHistory'])->middleware('auth:api');
+Route::get('profile/getCreditInfo/{user_id}', [ProfileController::class, 'getCreditInfo'])->middleware('auth:sanctum');
+Route::post('profile/update', [ProfileController::class, 'update'])->middleware('auth:sanctum');
+Route::post('profile/update-image', [ProfileController::class, 'updateImage'])->middleware('auth:sanctum');
+Route::post('profile/updateCreditForm', [ProfileController::class, 'updateCreditForm'])->middleware('auth:sanctum');
+Route::post('profile/update-device-token', [ProfileController::class, 'update_device_token'])->middleware('auth:sanctum');
+Route::post('referr-apply', [ProfileController::class, 'apply_referr_code'])->middleware('auth:sanctum');
+Route::get('wallet/balance/{id}', [WalletController::class, 'balance'])->middleware('auth:sanctum');
+Route::get('wallet/history/{id}', [WalletController::class, 'walletRechargeHistory'])->middleware('auth:sanctum');
 Route::get('flash-deals', [FlashDealController::class, 'index']);
 Route::get('happy-hour', [FlashDealController::class, 'happy_hour']);
 Route::get('flash-deal-products/{id}', [FlashDealController::class, 'products']);
 Route::get('customer_review', [CustomerController::class, 'customer_review'])->name('customer_review');
 
-Route::get('ticketList/{id}', [SupportTicketController::class, 'index'])->middleware('auth:api');
-Route::get('support_ticket/{id}/show', [SupportTicketController::class, 'admin_show'])->middleware('auth:api');
-Route::post('support_ticket/reply', [SupportTicketController::class, 'admin_store'])->middleware('auth:api');
-Route::get('cities-by-state/{state_id}', [AddressController::class, 'getCitiesByState'])->middleware('auth:api');
-Route::get('cart-count/{id}', [CartController::class, 'count'])->middleware('auth:api');
+Route::get('ticketList/{id}', [SupportTicketController::class, 'index'])->middleware('auth:sanctum');
+Route::get('support_ticket/{id}/show', [SupportTicketController::class, 'admin_show'])->middleware('auth:sanctum');
+Route::post('support_ticket/reply', [SupportTicketController::class, 'admin_store'])->middleware('auth:sanctum');
+Route::get('cities-by-state/{state_id}', [AddressController::class, 'getCitiesByState'])->middleware('auth:sanctum');
+Route::get('cart-count/{id}', [CartController::class, 'count'])->middleware('auth:sanctum');
 
 });
 

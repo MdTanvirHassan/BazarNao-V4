@@ -67,7 +67,7 @@
                     {{  $product->getTranslation('name')  }}
                 </h2>
 
-                @if(home_price($product->id) != home_discounted_price($product->id))
+                @if(main_home_price($product->id) != main_home_discounted_price($product->id))
                     <div class="row no-gutters mt-3">
                         <div class="col-2">
                             <div class="opacity-50 mt-2">{{ translate('Price')}}:</div>
@@ -75,7 +75,7 @@
                         <div class="col-10">
                             <div class="fs-20 opacity-60">
                                 <del>
-                                    {{ home_price($product->id) }}
+                                    {{ main_home_price($product->id) }}
                                     @if($product->unit != null)
                                         <span>/{{ $product->getTranslation('unit') }}</span>
                                     @endif
@@ -91,7 +91,7 @@
                         <div class="col-10">
                             <div class="">
                                 <strong class="h2 fw-600 text-primary">
-                                    {{ home_discounted_price($product->id) }}
+                                    {{ main_home_discounted_price($product->id) }}
                                 </strong>
                                 @if($product->unit != null)
                                     <span class="opacity-70">/{{ $product->getTranslation('unit') }}</span>
@@ -107,7 +107,7 @@
                         <div class="col-10">
                             <div class="">
                                 <strong class="h2 fw-600 text-primary">
-                                    {{ home_discounted_price($product->id) }}
+                                    {{ main_home_discounted_price($product->id) }}
                                 </strong>
                                 <span class="opacity-70">/{{ $product->unit }}</span>
                             </div>

@@ -33,8 +33,8 @@ class OrderController extends Controller
         }
 
         $user = User::find($request->user_id);
-
         $address = Address::where('id', $cartItems->first()->address_id)->first();
+
         $shippingAddress = [];
         if ($address != null) {
             $shippingAddress['name'] = $user->name;
@@ -46,6 +46,8 @@ class OrderController extends Controller
             $shippingAddress['phone'] = $address->phone;
 			$shippingAddress['note'] = !empty($request->note) ? $request->note : '';
         }
+        // dd($cartItems, $user, $address);
+        // dd($shippingAddress);
 
         $sum = 0.00;
         $spec_discount = 0.00;
@@ -57,24 +59,24 @@ class OrderController extends Controller
             $spec_discount += $cartItem->special_discount;
         }
 
-$shipping_skip_total = BusinessSetting::where('type', 'flat_rate_shipping_cost_total')->first()->value;
-    if($shipping_skip_total<=($sum+$cartItems[0]->coupon_amount)){
-        $calculate_shipping = 0;
-    }else{
-		 $calculate_shipping = BusinessSetting::where('type', 'flat_rate_shipping_cost')->first()->value;
-	}
-$sum+=$calculate_shipping;
+        $shipping_skip_total = BusinessSetting::where('type', 'flat_rate_shipping_cost_total')->first()->value;
+            if($shipping_skip_total<=($sum+$cartItems[0]->coupon_amount)){
+                $calculate_shipping = 0;
+            }else{
+                $calculate_shipping = BusinessSetting::where('type', 'flat_rate_shipping_cost')->first()->value;
+            }
+        $sum+=$calculate_shipping;
 
-       $exists = Order::whereMonth('created_at', date('m'))
-        ->whereYear('created_at', date('Y'))->orderBy('created_at', 'desc')->get()->take(1);
-        if (count($exists) > 0) {
-            $code = date('dmy') . substr($exists[0]->code, -4);
-            $code = ((int)$code)+1;
-            // echo $code;
-            // dd($exists);
-        } else {
-            $code = date('dmy') . '0001';
-        }
+        $exists = Order::whereMonth('created_at', date('m'))
+            ->whereYear('created_at', date('Y'))->orderBy('created_at', 'desc')->get()->take(1);
+            if (count($exists) > 0) {
+                $code = date('dmy') . substr($exists[0]->code, -4);
+                $code = ((int)$code)+1;
+                // echo $code;
+                // dd($exists);
+            } else {
+                $code = date('dmy') . '0001';
+            }
 		
 		if($request->payment_type=='bkash'){
 			$bkashOffer = Offer::where('title','Bkash Offer')->where('status',1)->get();
@@ -88,6 +90,7 @@ $sum+=$calculate_shipping;
 				}
 		}
 		
+        // dd('prince');
         // create an order
         $order = Order::create([
             'user_id' => $request->user_id,

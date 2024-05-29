@@ -3,7 +3,7 @@
 <div class="card">
     <form id="culexpo" action="<?php echo e(route('transfer_list_report.index')); ?>" method="GET">
         <div class="card-header row gutters-5">
-            <div class="col-lg-3">
+            <div class="col-lg-4">
                 <div class="form-group mb-0">
                     <label>Date Range:</label>
                     <div class="input-group">

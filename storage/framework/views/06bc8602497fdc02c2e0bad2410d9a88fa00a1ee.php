@@ -32,16 +32,16 @@
                             </div>
                             <div class="p-md-3 p-2 text-center feature_text_blog">
                                 <div class="fs-15">
-                                    <?php if(home_base_price($product->id) != home_discounted_base_price($product->id)): ?>
-                                    <del class="fw-600 opacity-50 mr-1"><?php echo e(home_base_price($product->id)); ?></del>
+                                    <?php if(main_home_base_price($product->id) != main_home_discounted_base_price($product->id)): ?>
+                                    <del class="fw-600 opacity-50 mr-1"><?php echo e(main_home_base_price($product->id)); ?></del>
                                     <?php endif; ?>
-                                    <span class="fw-700 text-primary"><?php echo e(home_discounted_base_price($product->id)); ?></span>
+                                    <span class="fw-700 text-primary"><?php echo e(main_home_discounted_base_price($product->id)); ?></span>
                                 </div>
                                 <div class="rating rating-sm mt-1">
                                     <?php echo e(renderStarRating($product->rating)); ?>
 
                                 </div>
-								<?php if(home_base_price($product->id) != home_discounted_base_price($product->id)): ?>
+								<?php if(main_home_base_price($product->id) != main_home_discounted_base_price($product->id)): ?>
                                 <h3 class="fw-600 fs-13 lh-1-4 mb-0" style="color:red">
 									<?php if($product->discount_type=='amount'): ?>
 										<?php echo e($product->discount); ?> TK Save

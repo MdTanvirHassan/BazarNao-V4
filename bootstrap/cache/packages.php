@@ -49,6 +49,17 @@
       0 => '\\GeneaLabs\\LaravelSignInWithApple\\Providers\\ServiceProvider',
     ),
   ),
+  'genealabs/laravel-socialiter' => 
+  array (
+    'providers' => 
+    array (
+      0 => '\\GeneaLabs\\LaravelSocialiter\\Providers\\ServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Socialiter' => '\\GeneaLabs\\LaravelSocialiter\\Facades\\Socialiter',
+    ),
+  ),
   'intervention/image' => 
   array (
     'providers' => 
@@ -58,6 +69,17 @@
     'aliases' => 
     array (
       'Image' => 'Intervention\\Image\\Facades\\Image',
+    ),
+  ),
+  'kingflamez/laravelrave' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'KingFlamez\\Rave\\RaveServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'Rave' => 'KingFlamez\\Rave\\Facades\\Rave',
     ),
   ),
   'laracasts/flash' => 
@@ -119,6 +141,24 @@
     'aliases' => 
     array (
       'Excel' => 'Maatwebsite\\Excel\\Facades\\Excel',
+    ),
+  ),
+  'mehedi-iitdu/core-component-repository' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'MehediIitdu\\CoreComponentRepository\\CoreComponentRepositoryServiceProvider',
+    ),
+    'aliases' => 
+    array (
+      'CoreComponentRepository' => 'MehediIitdu\\CoreComponentRepository\\CoreComponentRepositoryFacade',
+    ),
+  ),
+  'myfatoorah/laravel-package' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'MyFatoorah\\LaravelPackage\\MyFatoorahServiceProvider',
     ),
   ),
   'nesbot/carbon' => 

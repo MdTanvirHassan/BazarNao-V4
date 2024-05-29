@@ -34,15 +34,15 @@
                             </div>
                             <div class="p-md-3 p-2 text-center feature_text_blog">
                                 <div class="fs-15">
-                                    @if(home_base_price($product->id) != home_discounted_base_price($product->id))
-                                    <del class="fw-600 opacity-50 mr-1">{{ home_base_price($product->id) }}</del>
+                                    @if(main_home_base_price($product->id) != main_home_discounted_base_price($product->id))
+                                    <del class="fw-600 opacity-50 mr-1">{{ main_home_base_price($product->id) }}</del>
                                     @endif
-                                    <span class="fw-700 text-primary">{{ home_discounted_base_price($product->id) }}</span>
+                                    <span class="fw-700 text-primary">{{ main_home_discounted_base_price($product->id) }}</span>
                                 </div>
                                 <div class="rating rating-sm mt-1">
                                     {{ renderStarRating($product->rating) }}
                                 </div>
-								@if(home_base_price($product->id) != home_discounted_base_price($product->id))
+								@if(main_home_base_price($product->id) != main_home_discounted_base_price($product->id))
                                 <h3 class="fw-600 fs-13 lh-1-4 mb-0" style="color:red">
 									@if($product->discount_type=='amount')
 										{{$product->discount}} TK Save

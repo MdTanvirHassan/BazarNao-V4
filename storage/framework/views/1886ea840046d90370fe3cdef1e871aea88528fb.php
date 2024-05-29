@@ -23,6 +23,115 @@
                     </a>
                 </li>
 
+
+                   <!-- Product -->
+                   <?php if(Auth::user()->user_type == 'admin' || in_array('2', json_decode(Auth::user()->staff->role->permissions))): ?>
+                <li class="aiz-side-nav-item">
+                    <a href="#" class="aiz-side-nav-link">
+                        <i class="las la-money-bill aiz-side-nav-icon"></i>
+                        <span class="aiz-side-nav-text">Accounting</span>
+                        <span class="aiz-side-nav-arrow"></span>
+                    </a>
+                    <!--Submenu-->
+                    <ul class="aiz-side-nav-list level-2">
+                        <li class="aiz-side-nav-item">
+                            <a class="aiz-side-nav-link" href="#">
+                                <span class="aiz-side-nav-text">Chart of Account</span>
+                            </a>
+                        </li>
+                        <li class="aiz-side-nav-item">
+                            <a href="#" class="aiz-side-nav-link">
+                                <span class="aiz-side-nav-text">Subaccount List</span>
+                            </a>
+                        </li>
+                       
+                        <li class="aiz-side-nav-item">
+                            <a href="#" class="aiz-side-nav-link">
+                                <span class="aiz-side-nav-text">Predefine Accounts</span>
+                            </a>
+                        </li>
+
+                            <li class="aiz-side-nav-item">
+                                <a href="#" class="aiz-side-nav-link">
+                                    <span class="aiz-side-nav-text">Voucher</span>
+                                </a>
+                            <ul class="aiz-side-nav-sublist">
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Debit Voucher</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Credit Voucher</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Journal Voucher</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Contra Voucher</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="aiz-side-nav-item">
+                                <a href="#" class="aiz-side-nav-link">
+                                    <span class="aiz-side-nav-text">Reports</span>
+                                </a>
+                            <ul class="aiz-side-nav-sublist">
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">General Ledger</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Cash Book</span>
+                                    </a>
+                                </li>
+                    
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Bank Book</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Day Book</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Trial Balance</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Income Statement</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Balance Sheet</span>
+                                    </a>
+                                </li>
+
+                                <li class="aiz-side-nav-item">
+                                    <a href="#" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Expenditure Statement</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <?php endif; ?>
+
                 <!-- POS Addon-->
                 <?php if(App\Models\Addon::where('unique_identifier', 'pos_system')->first() != null && App\Models\Addon::where('unique_identifier', 'pos_system')->first()->activated): ?>
                 <?php if(Auth::user()->user_type == 'admin' || in_array('1', json_decode(Auth::user()->staff->role->permissions))): ?>

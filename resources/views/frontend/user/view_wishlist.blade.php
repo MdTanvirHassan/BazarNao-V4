@@ -36,10 +36,10 @@
                                               {{ renderStarRating($wishlist->product->rating) }}
                                           </div>
                                           <div class=" fs-14">
-                                                @if(home_base_price($wishlist->product->id) != home_discounted_base_price($wishlist->product->id))
-                                                    <del class="opacity-60 mr-1">{{ home_base_price($wishlist->product->id) }}</del>
+                                                @if(main_home_base_price($wishlist->product->id) != main_home_discounted_base_price($wishlist->product->id))
+                                                    <del class="opacity-60 mr-1">{{ main_home_base_price($wishlist->product->id) }}</del>
                                                 @endif
-                                                    <span class="fw-600 text-primary">{{ home_discounted_base_price($wishlist->product->id) }}</span>
+                                                    <span class="fw-600 text-primary">{{ main_home_discounted_base_price($wishlist->product->id) }}</span>
                                           </div>
                                       </div>
                                       <div class="card-footer">

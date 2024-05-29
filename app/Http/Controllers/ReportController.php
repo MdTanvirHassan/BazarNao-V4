@@ -2349,6 +2349,274 @@ public function warehouse_monthly_sales_report(Request $request)
 
     return view('backend.reports.warehouse_monthly_sales_report', compact('months', 'totals', 'year', 'warehouses'));
 }
+
+// public function warehouse_stock_summery(Request $request)
+// {
+//     $warehouseIds = $request->input('warehouse', []); 
+//     $start_date = $request->input('start_date', date('Y-m-01', strtotime('-3 years')));
+//     $end_date = $request->input('end_date', date('Y-m-t'));
+
+//     $currentYear = Carbon::now()->year;
+//     $startYear = $currentYear - 2;
+
+//     $warehouses = Wearhouse::all();
+//     if (!empty($warehouseIds)) {
+//         $warehouses = $warehouses->whereIn('id', $warehouseIds);
+//     }
+
+//     $yearData = [];
+//     foreach (range($currentYear, $startYear) as $year) {
+//         $yearData[$year] = [
+//             'warehouses' => [],
+//             'totals' => [
+//                 'opening_stock' => 0,
+//                 'purchase' => 0,
+//                 'transfer_in' => 0,
+//                 'sales' => 0,
+//                 'transfer_out' => 0,
+//                 'closing_stock' => 0,
+//                 'profit_loss' => 0
+//             ]
+//         ];
+
+//         foreach ($warehouses as $warehouse) {
+//             $warehouseId = $warehouse->id;
+
+//             // Calculate the opening stock
+//             $openingStocks = OpeningStock::where('wearhouse_id', $warehouseId)
+//                 ->whereYear('created_at', $year)
+//                 ->get();
+
+//             $openingStockQty = 0;
+//             $openingStockAmount = 0;
+//             foreach ($openingStocks as $openStock) {
+//                 $openingStockQty += $openStock->qty;
+//                 $openingStockAmount += $openStock->qty * $openStock->price;
+//             }
+
+//             // Calculate the purchases
+//             $purchases = Purchase_order_item::select('purchase_order_item.id', 'purchase_order_item.po_id', 'purchase_order_item.product_id', 'purchase_order_item.wearhouse_id', 'purchase_order_item.qty', 'purchase_order_item.price', 'purchase_order_item.amount', 'purchase_order.status', 'purchase_order.date')
+//                 ->leftJoin('purchase_order', 'purchase_order.id', '=', 'purchase_order_item.po_id')
+//                 ->where('purchase_order.status', 2)
+//                 ->where('purchase_order_item.wearhouse_id', $warehouseId)
+//                 ->whereYear('purchase_order.date', $year)
+//                 ->get();
+
+//             $purchaseQty = 0;
+//             $purchaseAmount = 0;
+//             foreach ($purchases as $purchase) {
+//                 $purchaseQty += $purchase->qty;
+//                 $purchaseAmount += $purchase->qty * $purchase->price;
+//             }
+
+//             // Calculate transfer in
+//             $transfersIn = Transfer::select('transfers.id', 'transfers.product_id', 'transfers.to_wearhouse_id', 'transfers.qty', 'transfers.unit_price as price', 'transfers.amount', 'transfers.status', 'transfers.date')
+//                 ->where('status', 'Approved')
+//                 ->where('to_wearhouse_id', $warehouseId)
+//                 ->whereYear('date', $year)
+//                 ->get();
+
+//             $transferInQty = 0;
+//             $transferInAmount = 0;
+//             foreach ($transfersIn as $transferIn) {
+//                 $transferInQty += $transferIn->qty;
+//                 $transferInAmount += $transferIn->qty * $transferIn->price;
+//             }
+//             // Calculate transfer Out
+//             $transfersOut = Transfer::select('transfers.id', 'transfers.product_id', 'transfers.from_wearhouse_id', 'transfers.qty', 'transfers.unit_price as price', 'transfers.amount', 'transfers.status', 'transfers.date')
+//                 ->where('status', 'Approved')
+//                 ->where('from_wearhouse_id', $warehouseId)
+//                 ->whereYear('date', $year)
+//                 ->get();
+
+//             $transferOutQty = 0;
+//             $transferOutAmount = 0;
+//             foreach ($transfersOut as $transferOut) {
+//                 $transferOutQty += $transferOut->qty;
+//                 $transferOutAmount += $transferOut->qty * $transferOut->price;
+//             }
+
+//             // Calculate sales
+//             $sales = Product::join('order_details', 'products.id', '=', 'order_details.product_id')
+//                 ->join('orders', 'orders.id', '=', 'order_details.order_id')
+//                 ->where('orders.warehouse', $warehouseId)
+//                 ->whereYear('orders.delivered_date', $year)
+//                 ->sum('order_details.price');
+
+//             $totals = [
+//                 'opening_stock' => $openingStockAmount,
+//                 'purchase' => $purchaseAmount,
+//                 'transfer_in' => $transferInAmount,
+//                 'sales' => $sales,
+//                 'transfer_out' => $transferOutAmount, 
+//                 'closing_stock' => 0, // You need to update this part with actual closing stock logic
+//                 'profit_loss' => 0 // This will be calculated below
+//             ];
+
+//             $totals['profit_loss'] = $totals['sales'] - ($totals['opening_stock'] + $totals['purchase'] + $totals['transfer_in'] - $totals['transfer_out'] - $totals['closing_stock']);
+
+//             $yearData[$year]['warehouses'][] = [
+//                 'name' => $warehouse->name,
+//                 'data' => $totals
+//             ];
+
+//             foreach ($totals as $key => $value) {
+//                 $yearData[$year]['totals'][$key] += $value;
+//             }
+//         }
+//     }
+
+//     return view('backend.reports.warehouse_stock_summery', compact('yearData', 'start_date', 'end_date', 'currentYear', 'startYear', 'warehouseIds'));
+// }
+public function warehouse_stock_summery(Request $request)
+{
+    $warehouseIds = $request->input('warehouse', []); 
+    $start_date = $request->input('start_date', date('Y-m-01', strtotime('-3 years')));
+    $end_date = $request->input('end_date', date('Y-m-t'));
+
+    $currentYear = Carbon::now()->year;
+    $startYear = $currentYear - 2;
+
+    $warehouses = Wearhouse::all();
+    if (!empty($warehouseIds)) {
+        $warehouses = $warehouses->whereIn('id', $warehouseIds);
+    }
+
+    $yearData = [];
+    foreach (range($currentYear, $startYear) as $year) {
+        $yearData[$year] = [
+            'warehouses' => [],
+            'totals' => [
+                'opening_stock' => 0,
+                'purchase' => 0,
+                'transfer_in' => 0,
+                'sales' => 0,
+                'transfer_out' => 0,
+                'closing_stock' => 0,
+                'profit_loss' => 0
+            ]
+        ];
+
+        foreach ($warehouses as $warehouse) {
+            $warehouseId = $warehouse->id;
+
+            // Calculate the opening stock
+            $openingStocks = OpeningStock::where('wearhouse_id', $warehouseId)
+                ->whereYear('created_at', $year)
+                ->get();
+
+            $openingStockQty = 0;
+            $openingStockAmount = 0;
+            foreach ($openingStocks as $openStock) {
+                $openingStockQty += $openStock->qty;
+                $openingStockAmount += $openStock->qty * $openStock->price;
+            }
+
+            // Calculate the purchases
+            $purchases = Purchase_order_item::select('purchase_order_item.id', 'purchase_order_item.po_id', 'purchase_order_item.product_id', 'purchase_order_item.wearhouse_id', 'purchase_order_item.qty', 'purchase_order_item.price', 'purchase_order_item.amount', 'purchase_order.status', 'purchase_order.date')
+                ->leftJoin('purchase_order', 'purchase_order.id', '=', 'purchase_order_item.po_id')
+                ->where('purchase_order.status', 2)
+                ->where('purchase_order_item.wearhouse_id', $warehouseId)
+                ->whereYear('purchase_order.date', $year)
+                ->get();
+
+            $purchaseQty = 0;
+            $purchaseAmount = 0;
+            foreach ($purchases as $purchase) {
+                $purchaseQty += $purchase->qty;
+                $purchaseAmount += $purchase->qty * $purchase->price;
+            }
+
+            // Calculate transfer in
+            $transfersIn = Transfer::select('transfers.id', 'transfers.product_id', 'transfers.to_wearhouse_id', 'transfers.qty', 'transfers.unit_price as price', 'transfers.amount', 'transfers.status', 'transfers.date')
+                ->where('status', 'Approved')
+                ->where('to_wearhouse_id', $warehouseId)
+                ->whereYear('date', $year)
+                ->get();
+
+            $transferInQty = 0;
+            $transferInAmount = 0;
+            foreach ($transfersIn as $transferIn) {
+                $transferInQty += $transferIn->qty;
+                $transferInAmount += $transferIn->qty * $transferIn->price;
+            }
+            // Calculate transfer Out
+            $transfersOut = Transfer::select('transfers.id', 'transfers.product_id', 'transfers.from_wearhouse_id', 'transfers.qty', 'transfers.unit_price as price', 'transfers.amount', 'transfers.status', 'transfers.date')
+                ->where('status', 'Approved')
+                ->where('from_wearhouse_id', $warehouseId)
+                ->whereYear('date', $year)
+                ->get();
+
+            $transferOutQty = 0;
+            $transferOutAmount = 0;
+            foreach ($transfersOut as $transferOut) {
+                $transferOutQty += $transferOut->qty;
+                $transferOutAmount += $transferOut->qty * $transferOut->price;
+            }
+
+            // Calculate sales
+            $sales = Product::join('order_details', 'products.id', '=', 'order_details.product_id')
+                ->join('orders', 'orders.id', '=', 'order_details.order_id')
+                ->where('orders.warehouse', $warehouseId)
+                ->whereYear('orders.delivered_date', $year)
+                ->sum('order_details.price');
+
+            // Calculate the closing stock
+            $closingStockItems = OpeningStock::where('wearhouse_id', $warehouseId)
+            ->whereYear('created_at', $year)
+            ->get();
+
+            // Merge with purchase items
+            $closingStockItems = $closingStockItems->merge($purchases);
+
+            // Merge with received items (transfer_in)
+            $closingStockItems = $closingStockItems->merge($transfersIn);
+
+            // Subtract items transferred out (transfer_out)
+            $closingStockItems = $closingStockItems->reject(function ($item) use ($transfersOut) {
+            return $transfersOut->contains('id', $item->id);
+            });
+
+            $closingStockQty = 0;
+            $closingStockAmount = 0;
+            foreach ($closingStockItems as $closingStockItem) {
+            $closingStockQty += $closingStockItem->qty;
+            $closingStockAmount += $closingStockItem->qty * $closingStockItem->price;
+            }
+
+            $totals = [
+            'opening_stock' => $openingStockAmount,
+            'purchase' => $purchaseAmount,
+            'transfer_in' => $transferInAmount,
+            'sales' => $sales,
+            'transfer_out' => $transferOutAmount, 
+            'closing_stock' => $closingStockAmount,
+            'profit_loss' => 0 // This will be calculated below
+            ];
+
+
+            $totals['profit_loss'] = $totals['sales'] - ($totals['opening_stock'] + $totals['purchase'] + $totals['transfer_in'] - $totals['transfer_out'] - $totals['closing_stock']);
+
+            $yearData[$year]['warehouses'][] = [
+                'name' => $warehouse->name,
+                'data' => $totals
+            ];
+
+            foreach ($totals as $key => $value) {
+                $yearData[$year]['totals'][$key] += $value;
+            }
+        }
+    }
+
+    return view('backend.reports.warehouse_stock_summery', compact('yearData', 'start_date', 'end_date', 'currentYear', 'startYear', 'warehouseIds'));
+}
+
+
+
+
+
+
+
 public function sales_report(Request $request)
 {
     $warehouseIds = $request->input('warehouse', []); 
@@ -3308,6 +3576,90 @@ public function sales_by_platform(Request $request)
 
     return view('backend.reports.transfer_list', compact('transfer', 'wearhouse', 'to_wearhouse','product_id', 'sort_by', 'start_date', 'end_date'));
 }
+
+public function product_transfer_summery(Request $request)
+{
+    $wearhouse = $request->warehouse;
+    $to_wearhouse = $request->to_warehouse;
+    $product_id = $request->product_id;
+    $start_date = date('Y-01-01');
+    $end_date = date('Y-12-t');
+
+    if (!empty($request->start_date)) {
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+    }
+
+    $transferQuery = Transfer::leftJoin('products', 'transfers.product_id', '=', 'products.id')
+        ->whereBetween('transfers.date', [$start_date, $end_date])
+        ->select(
+            'transfers.from_wearhouse_id',
+            'transfers.to_wearhouse_id',
+            DB::raw('SUM(transfers.qty) AS total_qty'),
+            DB::raw('SUM(transfers.qty * products.purchase_price) AS total_amount')
+        )
+        ->groupBy('transfers.from_wearhouse_id', 'transfers.to_wearhouse_id')
+        ->orderBy('transfers.date', 'asc');
+
+    if (!empty($wearhouse)) {
+        $transferQuery->where('transfers.from_wearhouse_id', $wearhouse);
+    }
+    if (!empty($to_wearhouse)) {
+        $transferQuery->where('transfers.to_wearhouse_id', $to_wearhouse);
+    }
+    if (!empty($product_id)) {
+        $transferQuery->where('transfers.product_id', $product_id);
+    }
+
+    $transfers = $transferQuery->get();
+
+    $totalQty = $transfers->sum('total_qty');
+    $totalAmount = $transfers->sum('total_amount');
+
+    return view('backend.reports.product_transfer_summery', compact('transfers', 'wearhouse', 'to_wearhouse', 'product_id', 'start_date', 'end_date', 'totalQty', 'totalAmount'));
+}
+public function transfer_list_details(Request $request)
+{
+    $from_warehouse_id = $request->from_warehouse_id;
+    $to_warehouse_id = $request->to_warehouse_id;
+    $product_id = $request->product_id;
+    $sort_by = null;
+    $start_date = date('Y-m-01');
+    $end_date = date('Y-m-t');
+
+    if (!empty($request->start_date)) {
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+    }
+
+    $transfer = Transfer::leftJoin('products', 'transfers.product_id', '=', 'products.id')
+        ->whereBetween('transfers.date', [$start_date, $end_date])
+        ->select(
+            'transfers.*',
+            DB::raw('SUM(transfers.qty) AS total_qty'),
+            DB::raw('SUM(transfers.qty * transfers.unit_price) AS total_amount')
+        )
+        ->orderBy('transfers.date', 'asc');
+
+    if (!empty($from_warehouse_id)) {
+        $transfer = $transfer->where('transfers.from_wearhouse_id', $from_warehouse_id);
+    }
+    if (!empty($to_warehouse_id)) {
+        $transfer = $transfer->where('transfers.to_wearhouse_id', $to_warehouse_id);
+    }
+    if (!empty($product_id)) {
+        $transfer = $transfer->where('transfers.product_id', $product_id);
+    }
+
+    $transfer = $transfer->get();
+    $totalQty = $transfer->sum('total_qty');
+    $totalAmount = $transfer->sum('total_amount');
+
+    return view('backend.reports.transfer_list_details', compact('transfer', 'from_warehouse_id', 'to_warehouse_id','product_id', 'sort_by', 'start_date', 'end_date', 'totalQty', 'totalAmount'));
+}
+
+
+
 
 
     public function damage_report(Request $request)
