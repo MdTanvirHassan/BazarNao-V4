@@ -25,3 +25,5 @@ composer.lock
 /public/upload
 # /public/uploads
 /storage/debugbar
+/storage/framework/views
+/storage/framework/sessions

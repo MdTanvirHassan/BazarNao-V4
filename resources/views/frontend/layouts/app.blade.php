@@ -73,7 +73,7 @@
         :root{
             --primary: {{ get_setting('base_color', '#e62d04') }};
             --hov-primary: {{ get_setting('base_hov_color', '#c52907') }};
-            --soft-primary: {{ hex2rgba(get_setting('base_color','#e62d04'),.15) }};
+            
         }
         .sidenav {
   height: 100%; /* Full-height: remove this if you want "auto" height */

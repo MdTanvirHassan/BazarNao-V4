@@ -17517,38 +17517,6 @@ namespace Maatwebsite\Excel\Facades {
             }
     }
 
-namespace MehediIitdu\CoreComponentRepository {
-            /**
-     * 
-     *
-     * @see \MehediIitdu\CoreComponentRepository\Skeleton\SkeletonClass
-     */        class CoreComponentRepositoryFacade {
-                    /**
-         * 
-         *
-         * @static 
-         */        public static function instantiateShopRepository()
-        {
-                        return \MehediIitdu\CoreComponentRepository\CoreComponentRepository::instantiateShopRepository();
-        }
-                    /**
-         * 
-         *
-         * @static 
-         */        public static function initializeCache()
-        {
-                        return \MehediIitdu\CoreComponentRepository\CoreComponentRepository::initializeCache();
-        }
-                    /**
-         * 
-         *
-         * @static 
-         */        public static function finalizeCache($addon)
-        {
-                        return \MehediIitdu\CoreComponentRepository\CoreComponentRepository::finalizeCache($addon);
-        }
-            }
-    }
 
 namespace SimpleSoftwareIO\QrCode\Facades {
             /**
@@ -22125,7 +22093,6 @@ namespace  {
             class Flash extends \Laracasts\Flash\Flash {}
             class Socialite extends \Laravel\Socialite\Facades\Socialite {}
             class Excel extends \Maatwebsite\Excel\Facades\Excel {}
-            class CoreComponentRepository extends \MehediIitdu\CoreComponentRepository\CoreComponentRepositoryFacade {}
             class QrCode extends \SimpleSoftwareIO\QrCode\Facades\QrCode {}
             class Flare extends \Spatie\LaravelIgnition\Facades\Flare {}
             class Paystack extends \Unicodeveloper\Paystack\Facades\Paystack {}

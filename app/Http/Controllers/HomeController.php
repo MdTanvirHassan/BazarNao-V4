@@ -2451,6 +2451,7 @@ class HomeController extends Controller
 
         $purchase = Purchase_order::findOrFail($id);
         $purchase->status = 2;
+        $purchase->approved_date = now();
 
         if ($purchase->save()) {
             $supplier_ledger = new Supplier_ledger();
@@ -2510,7 +2511,7 @@ class HomeController extends Controller
             $damages = $damages->whereBetween('date', [$start_date, $end_date]);
         }
 
-        $damages = $damages->paginate(15);
+        $damages = $damages->get();
 
         return view('backend.staff_panel.purchase_manager.damage_list', compact('damages', 'start_date', 'end_date'));
     }

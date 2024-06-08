@@ -4,11 +4,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Session;
 use Auth;
-use App\Order;
+use App\Models\Order;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\WalletController;
-use App\CustomerPackage;
-use App\SellerPackage;
+use App\Models\CustomerPackage;
+use App\Models\SellerPackage;
 //session_start();
 
 class PublicSslCommerzPaymentController extends Controller

@@ -32,7 +32,7 @@
 
             <div class="col-md-3">
                 <div class="form-group mb-0">
-                    <label>Order Code:</label>
+                    <label>Order Code :</label>
                     <input type="text" class="form-control" id="search" name="search" <?php if(isset($sort_search)): ?> value="<?php echo e($sort_search); ?>" <?php endif; ?> placeholder="<?php echo e(translate('Type Order code & hit Enter')); ?>">
                 </div>
             </div>

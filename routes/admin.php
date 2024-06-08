@@ -93,6 +93,16 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'admin']], function(
     Route::post('/products.outofstock', [ProductController::class, 'updateOutOfStock'])->name('products.outofstock');
     Route::post('/products/get_products_by_subcategory', [ProductController::class, 'get_products_by_subcategory'])->name('products.get_products_by_subcategory');
     
+    //Group Product
+    Route::get('/group-products/create', [ProductController::class, 'group_product_create'])->name('group_products.create');
+    Route::post('/group-products/list', [ProductController::class, 'group_products_list'])->name('group_products.list');
+    Route::post('/group-products/store', [ProductController::class, 'group_products_store'])->name('group_products.store');
+    Route::get('/group-products/destroy/{id}', [ProductController::class, 'group_products_destroy'])->name('group_products.destroy');
+    Route::get('/group-products/admin/{id}/edit', [ProductController::class, 'admin_group_products_edit'])->name('group_products.admin.edit');
+    Route::post('/group-products/group_product_edit', [ProductController::class, 'group_product_edit'])->name('group_products.edit_list');
+    Route::post('/group-products/update/{id}', [ProductController::class, 'group_products_update'])->name('group_products.update');
+
+
     Route::resource('customers', CustomerController::class);
     Route::get('customers_ban/{customer}', [CustomerController::class, 'ban'])->name('customers.ban');
     Route::get('/customers/login/{id}', [CustomerController::class, 'login'])->name('customers.login');
@@ -269,6 +279,11 @@ Route::post('/get_puracher_product', [OrderController::class, 'get_puracher_prod
     Route::get('/sales_report/sales_by_platform', [ReportController::class, 'sales_by_platform'])->name('sales_by_platform.index');
     Route::any('/report/product_transfer_summery', [ReportController::class, 'product_transfer_summery'])->name('product_transfer_summery.index');
     Route::any('/report/transfer_list_details', [ReportController::class, 'transfer_list_details'])->name('transfer_list_details.index');
+    Route::any('/report/compared_report/single_employee_sales_performance', [ReportController::class, 'single_employee_sales_performance'])->name('single_employee_sales_performance.index');
+    Route::any('/report/compared_report/employee_sales_performance', [ReportController::class, 'employee_sales_performance_compare'])->name('employee_sales_performance_compare.index');
+    Route::any('/report/compared_report/employee_sales_performance_compare_per_year', [ReportController::class, 'employee_sales_performance_compare_per_year'])->name('employee_sales_performance_compare_per_year.index');
+    Route::get('/report/detailed_sales_report', [ReportController::class, 'detailed_sales_report'])->name('detailed_sales_report.index');
+
 
     
     Route::any('/sale_profit_report', [ReportController::class, 'sale_profit_report'])->name('sale_profit_report.index');

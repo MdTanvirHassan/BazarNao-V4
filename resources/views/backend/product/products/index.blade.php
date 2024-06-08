@@ -8,11 +8,21 @@
 			<h1 class="h3">{{translate('All products')}}</h1>
 		</div>
         @if($type != 'Seller')
-    		<div class="col text-right">
-    			<a href="{{ route('products.create') }}" class="btn btn-circle btn-info">
-    				<span>{{translate('Add New Product')}}</span>
-    			</a>
-    		</div>
+        <div class="container">
+            <div class="row justify-content-end">
+                <div class="col-md-auto">
+                    <a href="{{ route('products.create') }}" class="btn btn-sm btn-rectangle btn-info">
+                        <span>{{ translate('Add New Product') }}</span>
+                    </a>
+                </div>
+                <div class="col-md-auto">
+                    <a href="{{ route('group_products.create') }}" class="btn btn-sm btn-rectangle btn-info">
+                        <span>{{ translate('Add New Group Product') }}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
         @endif
 	</div>
 </div>
@@ -191,18 +201,31 @@
     	                      <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('products.seller.edit', ['id'=>$product->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}" title="{{ translate('Edit') }}">
     	                          <i class="las la-edit"></i>
     	                      </a>
+                              
 							@else
-								<a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('products.admin.edit', ['id'=>$product->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}" title="{{ translate('Edit') }}">
+                                @if($product->is_group_product)
+								<a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('group_products.admin.edit', ['id'=>$product->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}" title="{{ translate('Group Product Edit') }}">
 								   <i class="las la-edit"></i>
 							   </a>
+                               @else
+                               <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('products.admin.edit', ['id'=>$product->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}" title="{{ translate('Edit') }}">
+								   <i class="las la-edit"></i>
+							   </a>
+                               @endif
 							@endif
 							<!-- <a class="btn btn-soft-success btn-icon btn-circle btn-sm" href="{{route('products.duplicate', ['id'=>$product->id, 'type'=>$type]  )}}" title="{{ translate('Duplicate') }}">
 							   <i class="las la-copy"></i>
 						   </a> -->
                            @if(auth()->user()->user_type == 'admin')
-                           <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('products.destroy', $product->id)}}" title="{{ translate('Delete') }}">
-                              <i class="las la-trash"></i>
-                           </a>
+                                @if($product->is_group_product)
+                                <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('group_products.destroy', $product->id)}}" title="{{ translate('Group Product Delete') }}">
+                                    <i class="las la-trash"></i>
+                                </a>
+                                @else
+                                <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('products.destroy', $product->id)}}" title="{{ translate('Delete') }}">
+                                    <i class="las la-trash"></i>
+                                </a>
+                                @endif
                            @endif
                       </td>
                   	</tr>

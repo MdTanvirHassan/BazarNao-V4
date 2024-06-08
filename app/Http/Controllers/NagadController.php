@@ -7,6 +7,8 @@ use App\Utility\NagadUtility;
 use App\Models\Order;
 use App\Models\CustomerPackage;
 use App\Models\SellerPackage;
+use App\Models\Seller;
+use App\Models\BusinessSetting;
 use DB; //added by alauddin
 use Session;
 
@@ -50,7 +52,6 @@ class NagadController{
         $payment_from = Session::get('payment_from'); //added by alauddin
         $ledger_sql="select sum(credit) as total_credit from customer_ledger where type='Payment' and order_id=".Session::get('order_id'); //added by alauddin
         $ledger_info=DB::select($ledger_sql); //added by alauddin
-
 
 
         if(Session::has('payment_type')){
@@ -109,8 +110,8 @@ class NagadController{
         $ur = $this->nagadHost."api/dfs/check-out/initialize/" . $MerchantID . "/" . $invoice_no;
 		
         $Result_Data = NagadUtility::HttpPostMethod($ur,$PostData);
-
         if (isset($Result_Data['sensitiveData']) && isset($Result_Data['signature'])) {
+
             if ($Result_Data['sensitiveData'] != "" && $Result_Data['signature'] != "") {
 
                 $PlainResponse = json_decode(NagadUtility::DecryptDataWithPrivateKey($Result_Data['sensitiveData']), true);
@@ -197,8 +198,14 @@ class NagadController{
                 $walletController = new WalletController;
                 return $walletController->wallet_payment_done(Session::get('payment_data'), $json);
             }
-           
-           
+            if ($payment_type == 'customer_package_payment') {
+                $customer_package_controller = new CustomerPackageController;
+                return $customer_package_controller->purchase_payment_done(Session::get('payment_data'), $json);
+            }
+            if($payment_type == 'seller_package_payment') {
+                $seller_package_controller = new SellerPackageController;
+                return $seller_package_controller->purchase_payment_done(Session::get('payment_data'), $json);
+            }
         }
         flash('Payment Failed')->error();
         return redirect()->route('home');

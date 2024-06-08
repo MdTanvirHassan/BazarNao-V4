@@ -190,6 +190,7 @@ Route::post('bkash/api/process', [BkashController::class, 'process'])->name('api
 //nagad
 Route::get('nagad/begin', [NagadController::class, 'begin'])->middleware('auth:sanctum');
 Route::any('nagad/verify/{payment_type}', [NagadController::class, 'verify'])->name('app.nagad.callback_url');
+
 Route::post('nagad/process', [NagadController::class, 'process']);
 
 //ssl
@@ -220,9 +221,8 @@ Route::get('customer_review', [CustomerController::class, 'customer_review'])->n
 Route::get('ticketList/{id}', [SupportTicketController::class, 'index'])->middleware('auth:sanctum');
 Route::get('support_ticket/{id}/show', [SupportTicketController::class, 'admin_show'])->middleware('auth:sanctum');
 Route::post('support_ticket/reply', [SupportTicketController::class, 'admin_store'])->middleware('auth:sanctum');
-Route::get('cities-by-state/{state_id}', [AddressController::class, 'getCitiesByState'])->middleware('auth:sanctum');
+Route::get('cities-by-state/{state_id}', [AddressController::class, 'getCitiesByState']);
 Route::get('cart-count/{id}', [CartController::class, 'count'])->middleware('auth:sanctum');
-
 });
 
 Route::fallback(function() {

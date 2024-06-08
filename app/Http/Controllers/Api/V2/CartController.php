@@ -105,7 +105,7 @@ class CartController extends Controller
                             $shop_items_data_item["quantity"] = $shop_items_raw_data_item["quantity"];
                             $shop_items_data_item["total_amount"] = ($shop_items_raw_data_item["price"]) * $shop_items_raw_data_item["quantity"];
                             $shop_items_data_item["lower_limit"] = 1;
-                            $shop_items_data_item["upper_limit"] = 200;
+                            $shop_items_data_item["upper_limit"] = $product->max_qty;
 
                             $shop_items_data[] = $shop_items_data_item;
 

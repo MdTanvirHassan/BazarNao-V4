@@ -4,20 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Group_product;
 use AizPackages\CombinationGenerate\Services\CombinationService;
-
 use App\Models\ProductTranslation;
 use App\Models\ProductStock;
 use App\Models\Category;
-use App\Models\Language;
 use App\Models\Wearhouse;
 use Auth;
-use App\Models\SubSubCategory;
-use Session;
-use ImageOptimizer;
-use Combinations;
-use CoreComponentRepository;
-use DB;
+
 use Illuminate\Support\Str;
 use Artisan;
 
@@ -30,8 +24,7 @@ class ProductController extends Controller
      */
     public function admin_products(Request $request)
     {
-        //CoreComponentRepository::instantiateShopRepository();
-
+    
         $type = 'In House';
         $col_name = null;
         $query = null;
@@ -198,6 +191,240 @@ class ProductController extends Controller
         }
     }
 
+    public function group_product_create()
+    {
+        $categories = Category::where('parent_id', 0)
+            ->with('childrenCategories')
+            ->get();
+        $wearhouses = Wearhouse::get();
+        return view('backend.product.products.group_product_create', compact('categories','wearhouses'));
+    }
+
+    public function group_products_list(Request $request){
+        $product_ids = $request->product_ids;
+        return view('backend.product.products.group_product_info', compact('product_ids'));
+    }
+
+    public function group_products_store(Request $request)
+    {
+        $refund_request_addon = \App\Models\Addon::where('unique_identifier', 'refund_request')->first();
+        $category = Category::where('name', 'Group Product')->value('id');
+        $price = 0;
+        $purchase_price = 0;
+        foreach ($request->products as $key => $id) 
+        {
+            $price += $request->price[$id];
+            $purchasePrice = Product::where('id',$id)->value('purchase_price');
+            $purchase_price += $purchasePrice;
+        }
+
+        $product = new Product;
+        $product->name = $request->name;
+        $product->user_id = Auth::user()->id;
+        $product->category_id = $category;
+        $product->unit_price = $price;
+        $product->app_unit_price = $price;
+        $product->purchase_price = $purchase_price;
+        $product->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)) . '-' . Str::random(5);
+        $product->thumbnail_img = $request->thumbnail_img;
+        $product->photos = $request->photos;
+        if ($refund_request_addon != null && $refund_request_addon->activated == 1) {
+            if ($request->refundable != null) {
+                $product->refundable = 1;
+            } else {
+                $product->refundable = 0;
+            }
+        }
+        $product->min_qty = $request->min_qty;
+        $product->max_qty = $request->max_qty;
+        $product->is_group_product = 1;
+        $product->save();  
+
+        foreach ($request->products as $key => $id) 
+        {
+            $group_product = new Group_product;
+            $group_product->group_product_id = $product->id;
+            $group_product->product_id = $id;
+            $group_product->qty = $request->quantity[$id]; 
+            $group_product->price = $request->price[$id]; 
+            $group_product->min_qty = $request->min_qty;
+            $group_product->max_qty = $request->max_qty;
+            if ($refund_request_addon != null && $refund_request_addon->activated == 1) {
+                if ($request->refundable != null) {
+                    $group_product->refundable = 1;
+                } else {
+                    $group_product->refundable = 0;
+                }
+            }
+            $group_product->photos = $request->photos;
+            $group_product->thumbnail_img = $request->thumbnail_img;
+            $group_product->save();
+        }
+    
+        flash(translate('Product has been inserted successfully'))->success();
+    
+        Artisan::call('view:clear');
+        Artisan::call('cache:clear');
+        if (Auth::user()->user_type != 'admin' && Auth::user()->user_type == 'staff') {
+            if (auth()->user()->staff->role->name == 'Customer Service Executive') {
+                return redirect()->route('staff_product');
+            }
+        }
+    
+        if (Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff') {
+            return redirect()->route('products.all');
+        } else {
+            if (\App\Models\Addon::where('unique_identifier', 'seller_subscription')->first() != null && \App\Models\Addon::where('unique_identifier', 'seller_subscription')->first()->activated) {
+                $seller = Auth::user()->seller;
+                $seller->remaining_uploads -= 1;
+                $seller->save();
+            }
+            return redirect()->route('seller.products');
+        }
+    }
+
+    public function group_products_destroy($id)
+    {
+        $product = Product::findOrFail($id);
+
+        foreach ($product->product_translations as $product_translation) {
+            $product_translation->delete();
+        }
+
+        $group_products = Group_product::where('group_product_id', $id)->get();
+        foreach ($group_products as $group_product) {
+            $group_product->delete();
+        }
+
+        if (Product::destroy($id)) {
+            flash(translate('Product has been deleted successfully'))->success();
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+
+            if (Auth::user()->user_type == 'admin') {
+                return redirect()->route('products.admin');
+            } else {
+                return redirect()->route('seller.products');
+            }
+        } else {
+            flash(translate('Something went wrong'))->error();
+            return back();
+        }
+    }
+    
+    public function admin_group_products_edit(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+        $lang = $request->lang;
+        $group_product= Group_product::where('group_product_id', $id)->get();
+        return view('backend.product.products.group_product_edit', compact('product', 'group_product', 'lang'));
+    }
+
+    public function group_product_edit(Request $request){
+        $product_ids = $request->product_ids;
+        $group_product_id = $request->group_product_id;
+
+        return view('backend.product.products.group_product_edit_info', compact('product_ids', 'group_product_id'));
+    }
+
+    public function group_products_update(Request $request){
+        $refund_request_addon = \App\Models\Addon::where('unique_identifier', 'refund_request')->first();
+        $category = Category::where('name', 'Group Product')->value('id');
+        $price = 0;
+        $purchase_price = 0;
+        foreach ($request->products as $key => $id) 
+        {
+            $price += $request->price[$id];
+            $purchasePrice = Product::where('id',$id)->value('purchase_price');
+            $purchase_price += $purchasePrice;
+        }
+
+        $product = Product::where('id',$request->id)->first();
+        $product->name = $request->name;
+        $product->user_id = Auth::user()->id;
+        $product->category_id = $category;
+        $product->unit_price = $price;
+        $product->app_unit_price = $price;
+        $product->purchase_price = $purchase_price;
+        $product->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)) . '-' . Str::random(5);
+        $product->thumbnail_img = $request->thumbnail_img;
+        $product->photos = $request->photos;
+        if ($refund_request_addon != null && $refund_request_addon->activated == 1) {
+            if ($request->refundable != null) {
+                $product->refundable = 1;
+            } else {
+                $product->refundable = 0;
+            }
+        }
+        $product->min_qty = $request->min_qty;
+        $product->max_qty = $request->max_qty;
+        $product->is_group_product = 1;
+        $product->save();  
+
+        foreach ($request->products as $key => $id) 
+        {
+            $group_product = Group_product::where('product_id',$id)->where('group_product_id',$product->id)->first();
+            if($group_product){
+                $group_product->group_product_id = $product->id;
+                $group_product->product_id = $id;
+                $group_product->qty = $request->quantity[$id]; 
+                $group_product->price = $request->price[$id]; 
+                $group_product->min_qty = $request->min_qty;
+                $group_product->max_qty = $request->max_qty;
+                if ($refund_request_addon != null && $refund_request_addon->activated == 1) {
+                    if ($request->refundable != null) {
+                        $group_product->refundable = 1;
+                    } else {
+                        $group_product->refundable = 0;
+                    }
+                }
+                $group_product->photos = $request->photos;
+                $group_product->thumbnail_img = $request->thumbnail_img;
+                $group_product->save();
+            }else{
+                $group_product = new Group_product;
+                $group_product->group_product_id = $product->id;
+                $group_product->product_id = $id;
+                $group_product->qty = $request->quantity[$id]; 
+                $group_product->price = $request->price[$id]; 
+                $group_product->min_qty = $request->min_qty;
+                $group_product->max_qty = $request->max_qty;
+                if ($refund_request_addon != null && $refund_request_addon->activated == 1) {
+                    if ($request->refundable != null) {
+                        $group_product->refundable = 1;
+                    } else {
+                        $group_product->refundable = 0;
+                    }
+                }
+                $group_product->photos = $request->photos;
+                $group_product->thumbnail_img = $request->thumbnail_img;
+                $group_product->save();
+            }
+            
+        }
+    
+        flash(translate('Product has been updated successfully'))->success();
+    
+        Artisan::call('view:clear');
+        Artisan::call('cache:clear');
+        if (Auth::user()->user_type != 'admin' && Auth::user()->user_type == 'staff') {
+            if (auth()->user()->staff->role->name == 'Customer Service Executive') {
+                return redirect()->route('staff_product');
+            }
+        }
+    
+        if (Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff') {
+            return redirect()->route('products.all');
+        } else {
+            if (\App\Models\Addon::where('unique_identifier', 'seller_subscription')->first() != null && \App\Models\Addon::where('unique_identifier', 'seller_subscription')->first()->activated) {
+                $seller = Auth::user()->seller;
+                $seller->remaining_uploads -= 1;
+                $seller->save();
+            }
+            return redirect()->route('seller.products');
+        }
+    }
+
     public function create()
     {
         $categories = Category::where('parent_id', 0)
@@ -213,6 +440,7 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
     public function store(Request $request)
     {
 
@@ -791,6 +1019,7 @@ class ProductController extends Controller
             return back();
         }
     }
+
 
     /**
      * Duplicates the specified resource from storage.

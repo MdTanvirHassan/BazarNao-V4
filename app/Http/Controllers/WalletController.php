@@ -32,34 +32,7 @@ class WalletController extends Controller
        if ($request->payment_option == 'sslcommerz') {
             $sslcommerz = new PublicSslCommerzPaymentController;
             return $sslcommerz->index($request);
-        } elseif ($request->payment_option == 'instamojo') {
-            $instamojo = new InstamojoController;
-            return $instamojo->pay($request);
-        } elseif ($request->payment_option == 'razorpay') {
-            $razorpay = new RazorpayController;
-            return $razorpay->payWithRazorpay($request);
-        }if ($request->payment_option == 'voguepay') {
-            $voguepay = new VoguePayController;
-            return $voguepay->customer_showForm();
-        } elseif ($request->payment_option == 'payhere') {
-            $order_id = rand(100000, 999999);
-            $user_id = Auth::user()->id;
-            $amount = $request->amount;
-            $first_name = Auth::user()->name;
-            $last_name = 'X';
-            $phone = '123456789';
-            $email = Auth::user()->email;
-            $address = 'dummy address';
-            $city = 'Colombo';
-
-            return PayhereUtility::create_wallet_form($user_id, $order_id, $amount, $first_name, $last_name, $phone, $email, $address, $city);
-        }elseif ($request->payment_option == 'ngenius') {
-            $ngenius = new NgeniusController();
-            return $ngenius->pay();
-        } else if ($request->payment_option == 'iyzico') {
-            $iyzico = new IyzicoController();
-            return $iyzico->pay();
-        } else if ($request->payment_option == 'nagad') {
+        }else if ($request->payment_option == 'nagad') {
             $nagad = new NagadController;
             return $nagad->getSession();
         } else if ($request->payment_option == 'bkash') {

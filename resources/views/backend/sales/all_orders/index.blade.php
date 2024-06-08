@@ -177,9 +177,7 @@
                             <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{ route('invoice.download', $order->id) }}" title="{{ translate('Download Invoice') }}">
                                 <i class="las la-download"></i>
                             </a>
-                            <!-- <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('orders.destroy', $order->id)}}" title="{{ translate('Delete') }}">
-                                <i class="las la-trash"></i>
-                            </a> -->
+                          
                         </td>
                         @else
                         <td class="text-right">
@@ -197,6 +195,9 @@
                             @if($status == 'confirmed' && ($order->order_from == 'Web' || $order->order_from == 'App') )
                          <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('scan-online-order')}}" title="{{ translate('Scan') }}">
                                 <i class="las la-barcode"></i>
+                            </a>
+                            <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('orders.destroy', $order->id)}}" title="{{ translate('Delete') }}">
+                                <i class="las la-trash"></i>
                             </a>
                          @endif
                         </td>

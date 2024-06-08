@@ -19,7 +19,7 @@ class TransferController extends Controller
     public function index()
     {
         
-        $transfer = Transfer::paginate(15);
+        $transfer = Transfer::orderBy('date', 'desc')->paginate(15);
         return view('backend.transfer.index', compact('transfer'));
     }
 
@@ -51,8 +51,8 @@ class TransferController extends Controller
         $transfer->qty = $request->qty;
         $transfer->stock_qty = $request->stock_qty;
     
-    	$transfer->unit_price = $request->unit_price; //added by alauddin
-        $transfer->amount = round($request->unit_price*$request->qty,2); //added by alauddin
+    	$transfer->unit_price = $request->unit_price; 
+        $transfer->amount = round($request->unit_price*$request->qty,2); 
 
         $transfer->date = $request->date;
         $transfer->product_id = $request->product_id;
@@ -97,8 +97,8 @@ class TransferController extends Controller
         $transfer->qty = $request->qty;
         $transfer->stock_qty = $request->stock_qty;
     
-    	$transfer->unit_price = $request->unit_price; //added by alauddin
-        $transfer->amount = round($request->unit_price*$request->qty,2); //added by alauddin
+    	$transfer->unit_price = $request->unit_price; 
+        $transfer->amount = round($request->unit_price*$request->qty,2); 
     
         $transfer->date = $request->date;
         $transfer->product_id = $request->product_id;
@@ -120,6 +120,7 @@ class TransferController extends Controller
         return back();
         }else{
             $transfer->status = 'Approved';
+            $transfer->approved_date = now();
             $transfer->save();
             $ps = ProductStock::where(['product_id'=>$transfer->product_id,'wearhouse_id'=>$transfer->to_wearhouse_id])->first();
             if($ps){

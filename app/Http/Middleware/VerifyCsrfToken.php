@@ -21,10 +21,6 @@ class VerifyCsrfToken extends Middleware
      protected $except = [
          '/sslcommerz*',
          '/config_content',
-         '/paytm*',
-         '/payhere*',
-         '/stripe*',
-         '/iyzico*',
          '/payfast*',
          '/bkash*'
      ];

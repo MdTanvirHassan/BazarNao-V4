@@ -134,59 +134,15 @@ class PurchaseHistoryController extends Controller
                 $customer_id = $order->user_id;
 
 
-
-
-
-
-
-
                if ($request->payment_option == 'sslcommerz') {
                     $sslcommerz = new PublicSslCommerzPaymentController;
                     return $sslcommerz->index($request);
-                } elseif ($request->payment_option == 'instamojo') {
-                    $instamojo = new InstamojoController;
-                    return $instamojo->pay($request);
-                } elseif ($request->payment_option == 'razorpay') {
-                    $razorpay = new RazorpayController;
-                    return $razorpay->payWithRazorpay($request);
-                }elseif ($request->payment_option == 'voguepay') {
-                    $voguePay = new VoguePayController;
-                    return $voguePay->customer_showForm();
-                } elseif ($request->payment_option == 'payhere') {
-                    $order = Order::findOrFail($request->session()->get('order_id'));
-
-                    $order_id = $order->id;
-                    $amount = $order->grand_total;
-                    $first_name = json_decode($order->shipping_address)->name;
-                    $last_name = 'X';
-                    $phone = json_decode($order->shipping_address)->phone;
-                    $email = json_decode($order->shipping_address)->email;
-                    $address = json_decode($order->shipping_address)->address;
-                    $city = json_decode($order->shipping_address)->city;
-
-                    return PayhereUtility::create_checkout_form($order_id, $amount, $first_name, $last_name, $phone, $email, $address, $city);
-                } elseif ($request->payment_option == 'payfast') {
-                    $order = Order::findOrFail($request->session()->get('order_id'));
-
-                    $order_id = $order->id;
-                    $amount = $order->grand_total;
-
-                    return PayfastUtility::create_checkout_form($order_id, $amount);
-                } else if ($request->payment_option == 'ngenius') {
-                    $ngenius = new NgeniusController();
-                    return $ngenius->pay();
-                } else if ($request->payment_option == 'iyzico') {
-                    $iyzico = new IyzicoController();
-                    return $iyzico->pay();
                 } else if ($request->payment_option == 'nagad') {
                     $nagad = new NagadController;
                     return $nagad->getSession();
                 } else if ($request->payment_option == 'bkash') {
                     $bkash = new BkashController;
                     return $bkash->pay();
-                } else if ($request->payment_option == 'flutterwave') {
-                    $flutterwave = new FlutterwaveController();
-                    return $flutterwave->pay();
                 }elseif ($request->payment_option == 'cash_on_delivery') {
                     $request->session()->put('cart', Session::get('cart')->where('owner_id', '!=', Session::get('owner_id')));
                     $request->session()->forget('owner_id');

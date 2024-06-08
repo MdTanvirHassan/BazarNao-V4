@@ -38,6 +38,20 @@
                             <a class="aiz-side-nav-link" href="#">
                                 <span class="aiz-side-nav-text">Chart of Account</span>
                             </a>
+
+                            <ul class="aiz-side-nav-sublist">
+                                <li class="aiz-side-nav-item">
+                                    <a href="<?php echo e(route('chart_of_accounts.create')); ?>" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Create</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="<?php echo e(route('chart_of_accounts.index')); ?>" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">List</span>
+                                    </a>
+                                </li>
+                                
+                            </ul>
                         </li>
                         <li class="aiz-side-nav-item">
                             <a href="#" class="aiz-side-nav-link">
@@ -579,6 +593,27 @@
                             <li class="aiz-side-nav-item mx-2">
                                 <a href="<?php echo e(route('sales_by_platform.index')); ?>" class="aiz-side-nav-link <?php echo e(areActiveRoutes(['sales_by_platform.index'])); ?>">
                                     <span class="aiz-side-nav-text"><?php echo e(translate('Sales By Platform Report')); ?></span>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                        <?php if(Auth::user()->user_type == 'admin' || in_array('26', json_decode(Auth::user()->staff->role->permissions))): ?>
+                            <li class="aiz-side-nav-item mx-2">
+                                <a href="<?php echo e(route('single_employee_sales_performance.index')); ?>" class="aiz-side-nav-link <?php echo e(areActiveRoutes(['single_employee_sales_performance.index'])); ?>">
+                                    <span class="aiz-side-nav-text"><?php echo e(translate('Single Employee Sales Performance')); ?></span>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                        <?php if(Auth::user()->user_type == 'admin' || in_array('26', json_decode(Auth::user()->staff->role->permissions))): ?>
+                            <li class="aiz-side-nav-item mx-2">
+                                <a href="<?php echo e(route('employee_sales_performance_compare.index')); ?>" class="aiz-side-nav-link <?php echo e(areActiveRoutes(['employee_sales_performance_compare.index'])); ?>">
+                                    <span class="aiz-side-nav-text"><?php echo e(translate('Employee Sales Performance Compare')); ?></span>
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                        <?php if(Auth::user()->user_type == 'admin' || in_array('26', json_decode(Auth::user()->staff->role->permissions))): ?>
+                            <li class="aiz-side-nav-item mx-2">
+                                <a href="<?php echo e(route('detailed_sales_report.index')); ?>" class="aiz-side-nav-link <?php echo e(areActiveRoutes(['detailed_sales_report.index'])); ?>">
+                                    <span class="aiz-side-nav-text"><?php echo e(translate('Detailed Sales Report')); ?></span>
                                 </a>
                             </li>
                         <?php endif; ?>

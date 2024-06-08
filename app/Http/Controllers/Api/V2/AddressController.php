@@ -90,8 +90,6 @@ class AddressController extends Controller
             'result' => true,
             'message' => 'Address is saved'
         ]);
-
-
     }
 
     public function getCities()
@@ -106,7 +104,7 @@ class AddressController extends Controller
 
     public function getCitiesByState($state_id,Request $request)
     {
-        $cities = City::where('status', 1)->get();
+        $cities = City::get();
         return new CitiesCollection($cities);
     }
 }

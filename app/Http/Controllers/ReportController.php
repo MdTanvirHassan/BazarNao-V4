@@ -177,64 +177,10 @@ class ReportController extends Controller
             $child_sales_qty = 0;
             $child_sales_amount = 0;
 
-
             $damage_qty = 0;
             $damage_amount = 0;
 
-            // if(!empty($sort_by)){
-            //     $o_p_sql="select sum(poi.qty) as total_purchase_qty,sum(poi.amount) as total_purchase_amount from purchase_order_item poi left join purchase_order po on poi.po_id=po.id where po.date<'$from_date' and po.wearhouse_id=$sort_by and poi.product_id=".$value['id'];
-            // }else{
-            //     $o_p_sql="select sum(poi.qty) as total_purchase_qty,sum(poi.amount) as total_purchase_amount from purchase_order_item poi left join purchase_order po on poi.po_id=po.id where po.date<'$from_date' and poi.product_id=".$value['id'];
-            // }
-            // $o_purchase_info=DB::select($o_p_sql);
-
-            // if(!empty($o_purchase_info)){
-            //     $o_purchase_qty=$o_purchase_info[0]->total_purchase_qty;
-            //     $o_purchase_amount=$o_purchase_info[0]->total_purchase_amount;
-            // }else{
-            //     $o_purchase_qty=0;
-            //     $o_purchase_amount=0;
-            // }
-
-
-            // if(!empty($sort_by)){
-            //     $o_s_sql="select sum(od.quantity) as total_sale_qty,sum(od.price) as total_sale_amount from order_details od left join orders o on od.order_id=o.id where o.date<$from_string_time and o.warehouse=$sort_by and od.delivery_status='delivered' and product_id=".$value['id'];
-            // }else{
-            //     $o_s_sql="select sum(od.quantity) as total_sale_qty,sum(od.price) as total_sale_amount from order_details od left join orders o on od.order_id=o.id where o.date<$from_string_time and od.delivery_status='delivered' and product_id=".$value['id'];
-            // }
-            // $o_sale_info=DB::select($o_s_sql);
-
-            // if(!empty($o_sale_info)){
-            //     $o_sale_qty=$o_sale_info[0]->total_sale_qty;
-            //     $o_sale_amount=$o_sale_info[0]->total_sale_amount;
-            // }else{
-            //     $o_sale_qty=0;
-            //     $o_sale_amount=0;
-            // }
-
-
-            // if(!empty($sort_by)){
-            //     $o_d_sql="select sum(qty) as total_damage_qty,sum(total_amount) as total_damage_amount from damages where date<'$from_date' and wearhouse_id=$sort_by and product_id=".$value['id'];
-            // }else{
-            //     $o_d_sql="select sum(qty) as total_damage_qty,sum(total_amount) as total_damage_amount from damages where date<'$from_date' and product_id=".$value['id'];
-            // }
-            // $o_damage_info=DB::select($o_d_sql);
-
-
-            // if(!empty($o_damage_info)){
-            //     $o_damage_qty=$o_damage_info[0]->total_damage_qty;
-            //     $o_damage_amount=$o_damage_info[0]->total_damage_amount;
-            // }else{
-            //     $o_damage_qty=0;
-            //     $o_damage_amount=0;
-            // }
-
-
-            // $products[$key]->opening_stock_qty=$opening_qty=$o_purchase_qty-($o_sale_qty+$o_damage_qty);
-            // $products[$key]->opening_stock_amount=$opening_amount=$o_purchase_amount-($o_sale_amount+$o_damage_amount);
-
-
-
+          
             $pre_stock = array();
             if (!empty($sort_by)) {
                 $pre_stock = Product_stock_close::where('month', $premonth)
@@ -896,6 +842,231 @@ class ReportController extends Controller
         return redirect()->route('stock_closing');
     }
 
+
+
+    public function save_stock_closing_new(Request $request) 
+    {
+        ini_set('max_execution_time', 0);
+
+        $category_id = '';
+        $product_id = '';
+        $warehouse_id = '';
+
+        if (!empty($request->month)) {
+            $array = explode('/', $request->month);
+            $month = $array[1] . '-' . $array[0];
+
+            $from_date = date('Y-m-01 00:00:00', strtotime($month));
+            $to_date = date('Y-m-t 23:59:59', strtotime($month));
+            $startDate = date('Y-m-01', strtotime($month));
+            $endDate = date('Y-m-t', strtotime($month));
+
+            $nextMFdate = date('Y-m-d 00:00:00', strtotime($startDate . ' + 1 months'));
+            $nextMLdate = date('Y-m-t 23:59:59', strtotime($startDate . ' + 1 months'));
+        } else {
+            $month = date('Y-m');
+            $from_date = date('Y-m-01 00:00:00');
+            $to_date = date('Y-m-t 23:59:59');
+            $startDate = date('Y-m-01');
+            $endDate = date('Y-m-t');
+
+            $nextMFdate = date('Y-m-d 00:00:00', strtotime($startDate . ' + 1 months'));
+            $nextMLdate = date('Y-m-t 23:59:59', strtotime($startDate . ' + 1 months'));
+        }
+
+        if ($request->has('warehouse_id') && !empty($request->warehouse_id)) {
+            $warehouse_id = $request->warehouse_id;
+
+            $products = Product::select('products.*', 'categories.id as cat_id', 'categories.name as cat_name')
+                ->leftjoin('categories', 'products.category_id', 'categories.id')
+                ->where('products.parent_id', '=', null);
+
+            if (!empty($request->category_id) && !empty($request->product_id)) {
+                $category_id = $request->category_id;
+                $product_id = $request->product_id;
+                $products = $products->where('categories.id', $request->category_id)->where('products.id', $request->product_id)->get();
+            } elseif (!empty($request->category_id)) {
+                $category_id = $request->category_id;
+                $products = $products->where('categories.id', $request->category_id)->get();
+            } else {
+                $products = $products->get();
+            }
+
+            if (OpeningStock::where('wearhouse_id', $warehouse_id)->whereBetween('created_at', array($nextMFdate, $nextMLdate))->delete()) {
+            } else {
+                foreach ($products as $key => $value) {
+                    // Added Stock Part
+                    $opening_stocks = OpeningStock::where('product_id', $value->id)->where('wearhouse_id', $warehouse_id)->whereBetween('created_at', array($from_date, $to_date))->get();
+                    foreach ($opening_stocks as $openStock) {
+                        $products[$key]->opening_stock_qty += $openStock->qty;
+                        $products[$key]->opening_stock_amount += $openStock->qty * $openStock->price;
+                    }
+
+                    $opening_stocks = OpeningStock::selectRaw('SUM(qty) as total_qty, SUM(qty * price) as total_amount')
+                    ->where('product_id', $value->id)
+                    ->where('wearhouse_id', $warehouse_id)
+                    ->whereBetween('created_at', [$from_date, $to_date])
+                    ->first();
+
+                    $total_qty = $opening_stocks->total_qty ?? 0;
+                    $total_amount = $opening_stocks->total_amount ?? 0;
+
+                    $products[$key]->opening_stock_qty = $total_qty;
+                    $products[$key]->opening_stock_amount = $total_amount;
+
+                    $purchases = Purchase_order_item::select(
+                        DB::raw('SUM(purchase_order_item.qty) as total_qty'),
+                        DB::raw('SUM(purchase_order_item.qty * purchase_order_item.price) as total_amount')
+                    )
+                    ->leftJoin('purchase_order', 'purchase_order.id', '=', 'purchase_order_item.po_id')
+                    ->where('purchase_order.status', 2)
+                    ->where('purchase_order_item.product_id', $value->id)
+                    ->where('purchase_order_item.wearhouse_id', $warehouse_id)
+                    ->whereBetween('purchase_order.date', [$startDate, $endDate])
+                    ->first();
+
+                    $products[$key]->purchase_qty += $purchases->total_qty;
+                    $products[$key]->purchase_amount += $purchases->total_amount;
+
+                    $received = Transfer::select(
+                        DB::raw('SUM(transfers.qty) as total_qty'),
+                        DB::raw('SUM(transfers.qty * transfers.unit_price) as total_amount')
+                    )
+                    ->where('product_id', $value->id)
+                    ->where('status', 'Approved')
+                    ->where('to_wearhouse_id', $warehouse_id)
+                    ->whereBetween('date', [$startDate, $endDate])
+                    ->first();
+
+                    $products[$key]->receive_qty += $received->total_qty;
+                    $products[$key]->receive_amount += $received->total_amount;
+
+                    // Minus Stock Part
+                    $main_orders = OrderDetail::select('order_details.id', 'order_details.order_id',
+                    'order_details.product_id', 'order_details.price', 'order_details.quantity as qty',
+                    'order_details.delivery_status', 'orders.warehouse', 'order_details.created_at',
+                    'order_details.updated_at')->leftjoin('orders', 'orders.id', '=',
+                    'order_details.order_id')->where('order_details.delivery_status', 'delivered')
+                    ->where('order_details.product_id', $value->id)->where('orders.warehouse', $warehouse_id)
+                    ->whereBetween('order_details.created_at', array($from_date, $to_date))->get();
+
+
+                     $child_orders = Product::select('order_details.id', 'order_details.order_id',
+                     'order_details.product_id', 'order_details.price', DB::raw('products.deduct_qty * order_details.quantity as qty'),
+                      'order_details.delivery_status', 'orders.warehouse', 'order_details.created_at', 'order_details.updated_at')
+                      ->leftjoin('order_details', 'order_details.product_id', 'products.id')
+                      ->leftjoin('orders', 'orders.id', 'order_details.order_id')->where('parent_id', $value->id)
+                      ->where('orders.warehouse', $warehouse_id)->where('order_details.delivery_status', 'delivered')
+                      ->whereBetween('order_details.created_at', array($from_date, $to_date))->get();
+
+                       $group_product_order = Product::select('order_details.id', 'order_details.order_id',
+                       'order_details.product_id', 'order_details.price', DB::raw('products.deduct_qty * order_details.quantity as qty'),
+                       'order_details.delivery_status', 'orders.warehouse', 'order_details.created_at', 'order_details.updated_at')
+                       ->leftjoin('order_details', 'order_details.product_id', 'products.id')
+                       ->leftjoin('orders', 'orders.id', 'order_details.order_id')->where('parent_id', $value->id)
+                       ->where('orders.warehouse', $warehouse_id)->where('order_details.delivery_status', 'delivered')
+                       ->whereBetween('order_details.created_at', array($from_date, $to_date))->get();
+                      
+                    $orders = $main_orders->merge($child_orders);
+                    foreach ($orders as $o_key => $o_value) {
+                        $products[$key]['sales_qty'] += $o_value->qty;
+                        $products[$key]['sales_amount'] += $o_value->price;
+                    }
+
+                    $transfers = Transfer::select('transfers.id', 'transfers.product_id', 'transfers.from_wearhouse_id', 'transfers.qty', 'transfers.unit_price as price', 'transfers.amount', 'transfers.status', 'transfers.date')->where('product_id', $value->id)->where('status', 'Approved')->where('from_wearhouse_id', $warehouse_id)->whereBetween('date', array($startDate, $endDate))->get();
+                    foreach ($transfers as $t_key => $t_value) {
+                        $products[$key]['transfer_qty'] += $t_value->qty;
+                        $products[$key]['transfer_amount'] += $t_value->qty * $t_value->price;
+                    }
+
+                    $damages = Damage::select('damages.id', 'damages.product_id', 'damages.wearhouse_id', 'damages.qty', 'damages.total_amount as amount', 'damages.status', 'damages.date')->where('product_id', $value->id)->where('status', 'Approved')->where('wearhouse_id', $warehouse_id)->whereBetween('date', array($startDate, $endDate))->get();
+                    foreach ($damages as $d_key => $d_value) {
+                        $products[$key]['damage_qty'] += $d_value->qty;
+                        $products[$key]['damage_amount'] += $d_value->amount;
+                    }
+
+                    // Marge Added Stock Product
+                    $purchase_item = $opening_stocks->merge($purchases)->merge($received);
+
+                    // Marge Minus Stock Product
+                    $sales = $main_orders->merge($child_orders)->merge($transfers)->merge($damages);
+
+                    // FIFO Calculation
+                    foreach ($sales->toArray() as $sale_key => $sale) {
+                        $purAmount = 0;
+                        $balance = $sale['qty'];
+
+                        $detail = [];
+                        foreach ($purchase_item->toArray() as $pur_key => $pur) {
+                            if ($balance != 0) {
+                                if ($pur['qty'] <= $balance) {
+                                    $purchase_item[$pur_key]['qty'] = 0;
+                                    $temPur[] = $pur;
+                                    unset($purchase_item[$pur_key]);
+                                    $purAmount += $pur['qty'] * $pur['price'];
+                                    $detail[] = $pur['qty'] . "*" . $pur['price'] . "=" . $pur['qty'] * $pur['price'];
+                                    $balance -= $pur['qty'];
+                                } else {
+                                    if ($pur['qty'] > $balance) {
+                                        $balance -= $pur['qty'];
+                                        $saleQty = $pur['qty'] - abs($balance);
+                                        $purchase_item[$pur_key]['qty'] = abs($balance);
+                                        if ($balance != 0) {
+                                            $purAmount += $saleQty * $pur['price'];
+                                            $detail[] = $saleQty . "*" . $pur['price'] . "=" . $saleQty * $pur['price'];
+                                        }
+                                        $balance = max(0, $balance);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        $sales[$sale_key]['details'] = $detail;
+                        $sales[$sale_key]['purAmt'] = $purAmount;
+                        $sales[$sale_key]['amount'] =  $sales[$sale_key]['qty'] * $sales[$sale_key]['price'];
+                        $sales[$sale_key]['gainLoss'] =  $sales[$sale_key]['amount'] - $sales[$sale_key]['purAmt'];
+                    }
+
+                    foreach ($purchase_item as $new_pur_value) {
+                        // $qty += $new_pur_value->qty;
+
+                        $existing_row = OpeningStock::select('id', 'qty')->where('product_id', $value->id)->where('wearhouse_id', $warehouse_id)->whereBetween('created_at', array($nextMFdate, $nextMLdate))->where('price', $new_pur_value->price)->first();
+                        if (!empty($existing_row)) {
+                            // $abc = $existing_row->qty + $new_pur_value->qty;
+                            // dd($abc);
+                            $item = OpeningStock::find($existing_row->id);
+                            $item->product_id = $value->id;
+                            $item->wearhouse_id = $warehouse_id;
+                            $item->qty = $existing_row->qty + $new_pur_value->qty;
+                            $item->price = $new_pur_value->price;
+                            $item->amount = ($existing_row->qty + $new_pur_value->qty) * $new_pur_value->price;
+                            $item->created_at = $nextMFdate;
+                            $item->updated_at = $nextMFdate;
+
+                            $item->save();
+                        } else {
+                            $item = new OpeningStock();
+                            $item->product_id = $value->id;
+                            $item->wearhouse_id = $warehouse_id;
+                            $item->qty = $new_pur_value->qty;
+                            $item->price = $new_pur_value->price;
+                            $item->amount = $new_pur_value->qty * $new_pur_value->price;
+                            $item->created_at = $nextMFdate;
+                            $item->updated_at = $nextMFdate;
+
+                            $item->save();
+                        }
+                    }
+                }
+            }
+        } else {
+            $products = '';
+        }
+
+        flash(translate('Stock closed successfully'))->success();
+        return redirect()->route('stock_closing');
+    }
+
     public function customer_ledger(Request $request)
     {
         if (!empty($request->user_id) && !empty($request->warehouse)) {
@@ -1362,81 +1533,166 @@ class ReportController extends Controller
     }
 
     public function in_house_sale_report(Request $request)
-    {
-        $wearhouse = $request->warehouse;
-        $sort_by = null;
-        $pro_sort_by = null;
-        $start_date = date('Y-m-01 00:00:00');
-        $end_date = date('Y-m-t 23:59:59');
-        DB::enableQueryLog();
+{
+    $warehouse = $request->warehouse;
+    $product_id = $request->product_id;
+    $sort_by = null;
+    $pro_sort_by = null;
+    $start_date = date('Y-m-01');
+    $end_date = date('Y-m-t');
 
-        $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
-            ->leftJoin('order_details', 'products.id', '=', 'order_details.product_id')
-            ->leftJoin('orders', 'orders.id', '=', 'order_details.order_id')
-            ->leftJoin('staff', 'products.user_id', '=', 'staff.user_id')
-            ->leftJoin('roles', 'staff.id', '=', 'roles.id')
-            ->where('num_of_sale', '>', 0)
-            ->select(
-                'products.name as product_name','products.purchase_price',
-                'categories.name as category_name', 
-                'roles.name as role_name', 
-                DB::raw('sum(order_details.price) AS price'),
-                DB::raw('sum(quantity) AS quantity'),
-                DB::raw('count(product_id) AS num_of_sale')
-            )
-            ->groupBy('products.id')
-            ->orderBy('num_of_sale', 'desc');
+    $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
+        ->leftJoin('order_details', 'products.id', '=', 'order_details.product_id')
+        ->leftJoin('orders', 'orders.id', '=', 'order_details.order_id')
+        ->leftJoin('staff', 'products.user_id', '=', 'staff.user_id')
+        ->leftJoin('roles', 'staff.id', '=', 'roles.id')
+        ->where('num_of_sale', '>', 0)
+        ->select(
+            'products.id as product_id',
+            'products.name as product_name',
+            'products.purchase_price',
+            'categories.name as category_name',
+            'roles.name as role_name',
+            DB::raw('sum(order_details.price) AS price'),
+            DB::raw('sum(quantity) AS quantity'),
+            DB::raw('count(product_id) AS num_of_sale')
+        )
+        ->groupBy('products.id')
+        ->orderBy('num_of_sale', 'desc');
 
-
-        if ($request->has('category_id') && !empty($request->category_id)) {
-            $sort_by = $request->category_id;
-            $products = $products->where('category_id', $sort_by);
-        }
-
-        if (!empty($request->product_id)) {
-            $pro_sort_by = $request->product_id;
-            $products = $products->where('products.id', $pro_sort_by);
-        }
-
-        if (!empty($request->user_id)) {
-            $pro_sort_by = $request->user_id;
-            $products = $products->where('products.user_id', $pro_sort_by);
-        }
-
-        if (!empty($wearhouse)) {
-            $products = $products->where('orders.warehouse', $wearhouse);
-        }
-
-        if (!empty($request->start_date) && !empty($request->end_date)) {
-            $start_date = strtotime($request->start_date);
-            $end_date = strtotime($request->end_date . ' +1 day');
-            $products = $products->whereBetween('orders.date', [
-                $start_date,
-                $end_date
-            ]);
-        } else {
-            $products = $products->whereBetween('orders.date', [
-                strtotime($start_date),
-                strtotime($end_date)
-            ]);
-        }
-
-        $products->where('order_details.delivery_status', 'delivered');
-        $products = $products->get();
-        // dd($products);
-
-        if (!empty($request->start_date) && !empty($request->end_date)) {
-            $start_date = $request->start_date;
-            $end_date = $request->end_date;
-        } else {
-            $start_date = date('Y-m-01');
-            $end_date = date('Y-m-t');
-        }
-        // $end_date = date('Y-m-d', strtotime($end_date . ' -1 day'));
-        //$query = DB::getQueryLog();
-
-        return view('backend.reports.in_house_sale_report', compact('products', 'sort_by', 'pro_sort_by', 'start_date', 'end_date', 'wearhouse'));
+    if ($request->has('category_id') && !empty($request->category_id)) {
+        $sort_by = $request->category_id;
+        $products = $products->where('category_id', $sort_by);
     }
+
+    if (!empty($request->product_id)) {
+        $pro_sort_by = $request->product_id;
+        $products = $products->where('products.id', $pro_sort_by);
+    }
+
+    if (!empty($request->user_id)) {
+        $pro_sort_by = $request->user_id;
+        $products = $products->where('products.user_id', $pro_sort_by);
+    }
+
+    if (!empty($warehouse)) {
+        $products = $products->where('orders.warehouse', $warehouse);
+    }
+
+    if (!empty($request->start_date) && !empty($request->end_date)) {
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+    }
+
+    $products = $products->whereBetween('orders.date', [
+        strtotime($start_date),
+        strtotime($end_date . ' +1 day')
+    ])->where('order_details.delivery_status', 'delivered')->get();
+
+    foreach ($products as $product) {
+        $product_id = $product->product_id;
+
+         // Calculate the opening stock
+         $openingStocks = OpeningStock::where('product_id', $product_id)
+         ->whereBetween('created_at', [$start_date, $end_date])
+         ->get();
+
+     $openingStockQty = 0;
+     $openingStockAmount = 0;
+     foreach ($openingStocks as $openStock) {
+         $openingStockQty += $openStock->qty;
+         $openingStockAmount += $openStock->qty * $openStock->price;
+     }
+
+     // Add the opening stock values to the product object
+     $product->opening_stock_qty = $openingStockQty;
+     $product->opening_stock_amount = $openingStockAmount;
+     // dd( $product->opening_stock_amount);
+
+        // Calculate the purchases
+        $purchases = Purchase_order_item::leftJoin('purchase_order', 'purchase_order.id', '=', 'purchase_order_item.po_id')
+            ->where('purchase_order.status', 2)
+            ->where('purchase_order_item.product_id', $product_id)
+            ->whereBetween('purchase_order.date', [$start_date, $end_date])
+            ->get();
+
+        $purchaseQty = 0;
+        $purchaseAmount = 0;
+        foreach ($purchases as $purchase) {
+            $purchaseQty += $purchase->qty;
+            $purchaseAmount += $purchase->qty * $purchase->price;
+        }
+
+        $product->purchase_qty = $purchaseQty;
+        $product->purchase_amount = $purchaseAmount;
+
+        // Calculate transfer in
+        $transfersIn = Transfer::where('status', 'Approved')
+            ->where('product_id', $product_id)
+            ->whereBetween('date', [$start_date, $end_date])
+            ->get();
+
+        $transferInQty = 0;
+        $transferInAmount = 0;
+        foreach ($transfersIn as $transferIn) {
+            $transferInQty += $transferIn->qty;
+            $transferInAmount += $transferIn->qty * $transferIn->price;
+        }
+
+        $product->transfer_in_qty = $transferInQty;
+        $product->transfer_in_amount = $transferInAmount;
+
+        // Calculate transfer out
+        $transfersOut = Transfer::where('status', 'Approved')
+            ->where('product_id', $product_id)
+            ->whereBetween('date', [$start_date, $end_date])
+            ->get();
+
+        $transferOutQty = 0;
+        $transferOutAmount = 0;
+        foreach ($transfersOut as $transferOut) {
+            $transferOutQty += $transferOut->qty;
+            $transferOutAmount += $transferOut->qty * $transferOut->price;
+        }
+
+        $product->transfer_out_qty = $transferOutQty;
+        $product->transfer_out_amount = $transferOutAmount;
+
+        // Calculate damages
+        $damages = Damage::where('status', 'Approved')
+            ->where('product_id', $product_id)
+            ->whereBetween('date', [$start_date, $end_date])
+            ->get();
+
+        $damageQty = 0;
+        $damageAmount = 0;
+        foreach ($damages as $damage) {
+            $damageQty += $damage->qty;
+            $damageAmount +=  $damage->total_amount;
+        }
+
+        $product->damage_qty = $damageQty;
+        $product->damage_amount = $damageAmount;
+        // dd($product->damage_amount);
+
+        // Calculate the closing stock
+        $closingStockQty = $openingStockQty + $purchaseQty + $transferInQty - $transferOutQty - $product->quantity;
+        $closingStockAmount = ($closingStockQty * $product->purchase_price) - $damageAmount;
+
+        $product->closing_stock_qty = $closingStockQty;
+        $product->closing_stock_amount = $closingStockAmount;
+
+        // Calculate the profit/loss
+        $product->profit_loss = $product->price - ($openingStockAmount + $purchaseAmount + $transferInAmount - $damageAmount - $transferOutAmount - $closingStockAmount);
+    }
+
+    // dd('openingStockAmount=' . $openingStockAmount, 'purchaseAmount=' . $purchaseAmount, 'transferInAmount=' . $transferInAmount, 'transferOutAmount=' . $transferOutAmount, 'damage=' . $damageAmount, 'closingStockAmount=' . $closingStockAmount, 'productPrice=' . $product->price, 'profitLoss=' . $product->profit_loss);
+
+    return view('backend.reports.in_house_sale_report', compact('products', 'sort_by', 'pro_sort_by', 'start_date', 'end_date', 'warehouse'));
+}
+
+
+    
 
     // public function product_history_report(Request $request)
     // {
@@ -2613,10 +2869,6 @@ public function warehouse_stock_summery(Request $request)
 
 
 
-
-
-
-
 public function sales_report(Request $request)
 {
     $warehouseIds = $request->input('warehouse', []); 
@@ -2776,6 +3028,248 @@ public function sales_by_platform(Request $request)
 
     return view('backend.reports.sales_by_platform', compact('platformData', 'start_date', 'end_date', 'currentYear', 'startYear', 'warehouseIds'));
 }
+
+
+
+public function single_employee_sales_performance(Request $request)
+{
+    $userId = $request->user_id;
+    $start_date = date('Y-m-01', strtotime('-3 years'));
+    $end_date = date('Y-m-t');
+
+    $months = [];
+    $totals = [];
+    $currentYear = Carbon::now()->year;
+    $startYear = $currentYear - 2;
+
+    $users = Staff::leftJoin('users', 'staff.user_id', '=', 'users.id')
+        ->select('staff.*', 'users.id as userId', 'users.name')
+        ->where('users.id', $userId)
+        ->get();
+
+    // Initialize totals
+    for ($year = $currentYear; $year >= $startYear; $year--) {
+        $totals[$year] = [
+            'amount' => 0
+        ];
+    }
+
+    // Generate the month data structure
+    for ($month = 1; $month <= 12; $month++) {
+        $monthData = [
+            'name' => Carbon::create(null, $month, 1)->format('F')
+        ];
+        for ($year = $currentYear; $year >= $startYear; $year--) {
+            $monthData[$year] = [
+                'amount' => 0
+            ];
+        }
+        $months[] = $monthData;
+    }
+
+    $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
+        ->leftJoin('order_details', 'products.id', '=', 'order_details.product_id')
+        ->leftJoin('orders', 'orders.id', '=', 'order_details.order_id')
+        ->where('products.user_id', $userId) 
+        ->where('order_details.delivery_status', 'delivered')
+        ->where('orders.delivered_by', '>', 0)
+        ->whereNull('orders.canceled_by')
+        ->whereBetween('orders.delivered_date', [$start_date, $end_date])
+        ->select(
+            DB::raw('SUM(order_details.price * order_details.quantity) AS grand_total'),
+            DB::raw('SUM(order_details.price) AS total_price'),
+            DB::raw('YEAR(orders.delivered_date) AS year'),
+            DB::raw('MONTH(orders.delivered_date) AS month')
+        )
+        ->groupBy('year', 'month')
+        ->get();
+
+    // Calculate totals
+    foreach ($products as $product) {
+        $year = $product->year;
+        $month = $product->month;
+
+        // Add the sale price to the total for the corresponding month and year
+        $totals[$year]['amount'] += $product->total_price;
+    }
+
+    // Update the months and totals array based on retrieved data
+    foreach ($months as &$monthData) {
+        foreach ($products as $product) {
+            if ($product->month === array_search($monthData['name'], array_column($months, 'name')) + 1) {
+                $monthData[$product->year]['amount'] += $product->total_price;
+            }
+        }
+    }
+
+    if (empty($request->start_date) || empty($request->end_date)) {
+        $start_date = date('Y-m-01', strtotime('-3 years'));
+        $end_date = date('Y-m-t');
+    }
+
+    return view('backend.reports.single_employee_sales_performance', compact('products', 'start_date', 'end_date', 'months', 'currentYear', 'totals', 'userId', 'users'));
+}
+
+public function employee_sales_performance_compare(Request $request)
+{
+    $start_date = date('Y-m-01', strtotime('-3 years'));
+    $end_date = date('Y-m-t');
+
+    $currentYear = Carbon::now()->year;
+    $startYear = $currentYear - 2;
+
+    $users = Staff::leftJoin('users', 'staff.user_id', '=', 'users.id')
+        ->select('staff.*', 'users.id as userId', 'users.name')
+        ->get();
+
+    $employeeData = [];
+
+    foreach ($users as $user) {
+        $userId = $user->userId;
+        
+        $totals = [];
+
+        // Initialize totals
+        for ($year = $currentYear; $year >= $startYear; $year--) {
+            $totals[$year] = 0;
+        }
+
+        $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
+            ->leftJoin('order_details', 'products.id', '=', 'order_details.product_id')
+            ->leftJoin('orders', 'orders.id', '=', 'order_details.order_id')
+            ->where('products.user_id', $userId) 
+            ->where('order_details.delivery_status', 'delivered')
+            ->where('orders.delivered_by', '>', 0)
+            ->whereNull('orders.canceled_by')
+            ->whereBetween('orders.delivered_date', [$start_date, $end_date])
+            ->select(
+                DB::raw('SUM(order_details.price) AS grand_total'),
+                DB::raw('YEAR(orders.delivered_date) AS year')
+            )
+            ->groupBy('year')
+            ->get();
+
+        // Calculate totals
+        foreach ($products as $product) {
+            $year = $product->year;
+            $totals[$year] = $product->grand_total;
+        }
+
+        $employeeData[] = [
+            'name' => $user->name,
+            'totals' => $totals
+        ];
+    }
+
+    return view('backend.reports.employee_sales_performance_compare', compact('employeeData', 'start_date', 'end_date', 'currentYear'));
+}
+
+public function employee_sales_performance_compare_per_year(Request $request)
+{
+    $year = $request->input('year', Carbon::now()->year);
+
+    $users = Staff::leftJoin('users', 'staff.user_id', '=', 'users.id')
+        ->select('staff.*', 'users.id as userId', 'users.name')
+        ->get();
+
+    $employeeData = [];
+    $months = range(1, 12);
+
+    foreach ($users as $user) {
+        $userId = $user->userId;
+        
+        $totals = array_fill(1, 12, 0);  
+
+        $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
+            ->leftJoin('order_details', 'products.id', '=', 'order_details.product_id')
+            ->leftJoin('orders', 'orders.id', '=', 'order_details.order_id')
+            ->where('products.user_id', $userId)
+            ->where('order_details.delivery_status', 'delivered')
+            ->where('orders.delivered_by', '>', 0)
+            ->whereNull('orders.canceled_by')
+            ->whereYear('orders.delivered_date', $year)
+            ->select(
+                DB::raw('SUM(order_details.price) AS grand_total'),
+                DB::raw('MONTH(orders.delivered_date) AS month')
+            )
+            ->groupBy('month')
+            ->get();
+
+        // Calculate totals
+        foreach ($products as $product) {
+            $month = $product->month;
+            $totals[$month] = $product->grand_total;
+        }
+
+        $employeeData[] = [
+            'name' => $user->name,
+            'totals' => $totals
+        ];
+    }
+
+    return view('backend.reports.employee_sales_performance_compare_per_year', compact('employeeData', 'year', 'months'));
+}
+
+public function detailed_sales_report(Request $request)
+{
+    $warehouse = $request->warehouse;
+    $product_id = $request->product_id;
+    $sort_by = null;
+    $pro_sort_by = null;
+    $start_date = date('Y-m-01');
+    $end_date = date('Y-m-t');
+
+    $salesTypes = DB::table('orders')
+        ->join('order_details', 'orders.id', '=', 'order_details.order_id')
+        ->leftJoin('products', 'order_details.product_id', '=', 'products.id')
+        ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+        ->leftJoin('customers', 'orders.user_id', '=', 'customers.user_id')
+        ->leftJoin('wearhouses', 'orders.warehouse', '=', 'wearhouses.id')
+        ->leftJoin('staff', 'order_details.seller_id', '=', 'staff.id')
+        ->leftJoin('users', 'staff.user_id', '=', 'users.id')
+        ->leftJoin('roles', 'staff.role_id', '=', 'roles.id')
+        ->select(
+            'customers.user_id', 
+            'customers.customer_type',
+            'wearhouses.name as warehouse_name', 
+            'roles.name as role_name',
+            'users.name as executive_name',
+            DB::raw('SUM(order_details.price) AS total_price'),
+            DB::raw('SUM(order_details.quantity) AS total_quantity'),
+            DB::raw('COUNT(order_details.product_id) AS num_of_sale'),
+            DB::raw('COUNT( COALESCE(customers.customer_type, "Unknown")) AS total_customer_type')
+        )
+        ->groupBy('customers.customer_type')
+        ->orderBy('num_of_sale', 'desc');
+
+    if (!empty($request->user_id)) {
+        $pro_sort_by = $request->user_id;
+        $salesTypes->where('order_details.seller_id', $pro_sort_by);
+    }
+
+    if (!empty($warehouse)) {
+        $salesTypes->where('orders.warehouse', $warehouse);
+    }
+
+    if (!empty($request->start_date) && !empty($request->end_date)) {
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+    }
+
+    $salesTypes = $salesTypes->whereBetween('orders.date', [
+        strtotime($start_date),
+        strtotime($end_date . ' +1 day')
+    ])->where('order_details.delivery_status', 'delivered')->get();
+
+    return view('backend.reports.detailed_sales_report', compact('salesTypes', 'sort_by', 'pro_sort_by', 'start_date', 'end_date', 'warehouse'));
+}
+
+
+
+
+
+
+
 
 
 
@@ -3275,7 +3769,6 @@ public function sales_by_platform(Request $request)
 
         $orders = $orders->get();
 
-        // dd($orders, $wearhouse);
         $start_date = date('Y-m-d', strtotime($start_date));
         $end_date = date('Y-m-d', strtotime($end_date));
 

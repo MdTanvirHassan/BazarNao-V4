@@ -44,8 +44,7 @@ class FlashDealController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        
+    { 
         $flash_deal = new FlashDeal;
         $flash_deal->title = $request->title;
         $flash_deal->text_color = $request->text_color;
@@ -103,6 +102,7 @@ class FlashDealController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
     public function edit(Request $request, $id)
     {
         $lang           = $request->lang;
@@ -117,6 +117,7 @@ class FlashDealController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    
     public function update(Request $request, $id)
     {
         $flash_deal = FlashDeal::findOrFail($id);

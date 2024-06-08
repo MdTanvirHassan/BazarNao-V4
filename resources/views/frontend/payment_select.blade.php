@@ -175,32 +175,6 @@
                             <div class="row">
                                 <div class="col-xxl-8 col-xl-10 mx-auto">
                                     <div class="row gutters-10">
-                                        @if(\App\Models\BusinessSetting::where('type', 'paypal_payment')->first()->value == 1)
-                                        <div class="col-6 col-md-4">
-                                            <label class="aiz-megabox d-block mb-3">
-                                                <input value="paypal" class="online_payment" type="radio" name="payment_option" checked>
-                                                <span class="d-block p-3 aiz-megabox-elem">
-                                                    <img src="{{ static_asset('assets/img/cards/paypal.png')}}" class="img-fluid mb-2">
-                                                    <span class="d-block text-center">
-                                                        <span class="d-block fw-600 fs-15">{{ translate('Paypal')}}</span>
-                                                    </span>
-                                                </span>
-                                            </label>
-                                        </div>
-                                        @endif
-                                        @if(\App\Models\BusinessSetting::where('type', 'stripe_payment')->first()->value == 1)
-                                        <div class="col-6 col-md-4">
-                                            <label class="aiz-megabox d-block mb-3">
-                                                <input value="stripe" class="online_payment" type="radio" name="payment_option" checked>
-                                                <span class="d-block p-3 aiz-megabox-elem">
-                                                    <img src="{{ static_asset('assets/img/cards/stripe.png')}}" class="img-fluid mb-2">
-                                                    <span class="d-block text-center">
-                                                        <span class="d-block fw-600 fs-15">{{ translate('Stripe')}}</span>
-                                                    </span>
-                                                </span>
-                                            </label>
-                                        </div>
-                                        @endif
                                         @if(\App\Models\BusinessSetting::where('type', 'sslcommerz_payment')->first()->value == 1)
                                         <div class="col-6 col-md-4">
                                             <label class="aiz-megabox d-block mb-3">
@@ -214,97 +188,7 @@
                                             </label>
                                         </div>
                                         @endif
-                                        @if(\App\Models\BusinessSetting::where('type', 'instamojo_payment')->first()->value == 1)
-                                        <div class="col-6 col-md-4">
-                                            <label class="aiz-megabox d-block mb-3">
-                                                <input value="instamojo" class="online_payment" type="radio" name="payment_option" checked>
-                                                <span class="d-block p-3 aiz-megabox-elem">
-                                                    <img src="{{ static_asset('assets/img/cards/instamojo.png')}}" class="img-fluid mb-2">
-                                                    <span class="d-block text-center">
-                                                        <span class="d-block fw-600 fs-15">{{ translate('Instamojo')}}</span>
-                                                    </span>
-                                                </span>
-                                            </label>
-                                        </div>
-                                        @endif
-                                        @if(\App\Models\BusinessSetting::where('type', 'razorpay')->first()->value == 1)
-                                        <div class="col-6 col-md-4">
-                                            <label class="aiz-megabox d-block mb-3">
-                                                <input value="razorpay" class="online_payment" type="radio" name="payment_option" checked>
-                                                <span class="d-block p-3 aiz-megabox-elem">
-                                                    <img src="{{ static_asset('assets/img/cards/rozarpay.png')}}" class="img-fluid mb-2">
-                                                    <span class="d-block text-center">
-                                                        <span class="d-block fw-600 fs-15">{{ translate('Razorpay')}}</span>
-                                                    </span>
-                                                </span>
-                                            </label>
-                                        </div>
-                                        @endif
-                                        @if(\App\Models\BusinessSetting::where('type', 'paystack')->first()->value == 1)
-                                        <div class="col-6 col-md-4">
-                                            <label class="aiz-megabox d-block mb-3">
-                                                <input value="paystack" class="online_payment" type="radio" name="payment_option" checked>
-                                                <span class="d-block p-3 aiz-megabox-elem">
-                                                    <img src="{{ static_asset('assets/img/cards/paystack.png')}}" class="img-fluid mb-2">
-                                                    <span class="d-block text-center">
-                                                        <span class="d-block fw-600 fs-15">{{ translate('Paystack')}}</span>
-                                                    </span>
-                                                </span>
-                                            </label>
-                                        </div>
-                                        @endif
-                                        @if(\App\Models\BusinessSetting::where('type', 'voguepay')->first()->value == 1)
-                                        <div class="col-6 col-md-4">
-                                            <label class="aiz-megabox d-block mb-3">
-                                                <input value="voguepay" class="online_payment" type="radio" name="payment_option" checked>
-                                                <span class="d-block p-3 aiz-megabox-elem">
-                                                    <img src="{{ static_asset('assets/img/cards/vogue.png')}}" class="img-fluid mb-2">
-                                                    <span class="d-block text-center">
-                                                        <span class="d-block fw-600 fs-15">{{ translate('VoguePay')}}</span>
-                                                    </span>
-                                                </span>
-                                            </label>
-                                        </div>
-                                        @endif
-                                        @if(\App\Models\BusinessSetting::where('type', 'payhere')->first()->value == 1)
-                                        <div class="col-6 col-md-4">
-                                            <label class="aiz-megabox d-block mb-3">
-                                                <input value="payhere" class="online_payment" type="radio" name="payment_option" checked>
-                                                <span class="d-block p-3 aiz-megabox-elem">
-                                                    <img src="{{ static_asset('assets/img/cards/payhere.png')}}" class="img-fluid mb-2">
-                                                    <span class="d-block text-center">
-                                                        <span class="d-block fw-600 fs-15">{{ translate('payhere')}}</span>
-                                                    </span>
-                                                </span>
-                                            </label>
-                                        </div>
-                                        @endif
-                                        @if(\App\Models\BusinessSetting::where('type', 'ngenius')->first()->value == 1)
-                                        <div class="col-6 col-md-4">
-                                            <label class="aiz-megabox d-block mb-3">
-                                                <input value="ngenius" class="online_payment" type="radio" name="payment_option" checked>
-                                                <span class="d-block p-3 aiz-megabox-elem">
-                                                    <img src="{{ static_asset('assets/img/cards/ngenius.png')}}" class="img-fluid mb-2">
-                                                    <span class="d-block text-center">
-                                                        <span class="d-block fw-600 fs-15">{{ translate('ngenius')}}</span>
-                                                    </span>
-                                                </span>
-                                            </label>
-                                        </div>
-                                        @endif
-                                        @if(\App\Models\BusinessSetting::where('type', 'iyzico')->first()->value == 1)
-                                        <div class="col-6 col-md-4">
-                                            <label class="aiz-megabox d-block mb-3">
-                                                <input value="iyzico" class="online_payment" type="radio" name="payment_option" checked>
-                                                <span class="d-block p-3 aiz-megabox-elem">
-                                                    <img src="{{ static_asset('assets/img/cards/iyzico.png')}}" class="img-fluid mb-2">
-                                                    <span class="d-block text-center">
-                                                        <span class="d-block fw-600 fs-15">{{ translate('Iyzico')}}</span>
-                                                    </span>
-                                                </span>
-                                            </label>
-                                        </div>
-                                        @endif
+                                       
                                         @if(\App\Models\BusinessSetting::where('type', 'nagad')->first()->value == 1)
                                         <div class="col-6 col-md-4">
                                             <label class="aiz-megabox d-block mb-3">

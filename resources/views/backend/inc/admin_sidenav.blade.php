@@ -38,6 +38,20 @@
                             <a class="aiz-side-nav-link" href="#">
                                 <span class="aiz-side-nav-text">Chart of Account</span>
                             </a>
+
+                            <ul class="aiz-side-nav-sublist">
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{route('chart_of_accounts.create')}}" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Create</span>
+                                    </a>
+                                </li>
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{route('chart_of_accounts.index')}}" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">List</span>
+                                    </a>
+                                </li>
+                                
+                            </ul>
                         </li>
                         <li class="aiz-side-nav-item">
                             <a href="#" class="aiz-side-nav-link">
@@ -579,6 +593,27 @@
                             <li class="aiz-side-nav-item mx-2">
                                 <a href="{{ route('sales_by_platform.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['sales_by_platform.index'])}}">
                                     <span class="aiz-side-nav-text">{{ translate('Sales By Platform Report') }}</span>
+                                </a>
+                            </li>
+                        @endif
+                        @if(Auth::user()->user_type == 'admin' || in_array('26', json_decode(Auth::user()->staff->role->permissions)))
+                            <li class="aiz-side-nav-item mx-2">
+                                <a href="{{ route('single_employee_sales_performance.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['single_employee_sales_performance.index'])}}">
+                                    <span class="aiz-side-nav-text">{{ translate('Single Employee Sales Performance') }}</span>
+                                </a>
+                            </li>
+                        @endif
+                        @if(Auth::user()->user_type == 'admin' || in_array('26', json_decode(Auth::user()->staff->role->permissions)))
+                            <li class="aiz-side-nav-item mx-2">
+                                <a href="{{ route('employee_sales_performance_compare.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['employee_sales_performance_compare.index'])}}">
+                                    <span class="aiz-side-nav-text">{{ translate('Employee Sales Performance Compare') }}</span>
+                                </a>
+                            </li>
+                        @endif
+                        @if(Auth::user()->user_type == 'admin' || in_array('26', json_decode(Auth::user()->staff->role->permissions)))
+                            <li class="aiz-side-nav-item mx-2">
+                                <a href="{{ route('detailed_sales_report.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['detailed_sales_report.index'])}}">
+                                    <span class="aiz-side-nav-text">{{ translate('Detailed Sales Report') }}</span>
                                 </a>
                             </li>
                         @endif

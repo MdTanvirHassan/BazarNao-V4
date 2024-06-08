@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Utility\PayfastUtility;
 use Illuminate\Http\Request;
 use Auth;
 use App\Models\Category;
@@ -134,28 +133,12 @@ class CheckoutController extends Controller
                     $city = json_decode($order->shipping_address)->city;
 
                     return PayhereUtility::create_checkout_form($order_id, $amount, $first_name, $last_name, $phone, $email, $address, $city);
-                } elseif ($request->payment_option == 'payfast') {
-                    $order = Order::findOrFail($request->session()->get('order_id'));
-
-                    $order_id = $order->id;
-                    $amount = $order->grand_total;
-
-                    return PayfastUtility::create_checkout_form($order_id, $amount);
-                } else if ($request->payment_option == 'ngenius') {
-                    $ngenius = new NgeniusController();
-                    return $ngenius->pay();
-                } else if ($request->payment_option == 'iyzico') {
-                    $iyzico = new IyzicoController();
-                    return $iyzico->pay();
-                } else if ($request->payment_option == 'nagad') {
+                }else if ($request->payment_option == 'nagad') {
                     $nagad = new NagadController;
                     return $nagad->getSession();
                 } else if ($request->payment_option == 'bkash') {
                     $bkash = new BkashController;
                     return $bkash->pay();
-                } else if ($request->payment_option == 'flutterwave') {
-                    $flutterwave = new FlutterwaveController();
-                    return $flutterwave->pay();
                 }elseif ($request->payment_option == 'cash_on_delivery') {
                     $request->session()->put('cart', Session::get('cart')->where('owner_id', '!=', Session::get('owner_id')));
                     $request->session()->forget('owner_id');
@@ -496,7 +479,7 @@ class CheckoutController extends Controller
                 $tax += $cartItem['tax'] * $cartItem['quantity'];
                 $shipping += $cartItem['shipping'] * $cartItem['quantity'];
             }
-$shipping_skip_total = \App\Models\BusinessSetting::where('type', 'flat_rate_shipping_cost_total')->first()->value;
+      $shipping_skip_total = \App\Models\BusinessSetting::where('type', 'flat_rate_shipping_cost_total')->first()->value;
     if($shipping_skip_total>$subtotal){
         $shipping = \App\Models\BusinessSetting::where('type', 'flat_rate_shipping_cost')->first()->value;
     }else{

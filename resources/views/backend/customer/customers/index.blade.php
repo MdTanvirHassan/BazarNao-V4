@@ -124,7 +124,7 @@
                         <i class="las la-sign-in-alt"></i>
                     </a>
 
-                    @if(Auth::user()->user_type == 'admin')
+                    @if(Auth::user()->user_type == 'admin' || Auth::user()->staff->role->name == 'Manager')
                         @if($customer->user->banned != 1)
                         <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm" onclick="confirm_ban('{{route('customers.ban', $customer->id)}}');" title="{{ translate('Ban this Customer') }}">
                             <i class="las la-user-slash"></i>

@@ -50,6 +50,7 @@ class CartController extends Controller
             ])->render());
         }
 
+        // dd($product);
         //check the color enabled or disabled for the product
         if ($request->has('color')) 
         {
@@ -58,21 +59,19 @@ class CartController extends Controller
 
         if ($product->digital != 1) 
         {
-            //Gets all the choice values of customer choice option and generate a string like Black-S-Cotton
-            foreach (json_decode(Product::find($request->id)->choice_options) as $key => $choice) {
-                if ($str != null) {
-                    $str .= '-' . str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
-                } else {
-                    $str .= str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
+            if(isset(Product::find($request->id)->choice_options)){
+                foreach (json_decode(Product::find($request->id)->choice_options) as $key => $choice) {
+                    if ($str != null) {
+                        $str .= '-' . str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
+                    } else {
+                        $str .= str_replace(' ', '', $request['attribute_id_' . $choice->attribute_id]);
+                    }
                 }
             }
         }
 
         $data['variant'] = $str;
         $price = $product->unit_price;
-
-        //discount calculation based on flash deal and regular discount
-        //calculation of taxes
         $flash_deals = \App\Models\FlashDeal::where('status', 1)->get();
         $inFlashDeal = false;
         $todaytime = strtotime(date('H:i:s'));

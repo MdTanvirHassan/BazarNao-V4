@@ -45,6 +45,8 @@ class NagadController
         $amount = $request->amount;
         $user_id = $request->user_id;
 
+
+
         if ($request->payment_type == 'cart_payment') {
             $this->tnx = $request->order_id;
         } else if ($request->payment_type == 'wallet_payment') {
@@ -164,6 +166,7 @@ class NagadController
 
     public function verify(Request $request, $payment_type)
     {
+        dd($payment_type);
         $Query_String = explode("&", explode("?", $_SERVER['REQUEST_URI'])[1]);
         $payment_ref_id = substr($Query_String[2], 15);
         $url = $this->nagadHost . "api/dfs/verify/payment/" . $payment_ref_id;

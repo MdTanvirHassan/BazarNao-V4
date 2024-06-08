@@ -38,6 +38,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
+
         $payment_status = null;
         $delivery_status = null;
         $sort_search = null;
@@ -323,57 +324,68 @@ class OrderController extends Controller
     // All Orders
     public function all_orders(Request $request)
     {
-        //  CoreComponentRepository::instantiateShopRepository();
-        $id = auth()->user()->name;
-
-        $date = $request->date;
-        $sort_search = null;
-        $delivery_status = null;
-        $payment_status = null;
-        $order_from = null;
-        $customer_type = null;
-
-        $orders = Order::orderBy('date', 'desc');
-        if ($request->has('search')) {
-            $sort_search = $request->search;
-            $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
+        $user = auth()->user();
+        $id = $user->name;
+    
+        $sort_search = $request->input('search');
+        $delivery_status = $request->input('delivery_status');
+        $payment_status = $request->input('payment_status');
+        $order_from = $request->input('order_from');
+        $customer_type = $request->input('customer_type');
+        $date = $request->input('date');
+    
+        $orders = Order::query();
+    
+        if ($sort_search) {
+            $orders->where('code', 'like', '%' . $sort_search . '%');
         }
-        if ($request->delivery_status != null) {
-            $orders = $orders->where('delivery_status', $request->delivery_status);
-            $delivery_status = $request->delivery_status;
+    
+        if ($delivery_status) {
+            $orders->where('delivery_status', $delivery_status);
         }
-        if ($request->payment_status != null) {
-            $orders = $orders->where('orders.payment_status', $request->payment_status);
-            $payment_status = $request->payment_status;
+    
+        if ($payment_status) {
+            $orders->where('payment_status', $payment_status);
         }
-        if($request->order_from != null){
-            $order_from = $request->order_from;
-            $orders = $orders->where('orders.order_from', $order_from);
+    
+        if ($order_from) {
+            $orders->where('order_from', $order_from);
         }
-        if($request->customer_type != null){
-            $customer_type = $request->customer_type;
-            $orders = $orders->leftjoin('customers','orders.user_id','customers.user_id')
-                             ->where('customers.customer_type', $customer_type);
+    
+        if ($customer_type) {
+            $orders->join('customers', 'orders.user_id', '=', 'customers.user_id')
+                   ->where('customers.customer_type', $customer_type);
         }
-        if ($date != null) {
-            $orders = $orders->where('orders.created_at', '>=', date('Y-m-d 00:00:00', strtotime(explode(" to ", $date)[0])))->where('orders.created_at', '<=', date('Y-m-d 23:59:59', strtotime(explode(" to ", $date)[1])));
+    
+        if ($date) {
+            [$startDate, $endDate] = explode(' to ', $date);
+            $orders->whereBetween('orders.created_at', [
+                date('Y-m-d 00:00:00', strtotime($startDate)),
+                date('Y-m-d 23:59:59', strtotime($endDate))
+            ]);
         }
-        $orders = $orders->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id')->select('orders.*', 'order_details.delivery_status');
-
-
-        if (auth()->user()->name == 'Delivery Department') {
-            $orders = $orders->whereIn('order_details.delivery_status', ['on_delivery', 'delivered']);
-        } else if (auth()->user()->name == 'Operational Department') {
-            $orders = $orders->whereIn('order_details.delivery_status', ['confirmed', 'on_delivery', 'delivered']);
-        } else if (auth()->user()->name == 'Sales Department') {
-            $orders = $orders->whereIn('order_details.delivery_status', ['pending', 'cancel', 'confirmed', 'on_delivery', 'delivered']);
+    
+        $orders->leftJoin('order_details', 'orders.id', '=', 'order_details.order_id')
+               ->select('orders.*', 'order_details.delivery_status')
+               ->orderBy('date', 'desc');
+    
+        switch ($user->name) {
+            case 'Delivery Department':
+                $orders->whereIn('order_details.delivery_status', ['on_delivery', 'delivered']);
+                break;
+            case 'Operational Department':
+                $orders->whereIn('order_details.delivery_status', ['confirmed', 'on_delivery', 'delivered']);
+                break;
+            case 'Sales Department':
+                $orders->whereIn('order_details.delivery_status', ['pending', 'cancel', 'confirmed', 'on_delivery', 'delivered']);
+                break;
         }
-
-        $orders = $orders->groupBy('orders.id');
-        $orders = $orders->paginate(15);
-
-        return view('backend.sales.all_orders.index', compact('orders', 'sort_search', 'date', 'delivery_status', 'payment_status','order_from','customer_type'));
+    
+        $orders = $orders->groupBy('orders.id')->paginate(15);
+    
+        return view('backend.sales.all_orders.index', compact('orders', 'sort_search', 'date', 'delivery_status', 'payment_status', 'order_from', 'customer_type'));
     }
+    
 
     public function pending_orders(){
         
@@ -409,8 +421,7 @@ class OrderController extends Controller
     // Inhouse Orders
     public function admin_orders(Request $request)
     {
-        // CoreComponentRepository::instantiateShopRepository();
-
+        
         $date = $request->date;
         $payment_status = null;
         $delivery_status = null;
@@ -454,8 +465,7 @@ class OrderController extends Controller
     // Seller Orders
     public function seller_orders(Request $request)
     {
-        //CoreComponentRepository::instantiateShopRepository();
-
+        
         $date = $request->date;
         $payment_status = null;
         $delivery_status = null;
@@ -1157,20 +1167,15 @@ class OrderController extends Controller
     public function destroy($id)
     {
         $order = Order::findOrFail($id);
-        $products = Product::where('product_id', $id)->get();
-        if ($order != null) {
-
-            foreach ($products as $key => $product) {
-
-                $item = Product::find($product->product_id);
-                $item->current_stock += $product->qty;
-                $item->save();
+        if(!empty($order) && $order->delivered_by == null){
+            foreach ($order->orderDetails as $orderDetail) {
+                $orderDetail->delete();
             }
-            Product::where('product_id', $id)->delete();
-            $order->delete();
+
+        $order->delete();
             flash(translate('Order has been deleted successfully'))->success();
-        } else {
-            flash(translate('Something went wrong'))->error();
+        }else{
+            flash(translate('Delivered Order Can Not Delete'))->error();
         }
         return back();
     }
@@ -1955,7 +1960,7 @@ class OrderController extends Controller
     // Cuatomer service All Orders
     public function cutomerservice_all_orders(Request $request)
     {
-        //  CoreComponentRepository::instantiateShopRepository();
+       
         $id = Auth::user()->name;
 
         $date = $request->date;
