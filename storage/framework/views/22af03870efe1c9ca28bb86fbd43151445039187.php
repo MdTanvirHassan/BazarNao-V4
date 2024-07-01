@@ -1,0 +1,109 @@
+
+
+<?php $__env->startSection('content'); ?>
+<?php
+    $refund_request_addon = App\Models\Addon::where('unique_identifier', 'refund_request')->first();
+?>
+<div class="card">
+      <form class="" action="" method="GET">
+        <div class="card-header row gutters-5">
+          <div class="col text-center text-md-left">
+            <h5 class="mb-md-0 h6"><?php echo e(translate('All Orders')); ?></h5>
+          </div>
+          <div class="col-lg-2">
+              <div class="form-group mb-0">
+                  <input type="text" class="aiz-date-range form-control" value="<?php echo e($date); ?>" name="date" placeholder="<?php echo e(translate('Filter by date')); ?>" data-format="DD-MM-Y" data-separator=" to " data-advanced-range="true" autocomplete="off">
+              </div>
+          </div>
+          <div class="col-lg-2">
+            <div class="form-group mb-0">
+              <input type="text" class="form-control" id="search" name="search"<?php if(isset($sort_search)): ?> value="<?php echo e($sort_search); ?>" <?php endif; ?> placeholder="<?php echo e(translate('Type Order code & hit Enter')); ?>">
+            </div>
+          </div>
+          <div class="col-auto">
+            <div class="form-group mb-0">
+              <button type="submit" class="btn btn-primary"><?php echo e(translate('Filter')); ?></button>
+            </div>
+          </div>
+        </div>
+    </form>
+    <div class="card-body">
+        <table class="table aiz-table mb-0">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th data-breakpoints="md"><?php echo e(translate('Purchase Order')); ?></th>
+                    <th data-breakpoints="md"><?php echo e(translate('Date')); ?></th>
+                    <th data-breakpoints="md"><?php echo e(translate('Supplier')); ?></th>
+                    <th data-breakpoints="md"><?php echo e(translate('Total')); ?></th>
+                    <th class="text-right" width="18%"><?php echo e(translate('options')); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php $__currentLoopData = $data; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key => $order): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <tr>
+                        <td>
+                            <?php echo e(($key+1) + ($data->currentPage() - 1)*$data->perPage()); ?>
+
+                        </td>
+                        <td>
+                            <?php echo e($order->purchase_no); ?>
+
+                        </td>
+                        <td>
+                            <?php echo e($order->date); ?>
+
+                        </td>
+                        <td>
+                        <?php echo e($order->name); ?>
+
+                        </td>
+                        <td>
+                            <?php echo e(single_price($order->total_value)); ?>
+
+                        </td>
+                        
+                        
+                        <td class="text-right">
+                            <?php if($order->status == '1'): ?>
+                              <a href="<?php echo e(route('puracher_edit', $order->id)); ?>" class="btn btn-soft-primary btn-icon btn-circle btn-sm" title="<?php echo e(translate('Edit')); ?>">
+                                   <i class="las la-edit"></i>
+                               </a>
+                               <?php endif; ?>
+                            <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="<?php echo e(route('purchase_orders_view', $order->id)); ?>" title="<?php echo e(translate('View')); ?>">
+                                <i class="las la-eye"></i>
+                            </a>
+                            <?php if($order->status == '1'): ?>
+                            <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="<?php echo e(route('purchase_approve.index', $order->id)); ?>" title="<?php echo e(translate('Approve')); ?>">
+                            <i class="las la-check-circle"></i>
+                            </a>
+                           
+                            <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="<?php echo e(route('orders.destroy_po', $order->id)); ?>" title="<?php echo e(translate('Delete')); ?>">
+                                <i class="las la-trash"></i>
+                            </a>
+                           <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </tbody>
+        </table>
+        <div class="aiz-pagination">
+            <?php echo e($data->appends(request()->input())->links()); ?>
+
+        </div>
+    </div>
+</div>
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('modal'); ?>
+    <?php echo $__env->make('modals.delete_modal', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('script'); ?>
+    <script type="text/javascript">
+
+    </script>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('backend.layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp82\htdocs\bazarnao-v4-laravel-9\resources\views/backend/purchase_order/index.blade.php ENDPATH**/ ?>
