@@ -116,9 +116,25 @@
                                                     <td>{{ $key+1 }}</td>
                                                     <td>
                                                         @if ($orderDetail->product != null)
-                                                            <a href="{{ route('product', $orderDetail->product->slug) }}" target="_blank" class="text-reset">
-                                                                {{ $orderDetail->product->getTranslation('name') }}
-                                                            </a>
+                                                        <?php
+                                                            $group_product_check = \App\Models\Product::where('id', $orderDetail->product_id)->value('is_group_product');
+                                                        ?>
+                                                            @if($group_product_check == 1)
+                                                                <?php
+                                                                    $group_product_items = \App\Models\Group_product::where('group_product_id', $orderDetail->product_id)->get();
+                                                                ?>
+                                                                <strong><a href="{{ route('product', $orderDetail->product->slug) }}" target="_blank" class="text-muted">{{ $orderDetail->product->getTranslation('name') }}</a></strong><br>
+                                                                @foreach($group_product_items as $item)
+                                                                    <?php
+                                                                        $product_name = \App\Models\Product::where('id', $item->product_id)->value('name');
+                                                                    ?>
+                                                                    <li>{{ $product_name }} ({{$item->qty }})</li>
+                                                                @endforeach
+                                                            @else
+                                                                <a href="{{ route('product', $orderDetail->product->slug) }}" target="_blank" class="text-reset">
+                                                                    {{ $orderDetail->product->getTranslation('name') }}
+                                                                </a>
+                                                            @endif
                                                         @else
                                                             <strong>{{  translate('Product Unavailable') }}</strong>
                                                         @endif

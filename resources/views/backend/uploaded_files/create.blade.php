@@ -19,6 +19,7 @@
         <h5 class="mb-0 h6">{{translate('Drag & drop your files')}}</h5>
     </div>
     <div class="card-body">
+		
     	<div id="aiz-upload-files" class="h-420px" style="min-height: 65vh">
     		
     	</div>

@@ -46,10 +46,10 @@
                                     </a>
                                 </li>
                                 <li class="aiz-side-nav-item">
-                                    <a href="<?php echo e(route('chart_of_accounts.index')); ?>" class="aiz-side-nav-link">
-                                        <span class="aiz-side-nav-text">List</span>
+                                    <a href="<?php echo e(route('accounts.index')); ?>" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">List Accounts</span>
                                     </a>
-                                </li>
+                                </li>                            
                                 
                             </ul>
                         </li>
@@ -447,6 +447,12 @@
                     <a href="<?php echo e(route('uploaded-files.index')); ?>" class="aiz-side-nav-link <?php echo e(areActiveRoutes(['uploaded-files.create'])); ?>">
                         <i class="las la-folder-open aiz-side-nav-icon"></i>
                         <span class="aiz-side-nav-text"><?php echo e(translate('Uploaded Files')); ?></span>
+                    </a>
+                </li>
+                <li class="aiz-side-nav-item">
+                    <a href="<?php echo e(route('invoice-uploaded-files.index')); ?>" class="aiz-side-nav-link <?php echo e(areActiveRoutes(['invoice-uploaded-files.create'])); ?>">
+                        <i class="las la-folder-open aiz-side-nav-icon"></i>
+                        <span class="aiz-side-nav-text"><?php echo e(translate('Invoice Uploaded Files')); ?></span>
                     </a>
                 </li>
                 <!-- Reports -->

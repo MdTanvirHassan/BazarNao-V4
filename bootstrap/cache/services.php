@@ -50,10 +50,11 @@
     46 => 'SimpleSoftwareIO\\QrCode\\QrCodeServiceProvider',
     47 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
     48 => 'Spatie\\Permission\\PermissionServiceProvider',
-    49 => 'App\\Providers\\AppServiceProvider',
-    50 => 'App\\Providers\\AuthServiceProvider',
-    51 => 'App\\Providers\\EventServiceProvider',
-    52 => 'App\\Providers\\RouteServiceProvider',
+    49 => 'Unicodeveloper\\Paystack\\PaystackServiceProvider',
+    50 => 'App\\Providers\\AppServiceProvider',
+    51 => 'App\\Providers\\AuthServiceProvider',
+    52 => 'App\\Providers\\EventServiceProvider',
+    53 => 'App\\Providers\\RouteServiceProvider',
   ),
   'eager' => 
   array (
@@ -90,10 +91,11 @@
     30 => 'SimpleSoftwareIO\\QrCode\\QrCodeServiceProvider',
     31 => 'Spatie\\LaravelIgnition\\IgnitionServiceProvider',
     32 => 'Spatie\\Permission\\PermissionServiceProvider',
-    33 => 'App\\Providers\\AppServiceProvider',
-    34 => 'App\\Providers\\AuthServiceProvider',
-    35 => 'App\\Providers\\EventServiceProvider',
-    36 => 'App\\Providers\\RouteServiceProvider',
+    33 => 'Unicodeveloper\\Paystack\\PaystackServiceProvider',
+    34 => 'App\\Providers\\AppServiceProvider',
+    35 => 'App\\Providers\\AuthServiceProvider',
+    36 => 'App\\Providers\\EventServiceProvider',
+    37 => 'App\\Providers\\RouteServiceProvider',
   ),
   'deferred' => 
   array (

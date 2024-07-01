@@ -21,6 +21,7 @@ use App\Models\User;
 use App\Models\BusinessSetting;
 use App\Models\Wearhouse;
 use App\Models\OrderStatusLog;
+use App\Models\Group_product;
 use Session;
 use App\Models\Purchase_order;
 use App\Models\Purchase_order_item;
@@ -1211,26 +1212,59 @@ class OrderController extends Controller
 
     public function product_stock_qty_check(Request $request){ 
         $order = Order::findOrFail($request->order_id);
-            foreach ($order->orderDetails as $orderDetail){
-                $product = Product::where('id',$orderDetail->product_id)->first();
-                if(!empty($product->parent_id)){
-                $stock_qty_check = ProductStock::where('product_id',$product->parent_id)
-                ->where('wearhouse_id', $order->warehouse)->first();
-                        $reduceable_qty = ($product->deduct_qty * $orderDetail->quantity);
-                    }else{
-                        $stock_qty_check = ProductStock::where('product_id',$product->id)
-                        ->where('wearhouse_id', $order->warehouse)->first();
-                        $reduceable_qty = $orderDetail->quantity;
-                     }
+            foreach ($order->orderDetails as $orderDetail)
+            {
 
-                if($stock_qty_check->qty < $reduceable_qty){
-                    $message = [
-                        'message' => 'true',
-                        'product' => $stock_qty_check->product->name,
-                    ];
-                    return $message;
+                $group_product_check = Product::where('id',$orderDetail->product_id)->value('is_group_product');
+                if($group_product_check == 1)
+                {
+                    $group_product_items = Group_product::where('group_product_id',$orderDetail->product_id)->get();
+                    foreach($group_product_items as $item)
+                    {
+                        $product = Product::where('id',$item->product_id)->first();
+                        if(!empty($product->parent_id))
+                        {
+                            $stock_qty_check = ProductStock::where('product_id',$product->parent_id)
+                                            ->where('wearhouse_id', $order->warehouse)->first();
+                            $reduceable_qty = ($product->deduct_qty * $orderDetail->quantity * $item->qty);
+                        }else
+                        {
+                            $stock_qty_check = ProductStock::where('product_id',$product->id)
+                            ->where('wearhouse_id', $order->warehouse)->first();
+                            $reduceable_qty = $orderDetail->quantity * $item->qty;
+                        }
+        
+                        if($stock_qty_check->qty < $reduceable_qty){
+                            $message = [
+                                'message' => 'true',
+                                'product' => $stock_qty_check->product->name,
+                            ];
+
+                            return $message;
+                        }
+                    }
                 }
-
+                else
+                {
+                    $product = Product::where('id',$orderDetail->product_id)->first();
+                    if(!empty($product->parent_id)){
+                    $stock_qty_check = ProductStock::where('product_id',$product->parent_id)
+                    ->where('wearhouse_id', $order->warehouse)->first();
+                            $reduceable_qty = ($product->deduct_qty * $orderDetail->quantity);
+                        }else{
+                            $stock_qty_check = ProductStock::where('product_id',$product->id)
+                            ->where('wearhouse_id', $order->warehouse)->first();
+                            $reduceable_qty = $orderDetail->quantity;
+                         }
+    
+                    if($stock_qty_check->qty < $reduceable_qty){
+                        $message = [
+                            'message' => 'true',
+                            'product' => $stock_qty_check->product->name,
+                        ];
+                        return $message;
+                    }
+                }
             }
 
             $message = [
@@ -1260,9 +1294,11 @@ class OrderController extends Controller
             $delivery_executive_ledger = new DeliveryExecutiveLedger();
             $delivery_executive_ledger->user_id = Auth::user()->id;
 
-           if(!empty($order->user->name)){
+           if(!empty($order->user->name))
+           {
             $delivery_executive_ledger->name = $order->user->name;
-           }else{
+           }else
+           {
             $shipping_address = json_decode($order->shipping_address);
             $delivery_executive_ledger->name = $shipping_address->name; 
            }
@@ -1311,42 +1347,95 @@ class OrderController extends Controller
         }
 
 
-        if (in_array($request->status, array('delivered'))) {
-            foreach ($order->orderDetails as $key => $orderDetail) {
+        if (in_array($request->status, array('delivered'))) 
+        {
+            foreach ($order->orderDetails as $key => $orderDetail) 
+            {
                 $wearhouse_id = getWearhouseId($request->order_id);
-                $product_stock = ProductStock::where('product_id', $orderDetail->product_id)
-                    ->where('wearhouse_id', $wearhouse_id)->first();
 
-                $has_parent = Product::where('id', $orderDetail->product_id)->first();
-                if (!empty($has_parent->parent_id)) {
-                    $pro_stock = ProductStock::where('product_id', $has_parent->parent_id)
+                $group_product_check = Product::where('id', $orderDetail->product_id)->value('is_group_product');
+
+                if($group_product_check == 1)
+                {
+                    $group_product_items = Group_product::where('group_product_id',$orderDetail->product_id)->get();
+
+                    foreach($group_product_items as $item){
+                        $product_stock = ProductStock::where('product_id', $item->product_id)
                         ->where('wearhouse_id', $wearhouse_id)->first();
-                    $reduceable_qty = $has_parent->deduct_qty * $orderDetail->quantity;
-                    if (!empty($reduceable_qty)) {
-                        $pro_stock->decrement('qty', $reduceable_qty);
-                        $pro_stock->save();
-                    } else {
-                        $product_stocks = new ProductStock;
-                        $product_stocks->product_id = $orderDetail->product_id;
-                        $product_stocks->wearhouse_id = $wearhouse_id;
-                        $product_stocks->qty = '-' . $orderDetail->quantity;
-                        $product_stocks->save();
-                    }
-                } else {
 
-                    if ($product_stock != null) {
-                        $product_stock->decrement('qty', $orderDetail->quantity);
-                        $product_stock->save();
-                    } else {
-                        $product_stocks = new ProductStock;
-                        $product_stocks->product_id = $orderDetail->product_id;
-                        $product_stocks->wearhouse_id = $wearhouse_id;
-                        $product_stocks->qty = '-' . $orderDetail->quantity;
-                        $product_stocks->save();
+                        $has_parent = Product::where('id', $item->product_id)->first();
+                        
+                        if (!empty($has_parent->parent_id)) 
+                        {
+                            $pro_stock = ProductStock::where('product_id', $has_parent->parent_id)
+                                ->where('wearhouse_id', $wearhouse_id)->first();
+                            $reduceable_qty = $has_parent->deduct_qty * $orderDetail->quantity * $item->qty;
+                            if (!empty($reduceable_qty))
+                            {
+                                $pro_stock->decrement('qty', $reduceable_qty);
+                                $pro_stock->save();
+                            } else {
+                                $product_stocks = new ProductStock;
+                                $product_stocks->product_id = $item->product_id;
+                                $product_stocks->wearhouse_id = $wearhouse_id;
+                                $reduceable_qty = $orderDetail->quantity * $item->qty;
+                                $product_stocks->qty = '-' . $reduceable_qty;
+                                $product_stocks->save();
+                            }
+                        } else {
+
+                            if ($product_stock != null) {
+                                $reduceable_qty = $orderDetail->quantity * $item->qty;
+                                $product_stock->decrement('qty', $reduceable_qty);
+                                $product_stock->save();
+                            } else {
+                                $product_stocks = new ProductStock;
+                                $product_stocks->product_id = $item->product_id;
+                                $product_stocks->wearhouse_id = $wearhouse_id;
+                                $reduceable_qty = $orderDetail->quantity * $item->qty;
+                                $product_stocks->qty = '-' . $reduceable_qty;
+                                $product_stocks->save();
+                            }
+                        }
                     }
                 }
-            } 
-            
+
+                else
+                {
+                    $product_stock = ProductStock::where('product_id', $orderDetail->product_id)
+                    ->where('wearhouse_id', $wearhouse_id)->first();
+
+                    $has_parent = Product::where('id', $orderDetail->product_id)->first();
+                    if (!empty($has_parent->parent_id)) 
+                    {
+                        $pro_stock = ProductStock::where('product_id', $has_parent->parent_id)
+                            ->where('wearhouse_id', $wearhouse_id)->first();
+                        $reduceable_qty = $has_parent->deduct_qty * $orderDetail->quantity;
+                        if (!empty($reduceable_qty)) {
+                            $pro_stock->decrement('qty', $reduceable_qty);
+                            $pro_stock->save();
+                        } else {
+                            $product_stocks = new ProductStock;
+                            $product_stocks->product_id = $orderDetail->product_id;
+                            $product_stocks->wearhouse_id = $wearhouse_id;
+                            $product_stocks->qty = '-' . $orderDetail->quantity;
+                            $product_stocks->save();
+                        }
+                    } else {
+
+                        if ($product_stock != null) {
+                            $product_stock->decrement('qty', $orderDetail->quantity);
+                            $product_stock->save();
+                        } else {
+                            $product_stocks = new ProductStock;
+                            $product_stocks->product_id = $orderDetail->product_id;
+                            $product_stocks->wearhouse_id = $wearhouse_id;
+                            $product_stocks->qty = '-' . $orderDetail->quantity;
+                            $product_stocks->save();
+                        }
+                    }
+                } 
+            }
         }
 
         if (in_array($request->status, array('cancel'))) {

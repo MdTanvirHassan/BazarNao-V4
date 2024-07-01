@@ -63,6 +63,7 @@
 
     <script>
         var AIZ = AIZ || {};
+        var INVOICE = INVOICE || {};
     </script>
 
     <style>
@@ -373,6 +374,7 @@ src="https://www.facebook.com/tr?id=932980007684341&ev=PageView&noscript=1"
     <!-- SCRIPTS -->
     <script src="<?php echo e(static_asset('assets/js/vendors.js')); ?>"></script>
     <script src="<?php echo e(static_asset('assets/js/aiz-core.js')); ?>"></script>
+    <script src="<?php echo e(static_asset('assets/js/invoice-core.js')); ?>"></script>
 <!--     <script src="<?php echo e(static_asset('assets/js/jquery-ui.js')); ?>"></script> -->
 
 

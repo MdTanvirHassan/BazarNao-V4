@@ -225,9 +225,12 @@ class ProductController extends Controller
         $product->unit_price = $price;
         $product->app_unit_price = $price;
         $product->purchase_price = $purchase_price;
+        $product->description = $request->description;
+        $product->barcode = $request->barcode;
         $product->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)) . '-' . Str::random(5);
         $product->thumbnail_img = $request->thumbnail_img;
         $product->photos = $request->photos;
+        $product->current_stock = $request->total_stock;
         if ($refund_request_addon != null && $refund_request_addon->activated == 1) {
             if ($request->refundable != null) {
                 $product->refundable = 1;
@@ -239,6 +242,13 @@ class ProductController extends Controller
         $product->max_qty = $request->max_qty;
         $product->is_group_product = 1;
         $product->save();  
+
+        $product_stock = new ProductStock();
+        $product_stock->product_id = $product->id;
+        $product_stock->price = $price;
+        $product_stock->qty = $request->total_stock;
+        $product_stock->save();
+        // total_stock
 
         foreach ($request->products as $key => $id) 
         {
@@ -296,6 +306,9 @@ class ProductController extends Controller
             $group_product->delete();
         }
 
+        $product_stock = ProductStock::where('product_id',$id)->first();
+        $product_stock->delete();
+
         if (Product::destroy($id)) {
             flash(translate('Product has been deleted successfully'))->success();
             Artisan::call('view:clear');
@@ -346,9 +359,13 @@ class ProductController extends Controller
         $product->unit_price = $price;
         $product->app_unit_price = $price;
         $product->purchase_price = $purchase_price;
+        $product->description = $request->description;
+        $product->barcode = $request->barcode;
         $product->slug = preg_replace('/[^A-Za-z0-9\-]/', '', str_replace(' ', '-', $request->name)) . '-' . Str::random(5);
         $product->thumbnail_img = $request->thumbnail_img;
         $product->photos = $request->photos;
+        $product->current_stock = $request->total_stock;
+
         if ($refund_request_addon != null && $refund_request_addon->activated == 1) {
             if ($request->refundable != null) {
                 $product->refundable = 1;
@@ -360,6 +377,21 @@ class ProductController extends Controller
         $product->max_qty = $request->max_qty;
         $product->is_group_product = 1;
         $product->save();  
+
+        $product_stock = ProductStock::where('product_id',$product->id)->first();
+
+        if($product_stock){
+            $product_stock->product_id = $product->id;
+            $product_stock->price = $price;
+            $product_stock->qty = $request->total_stock;
+            $product_stock->save();
+        }else{
+            $product_stock = new ProductStock();
+            $product_stock->product_id = $product->id;
+            $product_stock->price = $price;
+            $product_stock->qty = $request->total_stock;
+            $product_stock->save();
+        }
 
         foreach ($request->products as $key => $id) 
         {

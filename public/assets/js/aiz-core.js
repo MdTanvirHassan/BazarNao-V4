@@ -1116,6 +1116,36 @@ $.fn.toggleAttr = function (attr, attr1, attr2) {
                 });
             }
         },
+        invoiceUppy: function () {
+            if ($("#invoice-upload-files").length > 0) {
+                var uppy = Uppy.Core({
+                    autoProceed: true,
+                });
+                uppy.use(Uppy.Dashboard, {
+                    target: "#invoice-upload-files",
+                    inline: true,
+                    showLinkToFileUploadResult: false,
+                    showProgressDetails: true,
+                    hideCancelButton: true,
+                    hidePauseResumeButton: true,
+                    hideUploadButton: true,
+                    proudlyDisplayPoweredByUppy: false,
+                });
+                uppy.use(Uppy.XHRUpload, {
+                    endpoint: AIZ.data.appUrl + "/invoice-uploader/upload",
+                    fieldName: "aiz_file",
+                    formData: true,
+                    headers: {
+                        'X-CSRF-TOKEN': AIZ.data.csrf,
+                    },
+                });
+                uppy.on("upload-success", function () {
+                    AIZ.uploader.getAllUploads(
+                        AIZ.data.appUrl + "/invoice-uploader/get_uploaded_files"
+                    );
+                });
+            }
+        },
         tooltip: function () {
             $('body').tooltip({selector: '[data-toggle="tooltip"]'}).click(function () {
                 $('[data-toggle="tooltip"]').tooltip("hide");

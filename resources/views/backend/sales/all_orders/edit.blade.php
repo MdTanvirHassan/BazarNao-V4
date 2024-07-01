@@ -153,7 +153,7 @@
                           </td>
                      
                           <td class="text-center">
-                            <input type="number" value="{{ $orderDetail->quantity }}" name="qty[{{$key+1}}]" class="form-control" onblur="caculatePrice({{$key+1}})" id="qty_{{$key+1}}">
+                            <input type="any" value="{{ $orderDetail->quantity }}" name="qty[{{$key+1}}]" class="form-control" onblur="caculatePrice({{$key+1}})" id="qty_{{$key+1}}">
                             <input type="hidden" value="{{ $orderDetail->quantity }}" name="oldqty[{{$key+1}}]" class="form-control">
                         </td>
                         <td class="text-center"><input step="any" type="number" value="{{ $orderDetail->price/$orderDetail->quantity }}" name="rate[{{$key+1}}]" class="form-control" id="rate_{{$key+1}}"></td>
@@ -326,7 +326,7 @@
     str += ' </td>';
 
     str += '<td class="text-center"><input type="number" value="" name="qty[' + row + ']" class="form-control" id="qty_' + row + '" onblur="caculatePrice('+row+')"></td>';
-    str += '<td class="text-center"><input type="number" value="" name="rate[' + row + ']" class="form-control" id="rate_' + row + '"></td>';
+    str += '<td class="text-center"><input type="any" value="" name="rate[' + row + ']" class="form-control" id="rate_' + row + '"></td>';
     str += '<td class="text-center"><input id="dis_amount_' + row + '" name="dis_amount[' + row + ']" class="dis_amount" type="hidden" value=""><input step="any" type="number" value="" name="total[' + row + ']" class="form-control" id="total_' + row + '"></td>';
     str += '</tr>';
     

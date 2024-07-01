@@ -49,6 +49,25 @@
                             </div>
                         </div>
 
+						@php
+					    	$pos_addon = \App\Models\Addon::where('unique_identifier', 'pos_system')->first();
+						@endphp
+						@if ($pos_addon != null && $pos_addon->activated == 1)
+							<div class="form-group row">
+								<label class="col-md-3 col-from-label">{{translate('Barcode')}}</label>
+								<div class="col-md-8">
+									<input type="text" class="form-control" name="barcode" placeholder="{{ translate('Barcode') }}">
+								</div>
+							</div>
+						@endif
+
+						<div class="form-group row">
+							<label class="col-lg-3 col-from-label">{{translate('Total Stock')}}</label>
+							<div class="col-lg-8">
+								<input type="text" class="form-control" name="total_stock" placeholder="{{ translate('Total Stock') }}">
+							</div>
+						</div>
+
                         @php
                             $refund_request_addon = \App\Models\Addon::where('unique_identifier', 'refund_request')->first();
                         @endphp
@@ -102,6 +121,20 @@
 	                <small class="text-muted">{{translate('This image is visible in all product box. Use 300x300 sizes image. Keep some blank space around main object of your image as we had to crop some edge in different devices to make it responsive.')}}</small>
 	            </div>
 	        </div>
+				</div>
+			</div>
+
+			<div class="card">
+				<div class="card-header">
+					<h5 class="mb-0 h6">{{translate('Product Description')}}</h5>
+				</div>
+				<div class="card-body">
+					<div class="form-group row">
+						<label class="col-md-3 col-from-label">{{translate('Description')}}</label>
+						<div class="col-md-8">
+							<textarea class="aiz-text-editor" name="description"></textarea>
+						</div>
+					</div>
 				</div>
 			</div>
 

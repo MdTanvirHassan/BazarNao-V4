@@ -15,7 +15,10 @@ class AizUploadController extends Controller
     public function index(Request $request)
     {
 
-        $all_uploads = (auth()->user()->user_type == 'seller') ? Upload::where('user_id', auth()->user()->id) : Upload::query();
+        $all_uploads = (auth()->user()->user_type == 'seller') 
+        ? Upload::where('user_id', auth()->user()->id)->where('invoice_file', 0) 
+        : Upload::query()->where('invoice_file', 0);
+    
         $search = null;
         $sort_by = null;
 
@@ -58,11 +61,19 @@ class AizUploadController extends Controller
             : view('backend.uploaded_files.create');
     }
 
+    public function invoice_create()
+    {
+        return (auth()->user()->user_type == 'seller')
+            ? view('seller.uploads.create')
+            : view('backend.uploaded_files.invoice-create');
+    }
+
 
     public function show_uploader(Request $request)
     {
         return view('uploader.aiz-uploader');
     }
+    
     public function upload(Request $request)
     {
         $type = array(
@@ -187,6 +198,27 @@ class AizUploadController extends Controller
                 $upload->file_name = $path;
                 $upload->user_id = Auth::user()->id;
                 $upload->type = $type[$upload->extension];
+
+               
+                 // Set invoice_file based on the route parameter
+                $invoice_file = $request->invoice_file;
+                // dd($request->invoice_file);
+                // dd($request->all());
+                
+                if($request()->is('admin/invoice-uploaded-files/create')){
+                    $upload->invoice_file = 1;
+                } else {
+                    $upload->invoice_file = 0;
+                }
+
+                // if ($invoice_file == 0 || $invoice_file == null) {
+                //     $upload->invoice_file = 0;
+                // }else{
+                //     $upload->invoice_file = 1;
+                // }
+                // $invoice_file = $request->input('invoice_file', 0);
+                // $upload->invoice_file = $invoice_file == 1 ? 1 : 0;
+
                 $upload->file_size = $size;
                 $upload->save();
             }
@@ -196,7 +228,7 @@ class AizUploadController extends Controller
 
     public function get_uploaded_files(Request $request)
     {
-        $uploads = Upload::where('user_id', Auth::user()->id);
+        $uploads = Upload::where('user_id', Auth::user()->id)->where('invoice_file',0);
         if ($request->search != null) {
             $uploads->where('file_original_name', 'like', '%' . $request->search . '%');
         }
@@ -263,7 +295,7 @@ class AizUploadController extends Controller
     public function get_preview_files(Request $request)
     {
         $ids = explode(',', $request->ids);
-        $files = Upload::whereIn('id', $ids)->get();
+        $files = Upload::whereIn('id', $ids)->get()->where('invoice_file', 0);
         $new_file_array = [];
         foreach ($files as $file) {
             $file['file_name'] = my_asset($file->file_name);
@@ -279,7 +311,7 @@ class AizUploadController extends Controller
 
     public function all_file()
     {
-        $uploads = Upload::all();
+        $uploads = Upload::all()->where('invoice_file', 0);
         foreach ($uploads as $upload) {
             try {
                 if (env('FILESYSTEM_DRIVER') == 's3') {
@@ -306,7 +338,7 @@ class AizUploadController extends Controller
     //Download project attachment
     public function attachment_download($id)
     {
-        $project_attachment = Upload::find($id);
+        $project_attachment = Upload::find($id)->where('invoice_file', 0);
         try {
             $file_path = public_path($project_attachment->file_name);
             return Response::download($file_path);
@@ -318,7 +350,7 @@ class AizUploadController extends Controller
     //Download project attachment
     public function file_info(Request $request)
     {
-        $file = Upload::findOrFail($request['id']);
+        $file = Upload::findOrFail($request['id'])->where('invoice_file', 0);
 
         return (auth()->user()->user_type == 'seller')
             ? view('seller.uploads.info', compact('file'))

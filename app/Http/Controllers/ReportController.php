@@ -4084,7 +4084,7 @@ public function product_transfer_summery(Request $request)
     }
 
     $transferQuery = Transfer::leftJoin('products', 'transfers.product_id', '=', 'products.id')
-        ->whereBetween('transfers.date', [$start_date, $end_date])
+        ->whereBetween('transfers.approved_date', [$start_date, $end_date])
         ->select(
             'transfers.from_wearhouse_id',
             'transfers.to_wearhouse_id',
@@ -4092,7 +4092,7 @@ public function product_transfer_summery(Request $request)
             DB::raw('SUM(transfers.qty * products.purchase_price) AS total_amount')
         )
         ->groupBy('transfers.from_wearhouse_id', 'transfers.to_wearhouse_id')
-        ->orderBy('transfers.date', 'asc');
+        ->orderBy('transfers.approved_date', 'asc');
 
     if (!empty($wearhouse)) {
         $transferQuery->where('transfers.from_wearhouse_id', $wearhouse);
@@ -4245,9 +4245,9 @@ public function transfer_list_details(Request $request)
         if (!empty($request->start_date) && !empty($request->end_date)) {
             $start_date = date('Y-m-d', strtotime($request->start_date));
             $end_date = date('Y-m-d', strtotime($request->end_date));
-            $product_wise_purchase_list = $product_wise_purchase_list->whereBetween('date', [$start_date, $end_date]);
+            $product_wise_purchase_list = $product_wise_purchase_list->whereBetween('approved_date', [$start_date, $end_date]);
         } else {
-            $product_wise_purchase_list = $product_wise_purchase_list->whereBetween('date', [$start_date, $end_date]);
+            $product_wise_purchase_list = $product_wise_purchase_list->whereBetween('approved_date', [$start_date, $end_date]);
         }
 
 

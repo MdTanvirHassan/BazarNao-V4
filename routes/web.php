@@ -15,6 +15,12 @@
 Route::get('/refresh-csrf', function () {
     return csrf_token();
 });
+Route::post('/invoice-uploader', 'InvoiceUploadController@show_uploader');
+Route::post('/invoice-uploader/upload', 'InvoiceUploadController@upload');
+Route::get('/invoice-uploader/get_uploaded_files', 'InvoiceUploadController@get_uploaded_files');
+Route::post('/invoice-uploader/get_file_by_ids', 'InvoiceUploadController@get_preview_files');
+Route::get('/invoice-uploader/download/{id}', 'InvoiceUploadController@attachment_download')->name('invoice_download_attachment');
+
 Route::post('/aiz-uploader', 'AizUploadController@show_uploader');
 Route::post('/aiz-uploader/upload', 'AizUploadController@upload');
 Route::get('/aiz-uploader/get_uploaded_files', 'AizUploadController@get_uploaded_files');
@@ -44,6 +50,7 @@ Route::post('/users/login/cart', 'HomeController@cart_login')->name('cart.login.
 Route::get('/', 'HomeController@index')->name('home');
 Route::post('/home/section/featured', 'HomeController@load_featured_section')->name('home.section.featured');
 Route::post('/home/section/best_selling', 'HomeController@load_best_selling_section')->name('home.section.best_selling');
+Route::post('/home/section/group_product', 'HomeController@group_product_section')->name('home.section.group_product');
 Route::post('/home/section/home_categories', 'HomeController@load_home_categories_section')->name('home.section.home_categories');
 Route::post('/home/section/best_sellers', 'HomeController@load_best_sellers_section')->name('home.section.best_sellers');
 //category dropdown menu ajax call
@@ -129,11 +136,12 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function () {
     Route::post('/seller/update-profile', 'HomeController@seller_update_profile')->name('seller.profile.update');
 
     Route::resource('purchase_history', 'PurchaseHistoryController');
-    Route::get('/order_payment/{id}/show', 'PurchaseHistoryController@order_payment')->name('order_payment.show'); //added by alauddin
-    Route::post('/purchase_history/checkout/payment', 'PurchaseHistoryController@checkout')->name('purchase_history.payment.checkout'); //added by alauddin
+    Route::get('/order_payment/{id}/show', 'PurchaseHistoryController@order_payment')->name('order_payment.show'); 
+    Route::post('/purchase_history/checkout/payment', 'PurchaseHistoryController@checkout')->name('purchase_history.payment.checkout'); 
 
     Route::post('/purchase_history/details', 'PurchaseHistoryController@purchase_history_details')->name('purchase_history.details');
     Route::get('/purchase_history/destroy/{id}', 'PurchaseHistoryController@destroy')->name('purchase_history.destroy');
+    Route::post('/purchase_history/make_payment', 'ManualPaymentMethodController@show_payment_modal')->name('checkout.make_payment');
 
     Route::resource('wishlists', 'WishlistController');
     Route::post('/wishlists/remove', 'WishlistController@remove')->name('wishlists.remove');
@@ -199,8 +207,8 @@ Route::group(['middleware' => ['auth']], function () {
     //Product Bulk Upload
     Route::get('/product-bulk-upload/index', 'ProductBulkUploadController@index')->name('product_bulk_upload.index');
     Route::post('/bulk-product-upload', 'ProductBulkUploadController@bulk_upload')->name('bulk_product_upload');
-    Route::get('/opening-stock-upload', 'ProductBulkUploadController@stock_upload')->name('stock_upload'); //added by alauddin
-    Route::post('/opening-stock-upload-action', 'ProductBulkUploadController@stock_upload_action')->name('stock_upload_action'); //added by alauddin
+    Route::get('/opening-stock-upload', 'ProductBulkUploadController@stock_upload')->name('stock_upload'); 
+    Route::post('/opening-stock-upload-action', 'ProductBulkUploadController@stock_upload_action')->name('stock_upload_action'); 
     Route::get('/product-csv-download/{type}', 'ProductBulkUploadController@import_product')->name('product_csv.download');
     Route::get('/vendor-product-csv-download/{id}', 'ProductBulkUploadController@import_vendor_product')->name('import_vendor_product.download');
     Route::group(['prefix' => 'bulk-upload/download'], function () {

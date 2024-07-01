@@ -327,6 +327,7 @@ class RefundRequestController extends Controller
         if (Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff') {
             $refund->admin_approval = 1;
             $refund->refund_status = 1;
+            $refund->approved_date = now();
 
             // Check the selected action and set refund_type accordingly
             if ($request->refund_type == 'refund') {

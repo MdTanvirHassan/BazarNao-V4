@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Accounting;
 use App\Models\ChartOfAccount;
+use App\Models\AccCoa;
 use App\Http\Requests\StoreChartOfAccountRequest;
 use App\Http\Requests\UpdateChartOfAccountRequest;
 
@@ -26,8 +27,14 @@ class ChartOfAccountController extends Controller
      */
     public function create()
     {
-        return view('backend.accounting.chartofaccount.create');
+        $query = AccCoa::where('PHeadName', 'COA')
+                    ->where('IsActive', 1)
+                    ->orderBy('HeadName')
+                    ->get();
+
+        return view('backend.accounting.chartofaccount.create', compact('query'));
     }
+
 
     /**
      * Store a newly created resource in storage.

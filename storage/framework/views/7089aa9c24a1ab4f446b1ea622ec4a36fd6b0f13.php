@@ -419,6 +419,14 @@
     </div>
     <?php endif; ?>
 
+    <div id="group_product_section">
+
+    </div>
+
+    <div id="section_best_sellers">
+
+    </div>
+
     
     <?php if(\App\Models\BusinessSetting::where('type', 'vendor_system_activation')->first()->value == 1): ?>
     <div id="section_best_sellers">
@@ -537,6 +545,10 @@
             });
             $.post('<?php echo e(route('home.section.best_selling')); ?>', {_token:'<?php echo e(csrf_token()); ?>'}, function(data){
                 $('#section_best_selling').html(data);
+                AIZ.plugins.slickCarousel();
+            });
+            $.post('<?php echo e(route('home.section.group_product')); ?>', {_token:'<?php echo e(csrf_token()); ?>'}, function(data){
+                $('#group_product_section').html(data);
                 AIZ.plugins.slickCarousel();
             });
             $.post('<?php echo e(route('home.section.home_categories')); ?>', {_token:'<?php echo e(csrf_token()); ?>'}, function(data){

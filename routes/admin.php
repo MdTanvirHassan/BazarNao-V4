@@ -398,6 +398,12 @@ Route::get('/pick_up_points/destroy/{id}', [PickupPointController::class, 'destr
     Route::any('/uploaded-files/file-info', 'AizUploadController@file_info')->name('uploaded-files.info');
     Route::resource('/uploaded-files', 'AizUploadController');
     Route::get('/uploaded-files/destroy/{id}', 'AizUploadController@destroy')->name('uploaded-files.destroy');
+    Route::get('/uploaded', 'AizUploadController@upload')->name('uploaded-files.upload');
+
+    //invoice uploaded files
+    Route::any('/invoice-uploaded-files/file-info', 'InvoiceUploadController@file_info')->name('invoice-uploaded-files.info');
+    Route::resource('/invoice-uploaded-files', 'InvoiceUploadController');
+    Route::get('/invoice-uploaded-files/destroy/{id}', 'InvoiceUploadController@destroy')->name('invoice-uploaded-files.destroy');
 
 
 Route::post('/customer/wallet_refund', 'CustomerController@wallet_refund')->name('customer.wallet_refund');
@@ -481,3 +487,4 @@ Route::resource('/police_station', PoliceStationController::class);
 Route::resource('/notifications', NotificationController::class);
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/destroy/{id}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::view('/server-config', 'backend.system.server_status')->name('system_server');

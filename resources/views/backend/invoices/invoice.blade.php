@@ -176,8 +176,29 @@
 									$special += $orderDetail->special_discount;
 								@endphp
 							<tr class="prd">
-							 <td>{{ $key+1 }}</td>
-								<td class="gry-color small">{{ $orderDetail->product->getTranslation('name') }} @if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif</td>
+							 	<td>{{ $key+1 }}</td>
+							 	<td class="gry-color small">
+									<?php
+										$group_product_check = \App\Models\Product::where('id', $orderDetail->product_id)->value('is_group_product');
+									?>
+									@if($group_product_check == 1)
+										<?php
+											$group_product_items = \App\Models\Group_product::where('group_product_id', $orderDetail->product_id)->get();
+										?>
+										<strong>{{ $orderDetail->product->getTranslation('name') }}</strong><br>
+										<ul>
+											@foreach($group_product_items as $item)
+												<?php
+													$product_name = \App\Models\Product::where('id', $item->product_id)->value('name');
+												?>
+												<li>{{ $product_name }} ({{ $item->qty }})</li>
+											@endforeach
+										</ul>
+									@else
+										<strong>{{ $orderDetail->product->getTranslation('name') }} @if($orderDetail->variation != null) ({{ $orderDetail->variation }}) @endif</strong><br>
+									@endif
+								</td>
+
 								<td class="gry-color" style="text-align:center">{{ $orderDetail->quantity }}</td>
 								<td class="gry-color currency" style="text-align:center">{{ single_price(($orderDetail->price+$orderDetail->discount)/$orderDetail->quantity) }}</td>
 			                    <td class="text-right currency">{{ single_price(($orderDetail->price+$orderDetail->discount)+$orderDetail->tax) }}</td>
@@ -230,14 +251,14 @@
 			            <td class="currency">{{ single_price($order->grand_total) }}</td>
 			        </tr>
 					 @php 
-                $paid = 0;
-                    if(!empty($order->payment_details)){
-                      $payment = json_decode($order->payment_details);
-                      if(!empty($payment)){
-                        $paid = $payment->amount;
-                      }
-                    }
-                @endphp
+                		$paid = 0;
+						if(!empty($order->payment_details)){
+						$payment = json_decode($order->payment_details);
+						if(!empty($payment)){
+							$paid = $payment->amount;
+						}
+						}
+                	@endphp
 					<tr>
 			            <th class="text-left strong">{{ translate('Paid') }}</th>
 			            <td class="currency">{{ single_price($paid) }}</td>
@@ -255,14 +276,19 @@
 	
 	<footer>
 	    <div style="padding:2.5rem;">
-	<table style="width:100%;text-align:center;">
+			<table style="width:100%;text-align:center;">
 		        <tbody>
-						<tr>  <td><b style="font-size:30px;">Product can be returned to the delivery man if found damaged or broken upfront.</b></td>
-			        </tr>
-					</tbody>
+					<tr>  
+						<td>
+							<b style="font-size:30px;">
+								Product can be returned to the delivery man if found damaged or broken upfront.
+							</b>
+						</td>
+					</tr>
+				</tbody>
 		    </table>
-		    	</div>
-        </footer>
+		</div>
+	</footer>
 	
 </body>
 </html>

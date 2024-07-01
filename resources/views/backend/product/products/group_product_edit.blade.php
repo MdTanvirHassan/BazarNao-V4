@@ -52,6 +52,29 @@
 					</div>
 
 					@php
+					    $pos_addon = \App\Models\Addon::where('unique_identifier', 'pos_system')->first();
+					@endphp
+					@if ($pos_addon != null && $pos_addon->activated == 1)
+						<div class="form-group row">
+							<label class="col-lg-3 col-from-label">{{translate('Barcode')}}</label>
+							<div class="col-lg-8">
+								<input type="text" class="form-control" name="barcode" placeholder="{{ translate('Barcode') }}" value="{{ $product->barcode }}">
+							</div>
+						</div>
+					@endif
+
+					<?php
+						$stock = \App\Models\ProductStock::where('product_id', $product->id)->first();
+
+					?>
+					<div class="form-group row">
+						<label class="col-lg-3 col-from-label">{{translate('Total Stock')}}</label>
+						<div class="col-lg-8">
+							<input type="text" class="form-control" name="total_stock" placeholder="{{ translate('Total Stock') }}" value="{{$stock->qty}}">
+						</div>
+					</div>
+
+					@php
 					    $refund_request_addon = \App\Models\Addon::where('unique_identifier', 'refund_request')->first();
 					@endphp
 					@if ($refund_request_addon != null && $refund_request_addon->activated == 1)
@@ -99,6 +122,20 @@
 	                        </div>
 	                        <div class="file-preview box sm">
 	                        </div>
+	                    </div>
+	                </div>
+				</div>
+			</div>
+
+			<div class="card">
+				<div class="card-header">
+					<h5 class="mb-0 h6">{{translate('Product Description')}}</h5>
+				</div>
+				<div class="card-body">
+					<div class="form-group row">
+	                    <label class="col-lg-3 col-from-label">{{translate('Description')}} <i class="las la-language text-danger" title="{{translate('Translatable')}}"></i></label>
+	                    <div class="col-lg-9">
+	                        <textarea class="aiz-text-editor" name="description">{{ $product->getTranslation('description', $lang) }}</textarea>
 	                    </div>
 	                </div>
 				</div>

@@ -46,10 +46,10 @@
                                     </a>
                                 </li>
                                 <li class="aiz-side-nav-item">
-                                    <a href="{{route('chart_of_accounts.index')}}" class="aiz-side-nav-link">
-                                        <span class="aiz-side-nav-text">List</span>
+                                    <a href="{{ route('accounts.index') }}" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">List Accounts</span>
                                     </a>
-                                </li>
+                                </li>                            
                                 
                             </ul>
                         </li>
@@ -447,6 +447,12 @@
                     <a href="{{ route('uploaded-files.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['uploaded-files.create'])}}">
                         <i class="las la-folder-open aiz-side-nav-icon"></i>
                         <span class="aiz-side-nav-text">{{ translate('Uploaded Files') }}</span>
+                    </a>
+                </li>
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('invoice-uploaded-files.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['invoice-uploaded-files.create'])}}">
+                        <i class="las la-folder-open aiz-side-nav-icon"></i>
+                        <span class="aiz-side-nav-text">{{ translate('Invoice Uploaded Files') }}</span>
                     </a>
                 </li>
                 <!-- Reports -->

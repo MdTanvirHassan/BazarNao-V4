@@ -161,7 +161,7 @@
                         <td  class="text-center">
 						<input id="dis_amount_{{$key+1}}" name="dis_amount[{{$key+1}}]" class="dis_amount" type="hidden" value="{{ $orderDetail->discount }}">
 						<input id="special_discount_{{$key+1}}" name="special_discount[{{$key+1}}]" class="special_discount" type="hidden" value="{{ $orderDetail->special_discount }}">
-						<input type="number" value="{{ $orderDetail->price }}" name="total[{{$key+1}}]" class="form-control" id="total_{{$key+1}}">
+						<input type="any" value="{{ $orderDetail->price }}" name="total[{{$key+1}}]" class="form-control" id="total_{{$key+1}}">
 						</td>
                       </tr>
                     @endforeach

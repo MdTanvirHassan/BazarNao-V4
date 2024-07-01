@@ -45,7 +45,7 @@ use App\Models\Target;
 use App\Models\DueCollection;
 use App\Models\FireService;
 use Artisan;
-use App\Staff;
+use App\Models\Staff;
 
 class HomeController extends Controller
 {
@@ -320,6 +320,11 @@ class HomeController extends Controller
     public function load_best_selling_section()
     {
         return view('frontend.partials.best_selling_section');
+    }
+
+    public function group_product_section()
+    {
+        return view('frontend.partials.group_product_section');
     }
 
     public function load_home_categories_section()

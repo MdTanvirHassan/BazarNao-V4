@@ -9,70 +9,65 @@
                 <h5 class="mb-0 h6">{{translate('Chart Of Account Create')}}</h5>
             </div>
 
-            <form class="form-horizontal" action="{{ route('customers.store') }}" method="POST" enctype="multipart/form-data">
+            <form class="form-horizontal" action="{{ route('chart_of_accounts.store') }}" method="POST" enctype="multipart/form-data">
             	@csrf
                 <div class="card-body">
                     <div class="form-group row">
-                        <label class="col-sm-3 col-from-label" for="name">{{translate('Head Code')}}</label>
+                        <label class="col-sm-3 col-form-label" for="name">{{translate('COA Head')}}</label>
                         <div class="col-sm-9">
-                            <input type="number" placeholder="{{translate('headcode')}}" id="headcode" name="headcode" class="form-control" required>
+                            <select name="coa_head" id="coa_head" class="form-control">
+                                <option value="">Select Option</option>
+                                @foreach ($query as $acc)
+                                    <option value="{{ $acc->id }}">{{ $acc->HeadName }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label" for="name">{{translate('')}}</label>
+                        <div class="col-sm-9">
+                            <select name="coa_head" id="coa_head" class="form-control">
+                                <option value="">Select Option</option>
+                                @foreach ($query as $acc)
+                                    <option value="{{ $acc->id }}">{{ $acc->HeadName }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    
                     <div class="form-group row">
                         <label class="col-sm-3 col-from-label" for="email">{{translate('Head Name')}}</label>
                         <div class="col-sm-9">
                             <input type="text" placeholder="{{translate('Head Name')}}" id="head_name" name="head_name" class="form-control">
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label class="col-sm-3 col-from-label" for="phone">{{translate('Phone')}}</label>
-                        <div class="col-sm-9">
-                            <input type="text" placeholder="{{translate('Phone')}}" id="phone" name="phone" class="form-control" required>
-                        </div>
-                    </div>
 
-                    <div class="form-group row">
-                        <label class="col-sm-3 col-from-label" for="area_code">{{translate('Assain Executive')}}</label>
-                        <div class="col-sm-9">
-                            <select class="select2 form-control aiz-selectpicker" id="executive" name="executive" data-toggle="select2" data-placeholder="Choose ..." data-live-search="true" disabled>
-                            <!-- <option value="">Choose Executive</option> -->
-                            <option value="">meradiacounter@bazarnao.com</option>
-                        </select>
-                        </div>
-                    </div>
-
-
-                    <div class="form-group row">
-                        <label class="col-sm-3 col-from-label" for="password">{{translate('Password')}}</label>
-                        <div class="col-sm-9">
-                            <input type="password" placeholder="{{translate('Password')}}" id="password" name="password" class="form-control" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <label class="col-sm-3 col-from-label" for="area_code">{{translate('Area Code')}}</label>
-                        <div class="col-sm-9">
-                        <select class="select2 form-control aiz-selectpicker" id="area_code" name="area_code" data-toggle="select2" data-placeholder="Choose ..." data-live-search="true" required>
-                            <option value="">Choose Area</option>
-                            @foreach (\App\Models\Area::get() as $area)
-                            <option value="{{ $area->code }}">{{ $area->name }}</option>
-                            @endforeach
-                        </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group row">
-                        <label class="col-sm-3 col-from-label" for="address">{{translate('Address')}}</label>
-                        <div class="col-sm-9">
-                        <input type="text" placeholder="{{translate('Address')}}" id="address" name="address" class="form-control" required>
-                        </div>
-                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                        <label class="form-check-label" for="flexCheckDefault">
+                          Transaction
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
+                        <label class="form-check-label" for="flexCheckChecked">
+                          Active
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
+                        <label class="form-check-label" for="flexCheckChecked">
+                          GL Head
+                        </label>
+                      </div>
+                   
 
                     
 
                     <div class="form-group mb-0 text-right">
                         <button type="submit" class="btn btn-sm btn-primary">{{translate('Save')}}</button>
-                        <a href="{{route('customers.index')}}" class="btn btn-sm btn-danger">
+                        <a href="{{route('chart_of_accounts.index')}}" class="btn btn-sm btn-danger">
                             <span class="aiz-side-nav-text">{{translate('Go Back')}}</span>
                         </a>
                     </div>
@@ -86,3 +81,5 @@
 </div>
 
 @endsection
+
+

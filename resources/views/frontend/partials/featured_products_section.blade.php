@@ -7,7 +7,7 @@
                 </h3>
             </div>
             <div class="aiz-carousel gutters-10 half-outside-arrow" data-items="6" data-xl-items="5" data-lg-items="4" data-md-items="3" data-sm-items="2" data-xs-items="2" data-arrows='true' data-infinite='true'>
-                @foreach (filter_products(App\Models\Product::where('published', 1)->where('featured', '1'))->get() as $key => $product)
+                @foreach (filter_products(App\Models\Product::where('published', 1)->where('is_group_product',0)->where('featured', '1'))->get() as $key => $product)
                 <form id="option-choice-form_{{ $product->id }}">
                     @csrf
                     <input type="hidden" name="id" value="{{ $product->id }}">
