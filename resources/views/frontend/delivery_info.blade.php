@@ -135,20 +135,8 @@
                                         <select
                                             class="form-control aiz-selectpicker"
                                             name="pickup_point_id_{{ \App\Models\User::where('user_type', 'admin')->first()->id }}"
-                                            data-live-search="true"
-                                        >
-                                                <option>{{ translate('Select your nearest pickup point')}}</option>
-                                            @foreach (\App\Models\PickupPoint::where('pick_up_status',1)->get() as $key => $pick_up_point)
-                                                <option
-                                                    value="{{ $pick_up_point->id }}"
-                                                    data-content="<span class='d-block'>
-                                                                    <span class='d-block fs-16 fw-600 mb-2'>{{ $pick_up_point->getTranslation('name') }}</span>
-                                                                    <span class='d-block opacity-50 fs-12'><i class='las la-map-marker'></i> {{ $pick_up_point->getTranslation('address') }}</span>
-                                                                    <span class='d-block opacity-50 fs-12'><i class='las la-phone'></i>{{ $pick_up_point->phone }}</span>
-                                                                </span>"
-                                                >
-                                                </option>
-                                            @endforeach
+                                            data-live-search="true">
+                                               
                                         </select>
                                     </div>
                                 </div>
@@ -212,50 +200,9 @@
                                                             </span>
                                                         </label>
                                                     </div>
-                                                    @if (is_array(json_decode(\App\Models\Shop::where('user_id', $key)->first()->pick_up_point_id)))
-                                                    <div class="col-6">
-                                                        <label class="aiz-megabox d-block bg-white mb-0">
-                                                            <input
-                                                                type="radio"
-                                                                name="shipping_type_{{ $key }}"
-                                                                value="pickup_point"
-                                                                onchange="show_pickup_point(this)"
-                                                                data-target=".pickup_point_id_{{ $key }}"
-                                                            >
-                                                            <span class="d-flex p-3 aiz-megabox-elem">
-                                                                <span class="aiz-rounded-check flex-shrink-0 mt-1"></span>
-                                                                <span class="flex-grow-1 pl-3 fw-600">{{  translate('Local Pickup') }}</span>
-                                                            </span>
-                                                        </label>
-                                                    </div>
-                                                    @endif
+                                                   
                                                 </div>
-                                                @if (\App\Models\BusinessSetting::where('type', 'pickup_point')->first()->value == 1)
-                                                    @if (is_array(json_decode(\App\Models\Shop::where('user_id', $key)->first()->pick_up_point_id)))
-                                                    <div class="mt-4 pickup_point_id_{{ $key }} d-none">
-                                                        <select
-                                                            class="form-control aiz-selectpicker"
-                                                            name="pickup_point_id_{{ $key }}"
-                                                            data-live-search="true"
-                                                        >
-                                                                <option>{{ translate('Select your nearest pickup point')}}</option>
-                                                            @foreach (json_decode(\App\Models\Shop::where('user_id', $key)->first()->pick_up_point_id) as $pick_up_point)
-                                                                @if (\App\Models\PickupPoint::find($pick_up_point) != null)
-                                                                <option
-                                                                    value="{{ \App\Models\PickupPoint::find($pick_up_point)->id }}"
-                                                                    data-content="<span class='d-block'>
-                                                                                    <span class='d-block fs-16 fw-600 mb-2'>{{ \App\Models\PickupPoint::find($pick_up_point)->getTranslation('name') }}</span>
-                                                                                    <span class='d-block opacity-50 fs-12'><i class='las la-map-marker'></i> {{ \App\Models\PickupPoint::find($pick_up_point)->getTranslation('address') }}</span>
-                                                                                    <span class='d-block opacity-50 fs-12'><i class='las la-phone'></i> {{ \App\Models\PickupPoint::find($pick_up_point)->phone }}</span>
-                                                                                </span>"
-                                                                >
-                                                                </option>
-                                                                @endif
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    @endif
-                                                @endif
+                                              
                                             </div>
                                         </div>
                                     @endif

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 
 class WearhouseController extends Controller
 {
@@ -14,7 +14,7 @@ class WearhouseController extends Controller
      */
     public function index()
     {
-        $wearhouses = Wearhouse::paginate(15);
+        $wearhouses = Warehouse::paginate(15);
         return view('backend.setup_configurations.wearhouse.index', compact('wearhouses'));
     }
 
@@ -55,7 +55,7 @@ class WearhouseController extends Controller
      */
      public function edit(Request $request, $id)
      {
-         $wearhouse  = Wearhouse::findOrFail($id);
+         $wearhouse  = Warehouse::findOrFail($id);
          return view('backend.setup_configurations.wearhouse.edit', compact('wearhouse'));
      }
 
@@ -69,7 +69,7 @@ class WearhouseController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $area = Wearhouse::findOrFail($id);
+        $area = Warehouse::findOrFail($id);
             $area->name = $request->name;
         
 
@@ -90,9 +90,9 @@ class WearhouseController extends Controller
      */
     public function destroy($id)
     {
-        $area = Wearhouse::findOrFail($id);
+        $area = Warehouse::findOrFail($id);
 
-        Wearhouse::destroy($id);
+        Warehouse::destroy($id);
 
         flash(translate('Wearhouse has been deleted successfully'))->success();
         return redirect()->route('wearhouse.index');

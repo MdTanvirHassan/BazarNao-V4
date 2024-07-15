@@ -17,7 +17,7 @@
                     <label>Filter By Warehouse:</label>
                     <select class="form-control" name="warehouse" id="warehouse">
                         <option value="">Select One</option>
-                        @foreach(\App\Models\Wearhouse::all() as $warehousees)
+                        @foreach(\App\Models\Warehouse::all() as $warehousees)
                             <option value="{{ $warehousees->id }}" @if($wearhouse == $warehousees->id) selected @endif>{{ $warehousees->name }}</option>
                         @endforeach
                     </select>
@@ -114,7 +114,7 @@
                 $total+=$order->grand_total;
                 
 
-                $warehouse = \App\Models\Wearhouse::where('id',$order->warehouse)->first();
+                $warehouse = \App\Models\Warehouse::where('id',$order->warehouse)->first();
                 @endphp
                 
                 @unless ($order->grand_total == 0 && $paid == 0 && $due == 0)

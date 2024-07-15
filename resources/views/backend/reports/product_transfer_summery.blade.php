@@ -19,7 +19,7 @@
                     <label>Filter By From Warehouse:</label>
                     <select class="form-control" name="warehouse" id="warehouse">
                         <option value="">Select One</option>
-                        @foreach(\App\Models\Wearhouse::all() as $warehouse)
+                        @foreach(\App\Models\Warehouse::all() as $warehouse)
                             <option value="{{ $warehouse->id }}" @if($wearhouse == $warehouse->id) selected @endif>{{ $warehouse->name }}</option>
                         @endforeach                      
                     </select>
@@ -31,7 +31,7 @@
                     <label>Filter By To Warehouse:</label>
                     <select class="form-control" name="to_warehouse" id="to_warehouse">
                         <option value="">Select One</option>
-                        @foreach(\App\Models\Wearhouse::all() as $warehouse)
+                        @foreach(\App\Models\Warehouse::all() as $warehouse)
                             <option value="{{ $warehouse->id }}" @if($to_wearhouse == $warehouse->id) selected @endif>{{ $warehouse->name }}</option>
                         @endforeach                      
                     </select>

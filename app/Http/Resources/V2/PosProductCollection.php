@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\V2;
 use Auth;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use App\Models\ProductStock;
 
 use Illuminate\Http\Resources\Json\ResourceCollection;

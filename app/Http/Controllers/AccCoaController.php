@@ -194,7 +194,67 @@ class AccCoaController extends Controller
         ->where('IsActive', 1)
         ->orderBy('HeadName')
         ->get();
-        return view('backend.account.treeview', $data);
+        return view('backend.account.treeview', $query);
+    }
+
+    public function selectPhead(Request $request)
+    {
+        $this->authorize('read', 'accounts');
+
+        $phead = $request->input('phead');
+        $coaPhead = $this->allPheadDropdown($phead);
+
+        return response()->json($this->allPhead($coaPhead));
+    }
+
+    private function allPhead($data)
+    {
+        $options = '<option value="" class="bolden" data-id="0"><strong>Select COA Head</strong></option>';
+        foreach ($data as $menu) {
+            $options .= '<option value="' . $menu->HeadCode . '" class="bolden" data-id="' . $menu->HeadLevel . '" data-phead="' . $menu->HeadName . '"><strong>' . $menu->HeadName . '</strong></option>';
+            if (!empty($menu->sub)) {
+                $options .= $this->allSubPhead($menu->sub);
+            }
+        }
+        return $options;
+    }
+
+    private function allSubPhead($subMenu)
+    {
+        $options = '';
+        foreach ($subMenu as $menu) {
+            $options .= '<option value="' . $menu->HeadCode . '" data-id="' . $menu->HeadLevel . '" data-phead="' . $menu->HeadName . '">&nbsp;&nbsp;&mdash;' . $menu->HeadName . '</option>';
+            if (!empty($menu->sub)) {
+                $options .= $this->allSubPhead($menu->sub);
+            }
+        }
+        return $options;
+    }
+
+    private function allPheadDropdown($pheadname)
+    {
+        $pheadlist = AccCoa::where('PHeadName', $pheadname)
+            ->where('IsActive', 1)
+            ->orderBy('HeadName')
+            ->get();
+
+        foreach ($pheadlist as $p_cat) {
+            $p_cat->sub = $this->subParents($p_cat->HeadName);
+        }
+        return $pheadlist;
+    }
+
+    private function subParents($pheadname)
+    {
+        $pheadlist = AccCoa::where('PHeadName', $pheadname)
+            ->where('IsActive', 1)
+            ->orderBy('HeadName')
+            ->get();
+
+        foreach ($pheadlist as $p_cat) {
+            $p_cat->sub = $this->subParents($p_cat->HeadName);
+        }
+        return $pheadlist;
     }
 
     /**

@@ -19,7 +19,7 @@ use App\Models\CouponUsage;
 use App\Models\Coupon;
 use App\Models\User;
 use App\Models\BusinessSetting;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use App\Models\OrderStatusLog;
 use App\Models\Group_product;
 use Session;
@@ -116,7 +116,7 @@ class OrderController extends Controller
         $products = Product::where('parent_id','=', null)->get();
         $supplier = Supplier::all();
         $title =  'Purchase Add';
-        $wearhouses = Wearhouse::get();
+        $wearhouses = Warehouse::get();
         // foreach($products as $row){
         //     ProductStock::insert(['product_id'=>$row->id,'wearhouse_id'=>1,'price'=>$row->unit_price,'qty'=>$row->current_stock]);
         // }
@@ -194,7 +194,7 @@ class OrderController extends Controller
         $products = Product::all();
         $supplier = Supplier::all();
         $title =  'Purchase Edit';
-        $wearhouses = Wearhouse::all();
+        $wearhouses = Warehouse::all();
         if (Auth::user()->user_type == 'admin') {
             return view('backend.purchase_order.edit', compact('products', 'title', 'supplier', 'purchase', 'purchase_item', 'wearhouses'));
         } else {
@@ -507,55 +507,6 @@ class OrderController extends Controller
         return view('backend.sales.seller_orders.show', compact('order'));
     }
 
-
-    // Pickup point orders
-    public function pickup_point_order_index(Request $request)
-    {
-        $date = $request->date;
-        $sort_search = null;
-
-        if (Auth::user()->user_type == 'staff' && Auth::user()->staff->pick_up_point != null) {
-            //$orders = Order::where('pickup_point_id', Auth::user()->staff->pick_up_point->id)->get();
-            $orders = DB::table('orders')
-                ->orderBy('code', 'desc')
-                ->join('order_details', 'orders.id', '=', 'order_details.order_id')
-                ->where('order_details.pickup_point_id', Auth::user()->staff->pick_up_point->id)
-                ->select('orders.id')
-                ->distinct();
-
-            if ($request->has('search')) {
-                $sort_search = $request->search;
-                $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
-            }
-            if ($date != null) {
-                $orders = $orders->where('orders.created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('orders.created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
-            }
-
-            $orders = $orders->paginate(15);
-
-            return view('backend.sales.pickup_point_orders.index', compact('orders'));
-        } else {
-            //$orders = Order::where('shipping_type', 'Pick-up Point')->get();
-            $orders = DB::table('orders')
-                ->orderBy('code', 'desc')
-                ->join('order_details', 'orders.id', '=', 'order_details.order_id')
-                ->where('order_details.shipping_type', 'pickup_point')
-                ->select('orders.id')
-                ->distinct();
-
-            if ($request->has('search')) {
-                $sort_search = $request->search;
-                $orders = $orders->where('code', 'like', '%' . $sort_search . '%');
-            }
-            if ($date != null) {
-                $orders = $orders->where('orders.created_at', '>=', date('Y-m-d', strtotime(explode(" to ", $date)[0])))->where('orders.created_at', '<=', date('Y-m-d', strtotime(explode(" to ", $date)[1])));
-            }
-
-            $orders = $orders->paginate(15);
-
-            return view('backend.sales.pickup_point_orders.index', compact('orders', 'sort_search', 'date'));
-        }
-    }
 
     public function pickup_point_order_sales_show($id)
     {
@@ -2058,7 +2009,7 @@ class OrderController extends Controller
         $payment_status = null;
         $payment_status = null;
         $warehouse_id = null;
-        $warehouses = Wearhouse::get();
+        $warehouses = Warehouse::get();
         $orders = Order::orderBy('date', 'desc');
         if ($request->has('search')) {
             $sort_search = $request->search;
@@ -2119,7 +2070,7 @@ class OrderController extends Controller
         $payment_status = null;
         $payment_status = null;
         $warehouse_id = null;
-        $warehouses = Wearhouse::get();
+        $warehouses = Warehouse::get();
         $orders = Order::orderBy('date', 'desc');
         if ($request->has('search')) {
             $sort_search = $request->search;

@@ -8,7 +8,7 @@ use App;
 class Area extends Model
 {
     public function wearhouse(){
-    	return $this->belongsTo(Wearhouse::class);
+    	return $this->belongsTo(Warehouse::class);
     }
    
 }

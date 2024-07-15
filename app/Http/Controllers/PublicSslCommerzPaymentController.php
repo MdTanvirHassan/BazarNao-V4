@@ -21,9 +21,9 @@ class PublicSslCommerzPaymentController extends Controller
             # Lets your oder trnsaction informations are saving in a table called "orders"
             # In orders table order uniq identity is "order_id","order_status" field contain status of the transaction, "grand_total" is the order amount to be paid and "currency" is for storing Site Currency which will be checked with paid currency.
 
-            $payment_from = Session::get('payment_from'); //added by alauddin
-            $ledger_sql="select sum(credit) as total_credit from customer_ledger where type='Payment' and order_id=".Session::get('order_id'); //added by alauddin
-            $ledger_info=DB::select($ledger_sql); //added by alauddin
+            $payment_from = Session::get('payment_from');
+            $ledger_sql="select sum(credit) as total_credit from customer_ledger where type='Payment' and order_id=".Session::get('order_id');
+            $ledger_info=DB::select($ledger_sql);
 
             if(Session::has('payment_type')){
                 if(Session::get('payment_type') == 'cart_payment'){
@@ -183,7 +183,7 @@ class PublicSslCommerzPaymentController extends Controller
         #End to received these value from session. which was saved in index function.
         $payment = json_encode($request->all());
 
-        $payment_from = Session::get('payment_from'); //added by alauddin
+        $payment_from = Session::get('payment_from');
 
         if(isset($request->value_c)){
             if($request->value_c == 'cart_payment'){
@@ -193,7 +193,7 @@ class PublicSslCommerzPaymentController extends Controller
                 }else{
                     $purchaseHistoryController = new PurchaseHistoryController;
                     $purchaseHistoryController->checkout_done($request->value_b,$payment);
-                    Session::forget('payment_from'); //added by alauddin
+                    Session::forget('payment_from');
                     return redirect()->route('purchase_history.index');
                 }    
             }

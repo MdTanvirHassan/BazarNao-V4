@@ -61,14 +61,9 @@ class Order extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function pickup_point()
+    public function customer()
     {
-        return $this->belongsTo(PickupPoint::class);
-    }
-
-    public function affiliate_log()
-    {
-        return $this->hasMany(AffiliateLog::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function club_point()

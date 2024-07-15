@@ -20,7 +20,7 @@ use App\Models\User;
 use App\Models\Seller;
 use App\Models\Shop;
 use App\Models\Order;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use App\Models\CouponUsage;
 use App\Models\BusinessSetting;
 use App\Models\CustomerServiceOrder;
@@ -209,72 +209,7 @@ class HomeController extends Controller
         flash(translate('Sorry! Something went wrong.'))->error();
         return back();
     }
-    public function customer_update_profile_(Request $request)
-    {
-        if (env('DEMO_MODE') == 'On') {
-            flash(translate('Sorry! the action is not permitted in demo '))->error();
-            return back();
-        }
 
-        $user = Auth::user();
-        $user->name = $request->name;
-        $user->address = $request->address;
-        $user->country = $request->country;
-        $user->city = $request->city;
-        $user->postal_code = $request->postal_code;
-        $user->phone = $request->phone;
-
-        if ($request->new_password != null && ($request->new_password == $request->confirm_password)) {
-            $user->password = Hash::make($request->new_password);
-        }
-        $user->avatar_original = $request->photo;
-
-        if ($user->save()) {
-            flash(translate('Your Profile has been updated successfully!'))->success();
-            return back();
-        }
-
-        flash(translate('Sorry! Something went wrong.'))->error();
-        return back();
-    }
-
-
-    public function seller_update_profile(Request $request)
-    {
-        if (env('DEMO_MODE') == 'On') {
-            flash(translate('Sorry! the action is not permitted in demo '))->error();
-            return back();
-        }
-
-        $user = Auth::user();
-        $user->name = $request->name;
-        $user->address = $request->address;
-        $user->country = $request->country;
-        $user->city = $request->city;
-        $user->postal_code = $request->postal_code;
-        $user->phone = $request->phone;
-
-        if ($request->new_password != null && ($request->new_password == $request->confirm_password)) {
-            $user->password = Hash::make($request->new_password);
-        }
-        $user->avatar_original = $request->photo;
-
-        $seller = $user->seller;
-        $seller->cash_on_delivery_status = $request->cash_on_delivery_status;
-        $seller->bank_payment_status = $request->bank_payment_status;
-        $seller->bank_name = $request->bank_name;
-        $seller->bank_acc_name = $request->bank_acc_name;
-        $seller->bank_acc_no = $request->bank_acc_no;
-        $seller->bank_routing_no = $request->bank_routing_no;
-
-        if ($user->save() && $seller->save()) {
-            flash(translate('Your Profile has been updated successfully!'))->success();
-            return back();
-        }
-
-        flash(translate('Sorry! Something went wrong.'))->error();
-        return back();
-    }
 
     /**
      * Show the application frontend home.
@@ -330,11 +265,6 @@ class HomeController extends Controller
     public function load_home_categories_section()
     {
         return view('frontend.partials.home_categories_section');
-    }
-
-    public function load_best_sellers_section()
-    {
-        return view('frontend.partials.best_sellers_section');
     }
 
     public function trackOrder(Request $request)
@@ -905,12 +835,7 @@ class HomeController extends Controller
         return view('frontend.offer.weekend_offers', compact('products', 'query', 'category_id', 'brand_id', 'sort_by', 'seller_id', 'min_price', 'max_price', 'attributes', 'selected_attributes', 'all_colors', 'selected_color'));
     }
 
-    public function get_pick_ip_points(Request $request)
-    {
-        $pick_up_points = PickupPoint::all();
-        return view('frontend.partials.pick_up_points', compact('pick_up_points'));
-    }
-
+  
     public function get_category_items(Request $request)
     {
         $category = Category::findOrFail($request->id);
@@ -923,36 +848,6 @@ class HomeController extends Controller
         return view('frontend.user.customer_packages_lists', compact('customer_packages'));
     }
 
-    public function seller_digital_product_list(Request $request)
-    {
-        $products = Product::where('user_id', Auth::user()->id)->where('digital', 1)->orderBy('created_at', 'desc')->paginate(10);
-        return view('frontend.user.seller.digitalproducts.products', compact('products'));
-    }
-    public function show_digital_product_upload_form(Request $request)
-    {
-        if (\App\Models\Addon::where('unique_identifier', 'seller_subscription')->first() != null && \App\Models\Addon::where('unique_identifier', 'seller_subscription')->first()->activated) {
-            if (Auth::user()->seller->remaining_digital_uploads > 0) {
-                $business_settings = BusinessSetting::where('type', 'digital_product_upload')->first();
-                $categories = Category::where('digital', 1)->get();
-                return view('frontend.user.seller.digitalproducts.product_upload', compact('categories'));
-            } else {
-                flash(translate('Upload limit has been reached. Please upgrade your package.'))->warning();
-                return back();
-            }
-        }
-
-        $business_settings = BusinessSetting::where('type', 'digital_product_upload')->first();
-        $categories = Category::where('digital', 1)->get();
-        return view('frontend.user.seller.digitalproducts.product_upload', compact('categories'));
-    }
-
-    public function show_digital_product_edit_form(Request $request, $id)
-    {
-        $categories = Category::where('digital', 1)->get();
-        $lang = $request->lang;
-        $product = Product::find($id);
-        return view('frontend.user.seller.digitalproducts.product_edit', compact('categories', 'product', 'lang'));
-    }
 
     // Ajax call
     public function new_verify(Request $request)
@@ -1251,11 +1146,10 @@ class HomeController extends Controller
             $data['total_customer'] = Customer::where('staff_id', Auth::user()->id)->count();
             $data['daily_activities'] = Dailyactivity::where('user_id', Auth::user()->id)->where('date', date('Y-m-d'))->get();
             $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-            $warehouseNames = Wearhouse::whereIn('id', $warehouseIds)->pluck('name');
+            $warehouseNames = Warehouse::whereIn('id', $warehouseIds)->pluck('name');
             $data['warehousearray'] = $warehouseNames;
             return view('backend.sales_executive_dashboard', compact('data'));
         } else if (auth()->user()->staff->role->name == 'Delivery Executive') {
-
             $data['total_order_qty'] = Order::where('delivery_boy', Auth::user()->id)
                 ->whereBetween('created_at', [$from_date, $to_date])
                 ->whereNull('cancel_date')->count();
@@ -1303,7 +1197,7 @@ class HomeController extends Controller
             $data['achivement'] = round($data['delivered_qty'] * 100 / ($data['total_order_qty'] ?: 1));
             $data['performance'] = 0;
             $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-            $warehouseNames = Wearhouse::whereIn('id', $warehouseIds)->pluck('name');
+            $warehouseNames = Warehouse::whereIn('id', $warehouseIds)->pluck('name');
             $data['warehousearray'] = $warehouseNames;
             return view('backend.delivery_executive_dashboard', compact('data', 'data2', 'warehousearray'));
         } else if (auth()->user()->staff->role->name == 'Operation Manager') {
@@ -1358,7 +1252,7 @@ class HomeController extends Controller
                 )->get();
             $data['performance'] = 0;
             $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-            $warehouseNames = Wearhouse::whereIn('id', $warehouseIds)->pluck('name');
+            $warehouseNames = Warehouse::whereIn('id', $warehouseIds)->pluck('name');
             $data['warehousearray'] = $warehouseNames;
             return view('backend.operation_manager_dashboard', compact('data'));
         } else if (auth()->user()->staff->role->name == 'Purchase Executive') {
@@ -1395,7 +1289,7 @@ class HomeController extends Controller
                 ->rightjoin('suppliers', 'suppliers.supplier_id', 'purchase_order.supplier_id')
                 ->select('suppliers.supplier_id', 'suppliers.name', 'suppliers.address', 'suppliers.phone', 'purchase_order.payment_amount', 'purchase_order.total_value', 'purchase_order.purchase_no', 'purchase_order.id')->get();
             $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-            $warehouseNames = Wearhouse::whereIn('id', $warehouseIds)->pluck('name');
+            $warehouseNames = Warehouse::whereIn('id', $warehouseIds)->pluck('name');
             $data['warehousearray'] = $warehouseNames;
             return view('backend.purchase_executive_dashboard', compact('data'));
         } else if (auth()->user()->staff->role->name == 'Purchase Manager') {
@@ -1456,7 +1350,7 @@ class HomeController extends Controller
                 ->rightjoin('suppliers', 'suppliers.supplier_id', 'purchase_order.supplier_id')
                 ->select('suppliers.supplier_id', 'suppliers.name', 'suppliers.address', 'suppliers.phone', 'purchase_order.payment_amount', 'purchase_order.total_value', 'purchase_order.purchase_no', 'purchase_order.id')->get();
             $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-            $warehouseNames = Wearhouse::whereIn('id', $warehouseIds)->pluck('name');
+            $warehouseNames = Warehouse::whereIn('id', $warehouseIds)->pluck('name');
             $data['warehousearray'] = $warehouseNames;
             return view('backend.purchase_manager_dashboard', compact('data'));
         } else if (auth()->user()->staff->role->name == 'Account Executive') {
@@ -1481,7 +1375,7 @@ class HomeController extends Controller
             $data2['delivery_executive_ledger'] = DeliveryExecutiveLedger::where('note', Auth::user()->id)->where('type', 'Payment')
                 ->orderBy('created_at', 'desc')->get();
             $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-            $warehouseNames = Wearhouse::whereIn('id', $warehouseIds)->pluck('name');
+            $warehouseNames = Warehouse::whereIn('id', $warehouseIds)->pluck('name');
             $data['warehousearray'] = $warehouseNames;
             return view('backend.account_executive_dashboard', compact('data', 'data2'));
         } else if (auth()->user()->staff->role->name == 'Customer Service Executive') {
@@ -1643,7 +1537,7 @@ class HomeController extends Controller
             $data['daily_activities'] = Dailyactivity::where('user_id', Auth::user()->id)->where('date', date('Y-m-d'))->get();
 
             $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-            $warehouseNames = Wearhouse::whereIn('id', $warehouseIds)->pluck('name');
+            $warehouseNames = Warehouse::whereIn('id', $warehouseIds)->pluck('name');
             $data['warehousearray'] = $warehouseNames;
 
 
@@ -1791,7 +1685,7 @@ class HomeController extends Controller
             $data['total_customer'] = Customer::where('staff_id', Auth::user()->id)->count();
             $data['daily_activities'] = Dailyactivity::where('user_id', Auth::user()->id)->where('date', date('Y-m-d'))->get();
             $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-            $warehouseNames = Wearhouse::whereIn('id', $warehouseIds)->pluck('name');
+            $warehouseNames = Warehouse::whereIn('id', $warehouseIds)->pluck('name');
             $data['warehousearray'] = $warehouseNames;
             return view('backend.sales_executive_dashboard', compact('data'));
         }else {
@@ -1943,8 +1837,6 @@ class HomeController extends Controller
     {
 
         $sort_search = null;
-
-
         $customers = Customer::orderBy('created_at', 'desc');
         $customers = $customers->join('areas', 'areas.code', '=', 'customers.area_code');
         if ($request->has('search')) {
@@ -1962,6 +1854,7 @@ class HomeController extends Controller
             $end_date = date('Y-m-d 23:59:59', strtotime($request->end_date));
             $customers->whereBetween('customers.created_at', [$start_date, $end_date]);
         }
+
         $start_date = !empty($start_date) ? date('Y-m-d', strtotime($start_date)) : '';
         $end_date = !empty($end_date) ? date('Y-m-d', strtotime($end_date)) : '';
         $customers->select('customers.*', 'areas.name as areacode');
@@ -1969,6 +1862,7 @@ class HomeController extends Controller
         $customers = $customers->paginate(15);
         return view('backend.staff_panel.sales_executives_customers', compact('customers', 'sort_search', 'start_date', 'end_date',));
     }
+
     public function staff_customer_ledger(Request $request)
     {
         $wearhouse = null;
@@ -2013,6 +1907,7 @@ class HomeController extends Controller
         $customers = DB::select($sql);
         return view('backend.staff_panel.staff_customer_ledger_main', compact('customers', 'sort_search', 'start_date', 'end_date','wearhouse'));
     }
+
     public function staff_customer_ledger_details(Request $request)
     {
         $cust_id = $request->cust_id;
@@ -2091,8 +1986,6 @@ class HomeController extends Controller
         $start_date = date('Y-m-d', strtotime($start_date));
         $end_date = date('Y-m-d', strtotime($end_date));
 
-//   dd($warehousearray);
-
         return view('backend.staff_panel.staff_sales_report', compact('orders', 'sort_search', 'date', 'start_date', 'end_date','wearhouse','warehousearray'));
     }
 
@@ -2129,6 +2022,7 @@ class HomeController extends Controller
 
         return view('backend.staff_panel.staff_product_sales_report', compact('products', 'sort_by', 'pro_sort_by', 'start_date', 'end_date'));
     }
+
     public function staff_refund(Request $request)
     {
         $warehouseid = $request->warehouse;
@@ -2163,6 +2057,7 @@ class HomeController extends Controller
         $end_date = date('Y-m-d', strtotime($end_date));
         return view('backend.staff_panel.refund_request', compact('refunds', 'start_date', 'end_date'));
     }
+
     public function staff_product(Request $request)
     {
         $sort_by = null;
@@ -2179,6 +2074,7 @@ class HomeController extends Controller
         $products = $products->select('products.*', 'categories.name as category_name')->get();
         return view('backend.staff_panel.stock_report', compact('products', 'sort_by', 'pro_sort_by'));
     }
+    
     public function staff_delivery_report(Request $request)
     {
 

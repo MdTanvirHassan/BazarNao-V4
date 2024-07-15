@@ -148,7 +148,7 @@
                             </span>
                             @php 
                                 $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-                                $warehouseNames = $warehouseIds ? (\App\Models\Wearhouse::whereIn('id', $warehouseIds)->pluck('name')) : collect([]);
+                                $warehouseNames = $warehouseIds ? (\App\Models\Warehouse::whereIn('id', $warehouseIds)->pluck('name')) : collect([]);
                                 $data['warehousearray'] = $warehouseNames;
                             @endphp
 
@@ -160,7 +160,7 @@
                             </span>
                             {{-- @php 
                              $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-                             $warehouseNames = (\App\Models\Wearhouse::whereIn('id', $warehouseIds)->pluck('name'));
+                             $warehouseNames = (\App\Models\Warehouse::whereIn('id', $warehouseIds)->pluck('name'));
                             $data['warehousearray'] = $warehouseNames;
                             @endphp
 

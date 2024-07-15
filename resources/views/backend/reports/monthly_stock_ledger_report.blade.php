@@ -22,7 +22,7 @@
                         <div class="col-md-3">
                             <label class="form-label">{{translate('Sort by Warehouse')}} :</label>
                             <select id="demo-ease" class="aiz-selectpicker form-control select2" name="warehouse_id" data-live-search="true">
-                                @foreach (\App\Models\Wearhouse::all() as $key => $row)
+                                @foreach (\App\Models\Warehouse::all() as $key => $row)
                                 <option @php if($warehouse_id==$row->id) {echo 'selected'; } @endphp value="{{ $row->id }}">{{ $row->name }}</option>
                                 @endforeach
                             </select>

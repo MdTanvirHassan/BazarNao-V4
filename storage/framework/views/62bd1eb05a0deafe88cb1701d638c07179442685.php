@@ -46,8 +46,13 @@
                                     </a>
                                 </li>
                                 <li class="aiz-side-nav-item">
-                                    <a href="<?php echo e(route('accounts.index')); ?>" class="aiz-side-nav-link">
+                                    <a href="<?php echo e(route('chart_of_accounts.index')); ?>" class="aiz-side-nav-link">
                                         <span class="aiz-side-nav-text">List Accounts</span>
+                                    </a>
+                                </li>                            
+                                <li class="aiz-side-nav-item">
+                                    <a href="<?php echo e(route('accounts.index')); ?>" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Tree Views</span>
                                     </a>
                                 </li>                            
                                 
@@ -443,18 +448,21 @@
                     </ul>
                 </li>
                 <?php endif; ?>
+
+                <li class="aiz-side-nav-item">
+                    <a href="<?php echo e(route('uploaded-invoice.index')); ?>" class="aiz-side-nav-link <?php echo e(areActiveRoutes(['uploaded-invoice.create'])); ?>">
+                        <i class="las la-folder-open aiz-side-nav-icon"></i>
+                        <span class="aiz-side-nav-text"><?php echo e(translate('Uploaded Invoice')); ?></span>
+                    </a>
+                </li>
+
                 <li class="aiz-side-nav-item">
                     <a href="<?php echo e(route('uploaded-files.index')); ?>" class="aiz-side-nav-link <?php echo e(areActiveRoutes(['uploaded-files.create'])); ?>">
                         <i class="las la-folder-open aiz-side-nav-icon"></i>
                         <span class="aiz-side-nav-text"><?php echo e(translate('Uploaded Files')); ?></span>
                     </a>
                 </li>
-                <li class="aiz-side-nav-item">
-                    <a href="<?php echo e(route('invoice-uploaded-files.index')); ?>" class="aiz-side-nav-link <?php echo e(areActiveRoutes(['invoice-uploaded-files.create'])); ?>">
-                        <i class="las la-folder-open aiz-side-nav-icon"></i>
-                        <span class="aiz-side-nav-text"><?php echo e(translate('Invoice Uploaded Files')); ?></span>
-                    </a>
-                </li>
+             
                 <!-- Reports -->
                 <?php if(Auth::user()->user_type == 'admin' || in_array('10', json_decode(Auth::user()->staff->role->permissions))): ?>
                 <li class="aiz-side-nav-item">
@@ -1092,7 +1100,7 @@
                  <!--Emergency Contact-->
             <?php if(Auth::user()->user_type == 'admin' || in_array('11', json_decode(Auth::user()->staff->role->permissions))): ?>
             <li class="aiz-side-nav-item ">
-                <a href="#" class="aiz-side-nav-link bg-danger">
+                <a href="#" class="aiz-side-nav-link">
                     <i class="las la-bullhorn aiz-side-nav-icon"></i>
                     <span class="aiz-side-nav-text"><?php echo e(translate('Emergency Contact')); ?></span>
                     <span class="aiz-side-nav-arrow"></span>

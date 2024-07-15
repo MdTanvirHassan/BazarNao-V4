@@ -34,10 +34,10 @@
                     </div>
 
                     <div class="col-md-3">
-                    <label>Filter By Wearehouse :</label>
+                    <label>Filter By Warehouse :</label>
                     <select class="form-control" name="warehouse" id="warehouse">
                     <option value="">Select One</option>
-                    @foreach(\App\Models\Wearhouse::all() as $warehousees)
+                    @foreach(\App\Models\Warehouse::all() as $warehousees)
                     <option  value="{{$warehousees->id}}" >{{ $warehousees->name}}</option>
                     @endforeach
                     </select>

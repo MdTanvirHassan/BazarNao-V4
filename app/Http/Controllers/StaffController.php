@@ -7,7 +7,7 @@ use App\Models\Staff;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Target;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use Hash;
 
 class StaffController extends Controller
@@ -71,7 +71,7 @@ public function login($id)
     public function create()
     {
         $roles = Role::all();
-        $warehouses = Wearhouse::all();
+        $warehouses = Warehouse::all();
         return view('backend.staff.staffs.create', compact('roles','warehouses'));
     }
 
@@ -130,7 +130,7 @@ public function login($id)
         
         $warehousearray = getWearhouseBuUserId($staff->user_id);
         $roles = Role::all();
-        $warehouses = Wearhouse::all();
+        $warehouses = Warehouse::all();
         return view('backend.staff.staffs.edit', compact('staff', 'roles','warehouses','warehousearray'));
     }
 

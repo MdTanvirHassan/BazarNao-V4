@@ -22,25 +22,6 @@ class ReviewController extends Controller
     }
 
 
-    public function seller_reviews()
-    {
-        $reviews = DB::table('reviews')
-                    ->orderBy('id', 'desc')
-                    ->join('products', 'reviews.product_id', '=', 'products.id')
-                    ->where('products.user_id', Auth::user()->id)
-                    ->select('reviews.id')
-                    ->distinct()
-                    ->paginate(9);
-
-        foreach ($reviews as $key => $value) {
-            $review = \App\Models\Review::find($value->id);
-            $review->viewed = 1;
-            $review->save();
-        }
-
-        return view('frontend.user.seller.reviews', compact('reviews'));
-    }
-
     /**
      * Show the form for creating a new resource.
      *

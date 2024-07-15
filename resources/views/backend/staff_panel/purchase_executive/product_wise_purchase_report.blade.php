@@ -53,7 +53,7 @@
     						<label for="name">{{translate('Wearhouse')}} <span class="text-danger">*</span></label>
     						<select name="wearhouse_id" id="wearhouse_id" class="form-control" required>
                                 <option value="">{{translate('Select Wearhouse')}}</option>
-                                @foreach($wearhouses = \App\Models\Wearhouse::all() as $row)
+                                @foreach($wearhouses = \App\Models\Warehouse::all() as $row)
                                 <option <?php if($wearhouse_id == $row->id) echo 'selected';?> value="{{$row->id}}">{{$row->name}}</option>
                                 @endforeach
                             </select>

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Area;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 
 class AreaController extends Controller
 {
@@ -15,7 +15,7 @@ class AreaController extends Controller
      */
     public function index()
     {
-        $wearhouses = Wearhouse::get();
+        $wearhouses = Warehouse::get();
         $areas = Area::paginate(15);
         return view('backend.setup_configurations.area.index', compact('areas','wearhouses'));
     }
@@ -58,7 +58,7 @@ class AreaController extends Controller
      */
      public function edit(Request $request, $id)
      {
-        $wearhouses = Wearhouse::get();
+        $wearhouses = Warehouse::get();
          $area  = Area::findOrFail($id);
          return view('backend.setup_configurations.area.edit', compact('area','wearhouses'));
      }

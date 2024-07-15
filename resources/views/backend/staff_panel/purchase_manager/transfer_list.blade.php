@@ -80,8 +80,8 @@
                 //$gtotal += $order->purchase_price * $order->qty;
             
             
-            	$totalamount += $order->unit_price ; //added by alauddin
-                $gtotal += $order->unit_price * $order->qty; //added by alauddin
+            	$totalamount += $order->unit_price ;
+                $gtotal += $order->unit_price * $order->qty;
             
                 @endphp
                     <tr>

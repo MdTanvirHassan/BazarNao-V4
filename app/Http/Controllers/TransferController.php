@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use App\Models\Transfer;
 use App\Models\Product;
 use App\Models\ProductStock;
@@ -32,7 +32,7 @@ class TransferController extends Controller
     {
         $products = Product::whereNull('parent_id')->get();
         
-        $wearhouses = Wearhouse::get();
+        $wearhouses = Warehouse::get();
         return view('backend.transfer.add', compact('wearhouses','products'));
     }
 
@@ -76,7 +76,7 @@ class TransferController extends Controller
      public function edit(Request $request, $id)
      {
         $products = Product::get();
-        $wearhouses = Wearhouse::get();
+        $wearhouses = Warehouse::get();
          $transfer  = Transfer::findOrFail($id);
          return view('backend.transfer.edit', compact('transfer','wearhouses','products'));
      }
@@ -156,7 +156,7 @@ class TransferController extends Controller
 
     public function transfer_list(Request $request)
     {
-        $wearhouse = Wearhouse::get();
+        $wearhouse = Warehouse::get();
             $sort_by = null;
             $start_date = date('Y-m-01');
             $end_date = date('Y-m-t 23:59:59');
@@ -186,9 +186,9 @@ class TransferController extends Controller
             $warehousearray=array(); 
         }
         
-        $userwarehouse = Wearhouse::whereIn('id',$warehousearray)->get();
+        $userwarehouse = Warehouse::whereIn('id',$warehousearray)->get();
         $products = Product::whereNull('parent_id')->get();
-        $warehouse = Wearhouse::get();
+        $warehouse = Warehouse::get();
         return view('backend.staff_panel.purchase_executive.transfer_add', compact('userwarehouse','warehouse','products'));
     }
 }

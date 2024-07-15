@@ -128,7 +128,7 @@
                                                                     <?php
                                                                         $product_name = \App\Models\Product::where('id', $item->product_id)->value('name');
                                                                     ?>
-                                                                    <li>{{ $product_name }} ({{$item->qty }})</li>
+                                                                    <li>{{ $product_name }} Qty:({{$item->qty }})</li>
                                                                 @endforeach
                                                             @else
                                                                 <a href="{{ route('product', $orderDetail->product->slug) }}" target="_blank" class="text-reset">

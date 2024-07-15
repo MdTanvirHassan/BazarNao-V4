@@ -8,7 +8,7 @@ use App;
 class Transfer extends Model
 {
     public function wearhouse(){
-    	return $this->belongsTo(Wearhouse::class);
+    	return $this->belongsTo(Warehouse::class);
     }
     public function product(){
     	return $this->belongsTo(Product::class);

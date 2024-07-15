@@ -203,7 +203,7 @@
                                         <td>
                                          <select class="form-control" name="warehouse[{{$key+1}}]" id="warehouse_id_{{$key+1}}" onchange="update_warehouse(this.value,'{{$activity->id}}')">
                                         <option value="">Select One</option>
-                                        @foreach(\App\Models\Wearhouse::all() as $warehousees)
+                                        @foreach(\App\Models\Warehouse::all() as $warehousees)
                                         <option  @if($activity->warehouse == $warehousees->id) {{'selected'}} @endif value="{{$warehousees->id}}" >{{ $warehousees->name}}</option>
                                         @endforeach
                                         </select>

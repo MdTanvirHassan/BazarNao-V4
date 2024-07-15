@@ -21,7 +21,7 @@ $refund_request_addon = \App\Models\Addon::where('unique_identifier', 'refund_re
                 <label class="col-form-label">{{translate('Sort by Warehouse')}} :</label>
                 <select id="warehouse" class="aiz-selectpicker select2" name="warehouse" data-live-search="true">
                     <option value=''>All</option>
-                    @foreach (\App\Models\Wearhouse::all() as $key => $warehous)
+                    @foreach (\App\Models\Warehouse::all() as $key => $warehous)
                     <option @php if($wearhouse ==$warehous->id)
                         echo 'selected';
                         @endphp
@@ -36,7 +36,7 @@ $refund_request_addon = \App\Models\Addon::where('unique_identifier', 'refund_re
                     <option value=''>All</option>
                     @foreach ($warehousearray as $warehouseId)
                         @php
-                            $warehouse = \App\Models\Wearhouse::find($warehouseId);
+                            $warehouse = \App\Models\Warehouse::find($warehouseId);
                         @endphp
                         @if ($warehouse)
                             <option value="{{ $warehouse->id }}"></option>
@@ -119,20 +119,25 @@ $refund_request_addon = \App\Models\Addon::where('unique_identifier', 'refund_re
                 else
                 $customer_id = '';
                 $payment_details = json_decode($order->payment_details);
-                if(!empty($payment_details) && !empty($payment_details->status) && ($payment_details->status=='VALID')){
-                $totalpaid+=$payment_details->amount;
-                $paid =$payment_details->amount;
-                $totaldue+=($order->grand_total-$paid);
-                $due = $order->grand_total-$paid;
-                } else if(!empty($payment_details) && !empty($payment_details->transactionStatus) && ($payment_details->transactionStatus=='Completed')){
-                $totalpaid+=$payment_details->amount;
-                $paid =$payment_details->amount;
-                $totaldue+=($order->grand_total-$paid);
-                $due = $order->grand_total-$paid;
-                }else{
-                $totaldue+=$order->grand_total;
-                $due = $order->grand_total;
-                $paid = 0;
+                if(!empty($payment_details) && !empty($payment_details->status) && ($payment_details->status=='VALID'))
+                {
+                    $totalpaid+=$payment_details->amount;
+                    $paid =$payment_details->amount;
+                    $totaldue+=($order->grand_total-$paid);
+                    $due = $order->grand_total-$paid;
+                }
+                else if(!empty($payment_details) && !empty($payment_details->status) && ($payment_details->status=='Success'))
+                {
+                    $totalpaid+=$payment_details->amount;
+                    $paid =$payment_details->amount;
+                    $totaldue+=($order->grand_total-$paid);
+                    $due = $order->grand_total-$paid;
+                }
+                else
+                {
+                    $totaldue+=$order->grand_total;
+                    $due = $order->grand_total;
+                    $paid = 0;
                 }
                 $total+=$order->grand_total;
                 @endphp

@@ -15,14 +15,9 @@
 Route::get('/refresh-csrf', function () {
     return csrf_token();
 });
-Route::post('/invoice-uploader', 'InvoiceUploadController@show_uploader');
-Route::post('/invoice-uploader/upload', 'InvoiceUploadController@upload');
-Route::get('/invoice-uploader/get_uploaded_files', 'InvoiceUploadController@get_uploaded_files');
-Route::post('/invoice-uploader/get_file_by_ids', 'InvoiceUploadController@get_preview_files');
-Route::get('/invoice-uploader/download/{id}', 'InvoiceUploadController@attachment_download')->name('invoice_download_attachment');
 
 Route::post('/aiz-uploader', 'AizUploadController@show_uploader');
-Route::post('/aiz-uploader/upload', 'AizUploadController@upload');
+Route::post('/aiz-uploader/upload/{is_invoice?}', 'AizUploadController@upload');
 Route::get('/aiz-uploader/get_uploaded_files', 'AizUploadController@get_uploaded_files');
 Route::post('/aiz-uploader/get_file_by_ids', 'AizUploadController@get_preview_files');
 Route::get('/aiz-uploader/download/{id}', 'AizUploadController@attachment_download')->name('download_attachment');
@@ -52,7 +47,7 @@ Route::post('/home/section/featured', 'HomeController@load_featured_section')->n
 Route::post('/home/section/best_selling', 'HomeController@load_best_selling_section')->name('home.section.best_selling');
 Route::post('/home/section/group_product', 'HomeController@group_product_section')->name('home.section.group_product');
 Route::post('/home/section/home_categories', 'HomeController@load_home_categories_section')->name('home.section.home_categories');
-Route::post('/home/section/best_sellers', 'HomeController@load_best_sellers_section')->name('home.section.best_sellers');
+
 //category dropdown menu ajax call
 Route::post('/category/nav-element-list', 'HomeController@get_category_items')->name('category.elements');
 
@@ -133,7 +128,7 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function () {
     Route::post('/new-user-verification', 'HomeController@new_verify')->name('user.new.verify');
     Route::post('/new-user-email', 'HomeController@update_email')->name('user.change.email');
     Route::post('/customer/update-profile', 'HomeController@customer_update_profile')->name('customer.profile.update');
-    Route::post('/seller/update-profile', 'HomeController@seller_update_profile')->name('seller.profile.update');
+   
 
     Route::resource('purchase_history', 'PurchaseHistoryController');
     Route::get('/order_payment/{id}/show', 'PurchaseHistoryController@order_payment')->name('order_payment.show'); 
@@ -161,15 +156,6 @@ Route::group(['prefix' => 'seller', 'middleware' => ['seller', 'verified', 'user
     Route::get('/product/{id}/edit', 'HomeController@show_product_edit_form')->name('seller.products.edit');
     Route::resource('payments', 'PaymentController');
 
-    Route::get('/shop/apply_for_verification', 'ShopController@verify_form')->name('shop.verify');
-    Route::post('/shop/apply_for_verification', 'ShopController@verify_form_store')->name('shop.verify.store');
-
-    Route::get('/reviews', 'ReviewController@seller_reviews')->name('reviews.seller');
-
-    //digital Product
-    Route::get('/digitalproducts', 'HomeController@seller_digital_product_list')->name('seller.digitalproducts');
-    Route::get('/digitalproducts/upload', 'HomeController@show_digital_product_upload_form')->name('seller.digitalproducts.upload');
-    Route::get('/digitalproducts/{id}/edit', 'HomeController@show_digital_product_edit_form')->name('seller.digitalproducts.edit');
 });
 
 Route::group(['middleware' => ['auth']], function () {

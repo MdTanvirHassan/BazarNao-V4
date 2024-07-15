@@ -1,22 +1,4 @@
 <?php return array (
-  'aiz-packages/combination-generate' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'AizPackages\\CombinationGenerate\\Providers\\CombinationServiceProvider',
-    ),
-  ),
-  'anandsiddharth/laravel-paytm-wallet' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Anand\\LaravelPaytmWallet\\PaytmWalletServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'PaytmWallet' => 'Anand\\LaravelPaytmWallet\\Facades\\PaytmWallet',
-    ),
-  ),
   'barryvdh/laravel-debugbar' => 
   array (
     'providers' => 
@@ -35,31 +17,6 @@
       0 => 'Barryvdh\\LaravelIdeHelper\\IdeHelperServiceProvider',
     ),
   ),
-  'fideloper/proxy' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Fideloper\\Proxy\\TrustedProxyServiceProvider',
-    ),
-  ),
-  'genealabs/laravel-sign-in-with-apple' => 
-  array (
-    'providers' => 
-    array (
-      0 => '\\GeneaLabs\\LaravelSignInWithApple\\Providers\\ServiceProvider',
-    ),
-  ),
-  'genealabs/laravel-socialiter' => 
-  array (
-    'providers' => 
-    array (
-      0 => '\\GeneaLabs\\LaravelSocialiter\\Providers\\ServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'Socialiter' => '\\GeneaLabs\\LaravelSocialiter\\Facades\\Socialiter',
-    ),
-  ),
   'intervention/image' => 
   array (
     'providers' => 
@@ -69,17 +26,6 @@
     'aliases' => 
     array (
       'Image' => 'Intervention\\Image\\Facades\\Image',
-    ),
-  ),
-  'kingflamez/laravelrave' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'KingFlamez\\Rave\\RaveServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'Rave' => 'KingFlamez\\Rave\\Facades\\Rave',
     ),
   ),
   'laracasts/flash' => 
@@ -143,24 +89,6 @@
       'Excel' => 'Maatwebsite\\Excel\\Facades\\Excel',
     ),
   ),
-  'mehedi-iitdu/core-component-repository' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'MehediIitdu\\CoreComponentRepository\\CoreComponentRepositoryServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'CoreComponentRepository' => 'MehediIitdu\\CoreComponentRepository\\CoreComponentRepositoryFacade',
-    ),
-  ),
-  'myfatoorah/laravel-package' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'MyFatoorah\\LaravelPackage\\MyFatoorahServiceProvider',
-    ),
-  ),
   'nesbot/carbon' => 
   array (
     'providers' => 
@@ -193,18 +121,6 @@
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
     ),
   ),
-  'sebacarrasco93/laravel-payku' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'SebaCarrasco93\\LaravelPayku\\LaravelPaykuServiceProvider',
-      1 => 'SebaCarrasco93\\LaravelPayku\\RouteServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'LaravelPayku' => 'SebaCarrasco93\\LaravelPayku\\Facades\\LaravelPayku',
-    ),
-  ),
   'simplesoftwareio/simple-qrcode' => 
   array (
     'providers' => 
@@ -234,15 +150,15 @@
       0 => 'Spatie\\Permission\\PermissionServiceProvider',
     ),
   ),
-  'unicodeveloper/laravel-paystack' => 
+  'yajra/laravel-datatables-oracle' => 
   array (
     'providers' => 
     array (
-      0 => 'Unicodeveloper\\Paystack\\PaystackServiceProvider',
+      0 => 'Yajra\\DataTables\\DataTablesServiceProvider',
     ),
     'aliases' => 
     array (
-      'Paystack' => 'Unicodeveloper\\Paystack\\Facades\\Paystack',
+      'DataTables' => 'Yajra\\DataTables\\Facades\\DataTables',
     ),
   ),
 );

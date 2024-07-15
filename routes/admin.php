@@ -261,6 +261,10 @@ Route::post('/get_puracher_product', [OrderController::class, 'get_puracher_prod
     Route::get('/stock_closing', [ReportController::class, 'stock_closing'])->name('stock_closing'); 
     Route::get('/save_stock_closing', [ReportController::class, 'save_stock_closing'])->name('save_stock_closing'); 
     Route::get('/in_house_sale_report', [ReportController::class, 'in_house_sale_report'])->name('in_house_sale_report.index');
+    Route::get('/number_of_invoice', [ReportController::class, 'number_of_invoice'])->name('number_of_invoice');
+    
+    // Optimizing Report
+    Route::get('/sales-report', [ReportController::class, 'salesReportNew'])->name('reports.sales.index');
 
     Route::get('/product_history/compared_report', [ReportController::class, 'product_history_compared_report'])->name('product_history_compared_report.index');
     Route::get('/product_history_report', [ReportController::class, 'product_history_report'])->name('product_history_report.index');
@@ -333,11 +337,6 @@ Route::post('/get_puracher_product', [OrderController::class, 'get_puracher_prod
     Route::get('support_ticket/{id}/show', [SupportTicketController::class, 'admin_show'])->name('support_ticket.admin_show');
     Route::post('support_ticket/reply', [SupportTicketController::class, 'admin_store'])->name('support_ticket.admin_store');
 
-// Pickup Points Routes
-Route::resource('pick_up_points', PickupPointController::class)->except(['edit', 'destroy']);
-Route::get('/pick_up_points/edit/{id}', [PickupPointController::class, 'edit'])->name('pick_up_points.edit');
-Route::get('/pick_up_points/destroy/{id}', [PickupPointController::class, 'destroy'])->name('pick_up_points.destroy');
-
 
     // Conversation of Seller Customer
     Route::get('conversations', [ConversationController::class, 'admin_index'])->name('conversations.admin_index');
@@ -394,16 +393,18 @@ Route::get('/pick_up_points/destroy/{id}', [PickupPointController::class, 'destr
     Route::get('/purchase/edit/{id}', [PurchaseController::class, 'edit'])->name('purchase.edit');
     Route::get('/purchase/destroy/{id}', [PurchaseController::class, 'destroy'])->name('purchase.destroy');
     
+      // uploaded Invoice
+      Route::any('/uploaded-invoice/invoice-info', 'AizUploadController@invoice_info')->name('uploaded-invoice.info');
+      Route::get('/uploaded-invoice', 'AizUploadController@uploaded_invoice')->name('uploaded-invoice.index');
+      Route::get('/uploaded-invoice/create', 'AizUploadController@uploaded_create')->name('uploaded-invoice.create');
+      Route::get('/uploaded-invoice/destroy/{id}', 'AizUploadController@destroy')->name('uploaded-invoice.destroy');
+      Route::get('/uploaded', 'AizUploadController@uploadinvoice')->name('uploaded-invoice.upload');
+
     // uploaded files
     Route::any('/uploaded-files/file-info', 'AizUploadController@file_info')->name('uploaded-files.info');
     Route::resource('/uploaded-files', 'AizUploadController');
     Route::get('/uploaded-files/destroy/{id}', 'AizUploadController@destroy')->name('uploaded-files.destroy');
     Route::get('/uploaded', 'AizUploadController@upload')->name('uploaded-files.upload');
-
-    //invoice uploaded files
-    Route::any('/invoice-uploaded-files/file-info', 'InvoiceUploadController@file_info')->name('invoice-uploaded-files.info');
-    Route::resource('/invoice-uploaded-files', 'InvoiceUploadController');
-    Route::get('/invoice-uploaded-files/destroy/{id}', 'InvoiceUploadController@destroy')->name('invoice-uploaded-files.destroy');
 
 
 Route::post('/customer/wallet_refund', 'CustomerController@wallet_refund')->name('customer.wallet_refund');

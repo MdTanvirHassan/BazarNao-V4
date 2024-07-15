@@ -15,23 +15,23 @@
             </div>
             <div class="col-md-3">
                 <label>Filter By Warehouse :</label>
-                <select class="form-control" name="warehouse" id="warehouse">
+                <select class="form-control" name="warehouse" data-live-search="true" id="warehouse">
                     <option value="">Select One</option>
-                    @foreach(\App\Warehouse::all() as $warehousees)
+                    @foreach(\App\Models\Warehouse::all() as $warehousees)
                         <option value="{{$warehousees->id}}" @if($warehouse == $warehousees->id) selected @endif>{{ $warehousees->name }}</option>
                     @endforeach
                 </select>
             </div>
             <div class="col-md-3">
                 <label>Filter By Employee :</label>
-                <select class="form-control" name="user_id" id="user_id">
+                <select class="form-control" name="user_id" data-live-search="true" id="user_id">
                     <option value="">Select One</option>
-                    @foreach(\App\Staff::whereBetween('role_id', [9, 14])->get() as $executive)      
+                    @foreach(\App\Models\Staff::whereBetween('role_id', [9, 14])->get() as $executive)      
                         <option value="{{$executive->user_id}}" @if($user_id == $executive->user_id) selected @endif>{{ $executive->user->name }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <div class="form-group mb-0">
                     <input type="text" class="form-control" id="search" name="search" @isset($sort_search) value="{{ $sort_search }}" @endisset placeholder="{{ translate('Type Order code & hit Enter') }}">
                 </div>
@@ -79,9 +79,7 @@
 
                 @foreach ($orders as $key => $order)
                     @php
-                        $customer = \App\Customer::where('user_id', $order->user_id)->first();
-                        $executive = !empty($customer) && !empty($customer->staff_id) ? \App\User::find($customer->staff_id) : null;
-                        
+                        $executive = !empty($order->user->customer) && !empty($order->user->customer->staff_id) ? \App\Models\User::where('id',$order->user->customer->staff_id)->select('name')->first() : null;
                         $payment_details = json_decode($order->payment_details);
                         $paid = 0;
                         if (!empty($payment_details) && !empty($payment_details->status) && ($payment_details->status == 'VALID' || $payment_details->status == 'Success')) {
@@ -103,8 +101,8 @@
                             <a href="{{ route('all_orders.show', encrypt($order->id)) }}" target="_blank" title="{{ translate('View') }}">{{ $order->code }}</a>
                         </td>
                         <td class="text-center">
-                            @if ($customer)
-                                <a href="{{ route('customer_ledger_details.index') }}?cust_id={{ $order->user_id }}&start_date={{ $start_date }}&end_date={{ $end_date }}" target="_blank" title="{{ translate('View') }}">{{ $customer->customer_id }}</a>
+                            @if ($order->user->customer->customer_id)
+                                <a href="{{ route('customer_ledger_details.index') }}?cust_id={{ $order->user_id }}&start_date={{ $start_date }}&end_date={{ $end_date }}" target="_blank" title="{{ translate('View') }}">{{ $order->user->customer->customer_id }}</a>
                             @else
                                 {{ $order->guest_id }}
                             @endif
@@ -125,7 +123,7 @@
                         </td>
                         <td class="text-center">
                             @if ($order->user)
-                                {{ $customer->customer_type ?? 'N/A' }}
+                                {{ $order->user->customer->customer_type ?? 'N/A' }}
                             @else
                                 Guest
                             @endif

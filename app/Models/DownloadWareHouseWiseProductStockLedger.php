@@ -28,7 +28,7 @@ class DownloadWareHouseWiseProductStockLedger implements FromCollection, WithMap
     {
 
        
-    $wearhouse = Wearhouse::get();
+    $wearhouse = Warehouse::get();
     $sort_by = null;
     $pro_sort_by = null;
     $wearhouse_id = $wearhouse[0]->id;

@@ -87,7 +87,7 @@ class CheckoutController extends Controller
 
             $request->session()->put('payment_type', 'cart_payment');
 
-            $request->session()->put('payment_from', 'shopping_cart'); //added by alauddin
+            $request->session()->put('payment_from', 'shopping_cart');
 
             if ($request->session()->get('order_id') != null) {
                 $order = Order::findOrFail($request->session()->get('order_id'));

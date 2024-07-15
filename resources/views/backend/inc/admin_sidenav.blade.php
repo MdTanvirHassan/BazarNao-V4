@@ -46,8 +46,13 @@
                                     </a>
                                 </li>
                                 <li class="aiz-side-nav-item">
-                                    <a href="{{ route('accounts.index') }}" class="aiz-side-nav-link">
+                                    <a href="{{ route('chart_of_accounts.index') }}" class="aiz-side-nav-link">
                                         <span class="aiz-side-nav-text">List Accounts</span>
+                                    </a>
+                                </li>                            
+                                <li class="aiz-side-nav-item">
+                                    <a href="{{ route('accounts.index') }}" class="aiz-side-nav-link">
+                                        <span class="aiz-side-nav-text">Tree Views</span>
                                     </a>
                                 </li>                            
                                 
@@ -443,18 +448,21 @@
                     </ul>
                 </li>
                 @endif
+
+                <li class="aiz-side-nav-item">
+                    <a href="{{ route('uploaded-invoice.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['uploaded-invoice.create'])}}">
+                        <i class="las la-folder-open aiz-side-nav-icon"></i>
+                        <span class="aiz-side-nav-text">{{ translate('Uploaded Invoice') }}</span>
+                    </a>
+                </li>
+
                 <li class="aiz-side-nav-item">
                     <a href="{{ route('uploaded-files.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['uploaded-files.create'])}}">
                         <i class="las la-folder-open aiz-side-nav-icon"></i>
                         <span class="aiz-side-nav-text">{{ translate('Uploaded Files') }}</span>
                     </a>
                 </li>
-                <li class="aiz-side-nav-item">
-                    <a href="{{ route('invoice-uploaded-files.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['invoice-uploaded-files.create'])}}">
-                        <i class="las la-folder-open aiz-side-nav-icon"></i>
-                        <span class="aiz-side-nav-text">{{ translate('Invoice Uploaded Files') }}</span>
-                    </a>
-                </li>
+             
                 <!-- Reports -->
                 @if(Auth::user()->user_type == 'admin' || in_array('10', json_decode(Auth::user()->staff->role->permissions)))
                 <li class="aiz-side-nav-item">
@@ -467,6 +475,14 @@
                      @if(Auth::user()->user_type == 'admin' || in_array('24', json_decode(Auth::user()->staff->role->permissions)))
                         <li class="aiz-side-nav-item">
                             <a href="{{ route('salesReport.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['salesReport.index'])}}">
+                                <span class="aiz-side-nav-text">{{ translate('Sales Report') }}</span>
+                            </a>
+                        </li>
+                    @endif
+
+                    @if(Auth::user()->user_type == 'admin' || in_array('24', json_decode(Auth::user()->staff->role->permissions)))
+                        <li class="aiz-side-nav-item">
+                            <a href="{{ route('reports.sales.index') }}" class="aiz-side-nav-link {{ areActiveRoutes(['salesReport.index'])}}">
                                 <span class="aiz-side-nav-text">{{ translate('Sales Report') }}</span>
                             </a>
                         </li>
@@ -1109,7 +1125,7 @@
                  <!--Emergency Contact-->
             @if(Auth::user()->user_type == 'admin' || in_array('11', json_decode(Auth::user()->staff->role->permissions)))
             <li class="aiz-side-nav-item ">
-                <a href="#" class="aiz-side-nav-link bg-danger">
+                <a href="#" class="aiz-side-nav-link">
                     <i class="las la-bullhorn aiz-side-nav-icon"></i>
                     <span class="aiz-side-nav-text">{{ translate('Emergency Contact') }}</span>
                     <span class="aiz-side-nav-arrow"></span>
@@ -1197,11 +1213,7 @@
                                 <span class="aiz-side-nav-text">{{translate('Bank')}}</span>
                             </a>
                         </li>
-                        <li class="aiz-side-nav-item">
-                            <a href="{{route('pick_up_points.index')}}" class="aiz-side-nav-link {{ areActiveRoutes(['pick_up_points.index','pick_up_points.create','pick_up_points.edit'])}}">
-                                <span class="aiz-side-nav-text">{{translate('Pickup point')}}</span>
-                            </a>
-                        </li>
+                       
                         <li class="aiz-side-nav-item">
                             <a href="{{ route('smtp_settings.index') }}" class="aiz-side-nav-link">
                                 <span class="aiz-side-nav-text">{{translate('SMTP Settings')}}</span>

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-[Next release](https://github.com/barryvdh/laravel-ide-helper/compare/v2.15.0...master)
+[Next release](https://github.com/barryvdh/laravel-ide-helper/compare/v3.0.0...master)
 --------------
 
 ### Fixed
@@ -10,6 +10,23 @@ All notable changes to this project will be documented in this file.
 ### Changed
 
 ### Added
+
+2024-03-01, 3.0.0
+------------------
+
+### Added
+- Support for Laravel 11 [#1520 / KentarouTakeda](https://github.com/barryvdh/laravel-ide-helper/pull/1520)
+
+### Changed
+- Make `--reset` always keep the text and remove `--smart-reset`. Always skip the classname [#1523 / barryvdh](https://github.com/barryvdh/laravel-ide-helper/pull/1523) & [#1525 / mfn](https://github.com/barryvdh/laravel-ide-helper/pull/1525)
+- Use short types (`int` and `bool` instead of `integer` and `boolean`) [#1524 / barryvdh](https://github.com/barryvdh/laravel-ide-helper/pull/1524)
+
+### Removed
+- Support for Laravel 9 and use of doctrine/dbal [#1512 / barryvdh](https://github.com/barryvdh/laravel-ide-helper/pull/1512) 
+  With this functionality gone, a few changes have been made:
+  - support for custom datatypes has been dropped (config `custom_db_types`) unknown data types default to `string` now and to fix the type, add a proper cast in Eloquent
+  - You _might_ have top-level dependency on doctrine/dbal. This may have been in the past due to ide-helper, we suggest to check if you still need it and remove it otherwise
+  - Minimum PHP version, due to Laravel 10, is now PHP 8.1
 
 2024-02-15, 2.15.1
 ------------------

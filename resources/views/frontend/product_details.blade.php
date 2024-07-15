@@ -109,25 +109,25 @@
             
 
                             @if($detailedProduct->is_group_product)
-                                    <?php
-                                        $group_products = App\Models\Product::join('group_products', 'products.id', '=', 'group_products.group_product_id')
-                                                                            ->select('group_products.*')
-                                                                            ->where('products.id', $detailedProduct->id)
-                                                                            ->get();
-                                    ?>
-                                    <ul class="list-group list-group-flush">
-                                        @foreach($group_products as $group_product)
-                                            <?php
-                                                $name = App\Models\Product::where('id', $group_product->product_id)->value('name');
-                                            ?>
-                                            <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
-                                                <span class="fs-14">{{ $name }}</span>
-                                                <span class="fs-14">Quantity: <span class="badge badge-primary badge-pill">{{ $group_product->qty }}</span></span>
-                                            </li>
-                                        @endforeach
-                                    </ul>
+                                <?php
+                                    $group_products = App\Models\Product::join('group_products', 'products.id', '=', 'group_products.group_product_id')
+                                                                        ->select('group_products.*')
+                                                                        ->where('products.id', $detailedProduct->id)
+                                                                        ->get();
+                                ?>
+                                <ul class="list-group list-group-flush">
+                                    @foreach($group_products as $group_product)
+                                        <?php
+                                            $name = App\Models\Product::where('id', $group_product->product_id)->value('name');
+                                        ?>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+                                            <span class="fs-14">{{ $name }}</span>
+                                            <span class="fs-14">Quantity: <span class="badge badge-primary badge-pill">{{ $group_product->qty }}</span></span>
+                                        </li>
+                                    @endforeach
+                                </ul>
 
-                                @endif
+                            @endif
                     
                             <hr>
 

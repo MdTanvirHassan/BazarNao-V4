@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 use Carbon\Carbon;
 
-
+use DataTables;
 use DB;
 use App\Models\User;
 use App\Models\Order;
@@ -17,7 +17,7 @@ use App\Models\Product;
 use App\Models\Customer;
 use App\Models\Supplier;
 use App\Models\Transfer; 
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use App\Models\CouponUsage;
 use App\Models\Referr_code;
 use App\Models\OrderDetail; 
@@ -54,7 +54,7 @@ class ReportController extends Controller
     }
     public function wearhouse_wise_stock_report(Request $request)
     {
-        $wearhouse = Wearhouse::get();
+        $wearhouse = Warehouse::get();
         $sort_by = null;
         $pro_sort_by = null;
         $wearhouse_id = $wearhouse[0]->id;
@@ -78,7 +78,7 @@ class ReportController extends Controller
 
     public function wearhouse_wise_stock_ledger_report(Request $request)
     {
-        $wearhouse = Wearhouse::get();
+        $wearhouse = Warehouse::get();
         $sort_by = null;
         $pro_sort_by = null;
         $wearhouse_id = $wearhouse[0]->id;
@@ -1692,6 +1692,13 @@ class ReportController extends Controller
 }
 
 
+public function number_of_invoice(Request $request){
+    
+
+    return view('backend.reports.number_of_invoice', compact('invoice'));
+}
+
+
     
 
     // public function product_history_report(Request $request)
@@ -2448,7 +2455,7 @@ public function warehouse_sales_compare(Request $request)
     $productsData = [];
 
     // Fetch all products if no warehouse is selected, otherwise fetch products for the selected warehouses
-    $warehouses = Wearhouse::all();
+    $warehouses = Warehouse::all();
     if (!empty($warehouseIds)) {
         $warehouses = $warehouses->whereIn('id', $warehouseIds);
     }
@@ -2538,7 +2545,7 @@ public function warehouse_yearly_sales_compare(Request $request)
 
     $productsData = [];
 
-    $warehouses = Wearhouse::all();
+    $warehouses = Warehouse::all();
     if (!empty($warehouseIds)) {
         $warehouses = $warehouses->whereIn('id', $warehouseIds);
     }
@@ -2575,7 +2582,7 @@ public function warehouse_yearly_sales_compare(Request $request)
 public function warehouse_monthly_sales_report(Request $request)
 {
     $year = $request->input('year');
-    $warehouses = Wearhouse::all();
+    $warehouses = Warehouse::all();
     
     $months = [];
     $totals = [];
@@ -2615,7 +2622,7 @@ public function warehouse_monthly_sales_report(Request $request)
 //     $currentYear = Carbon::now()->year;
 //     $startYear = $currentYear - 2;
 
-//     $warehouses = Wearhouse::all();
+//     $warehouses = Warehouse::all();
 //     if (!empty($warehouseIds)) {
 //         $warehouses = $warehouses->whereIn('id', $warehouseIds);
 //     }
@@ -2733,7 +2740,7 @@ public function warehouse_stock_summery(Request $request)
     $currentYear = Carbon::now()->year;
     $startYear = $currentYear - 2;
 
-    $warehouses = Wearhouse::all();
+    $warehouses = Warehouse::all();
     if (!empty($warehouseIds)) {
         $warehouses = $warehouses->whereIn('id', $warehouseIds);
     }
@@ -2880,7 +2887,7 @@ public function sales_report(Request $request)
 
     $productsData = [];
 
-    $warehouses = Wearhouse::all();
+    $warehouses = Warehouse::all();
     if (!empty($warehouseIds)) {
         $warehouses = $warehouses->whereIn('id', $warehouseIds);
     }
@@ -2927,7 +2934,7 @@ public function sales_report_monthly(Request $request)
     $start_date = $request->input('start_date', date('Y-m-01', strtotime('-3 years')));
     $end_date = $request->input('end_date', date('Y-m-t'));
 
-    $warehouses = Wearhouse::all();
+    $warehouses = Warehouse::all();
     if (!empty($warehouseIds)) {
         $warehouses = $warehouses->whereIn('id', $warehouseIds);
     }
@@ -2986,7 +2993,7 @@ public function sales_by_platform(Request $request)
     $currentYear = Carbon::now()->year;
     $startYear = $currentYear - 4;
 
-    $warehouses = Wearhouse::all();
+    $warehouses = Warehouse::all();
     if (!empty($warehouseIds)) {
         $warehouses = $warehouses->whereIn('id', $warehouseIds);
     }
@@ -3676,7 +3683,7 @@ public function detailed_sales_report(Request $request)
 
     public function operation_manager_stock_report(Request $request)
     {
-        $wearhouse = Wearhouse::get();
+        $wearhouse = Warehouse::get();
         $sort_by = null;
         $pro_sort_by = null;
         $start_date = $request->start_date;
@@ -3711,7 +3718,7 @@ public function detailed_sales_report(Request $request)
     public function salesReport(Request $request)
     {
 
-        $wearhouse = $request->warehouse;
+        $warehouse = $request->warehouse;
         $start_date = date('Y-m-01');
         $end_date = date('Y-m-t');
         $date = $request->date;
@@ -3720,18 +3727,15 @@ public function detailed_sales_report(Request $request)
         $year = $request->year;
         $sort_search = null;
         $user_id = $request->user_id;
-
-        $orders = Order::select('orders.*')
-            ->where('orders.delivered_by', '>', '0')
-            ->whereNull('orders.canceled_by')
-            ->orderBy('orders.date', 'ASC');
-
-
+        
+        $orders = Order::select(['id', 'user_id', 'code', 'payment_details', 'grand_total', 'delivered_date', 'guest_id', 'shipping_address'])
+            ->whereNotNull('delivered_by')->whereNull('canceled_by')->orderBy('date', 'ASC');
+        
         if ($request->has('search')) {
             $sort_search = $request->search;
-            $orders = $orders->where('orders.code', 'like', '%' . $sort_search . '%');
+            $orders->where('orders.code', 'like', '%' . $sort_search . '%');
         }
-
+        
         if (!empty($request->start_date) && !empty($request->end_date)) {
             $start_date = date('Y-m-d 00:00:00', strtotime($request->start_date));
             $end_date = date('Y-m-d 23:59:59', strtotime($request->end_date));
@@ -3743,37 +3747,93 @@ public function detailed_sales_report(Request $request)
             $start_date = date('Y-m-01', strtotime("$month_year-$month-01"));
             $end_date = date('Y-m-t', strtotime("$month_year-$month-01"));
         }
-        
-        
+
         if (!empty($request->year)) {
             $start_date = date('Y-m-01', strtotime("$year-01-01"));
             $end_date = date('Y-m-t', strtotime("$year-12-31"));
         }
-
-
-        if (!empty($user_id)) {
-            $orders = $orders->select('orders.*', 'customers.staff_id')
-                ->join('customers', 'customers.user_id', '=', 'orders.user_id')
-                ->where('customers.staff_id', $user_id)
-                ->whereBetween('orders.delivered_date', [$start_date, $end_date]);
-        } else {
-            $orders = $orders->whereBetween('orders.delivered_date', [$start_date, $end_date]);
+        
+        if (!empty($user_id)){
+            $orders->join('customers', 'customers.user_id','orders.user_id')
+                   ->where('customers.staff_id', $user_id);
         }
-
-        if (!empty($wearhouse)) {
-            $orders = $orders->whereBetween('orders.delivered_date', [$start_date, $end_date])
-                ->where('orders.warehouse', $wearhouse);
-        } else {
-            $orders = $orders->whereBetween('orders.delivered_date', [$start_date, $end_date]);
+        
+        if (!empty($warehouse)) {
+            $orders->where('warehouse', $warehouse);
         }
-
+        
+        $orders->whereBetween('delivered_date', [$start_date, $end_date]);
         $orders = $orders->get();
-
         $start_date = date('Y-m-d', strtotime($start_date));
         $end_date = date('Y-m-d', strtotime($end_date));
 
-        return view('backend.reports.sales', compact('orders', 'sort_search', 'date', 'start_date', 'end_date', 'wearhouse', 'user_id','month','year','month_year'));
+        return view('backend.reports.sales', compact('orders', 'sort_search', 'date', 'start_date', 'end_date', 'warehouse', 'user_id','month','year','month_year'));
     }
+
+
+    public function salesReportNew(Request $request)
+    {
+       
+        $warehouse = $request->warehouse;
+        $start_date = date('Y-m-01');
+        $end_date = date('Y-m-t');
+        $date = $request->date;
+        $month = $request->month;
+        $month_year = null;
+        $year = $request->year;
+        $sort_search = null;
+        $user_id = $request->user_id;
+    
+        $orders = Order::select(['id', 'user_id', 'code', 'payment_details', 'grand_total', 'delivered_date', 'guest_id', 'shipping_address'])
+            ->whereNotNull('delivered_by')
+            ->whereNull('canceled_by')
+            ->orderBy('date', 'ASC');
+    
+        if ($request->has('search')) {
+            $sort_search = $request->search;
+            $orders->where('orders.code', 'like', '%' . $sort_search . '%');
+        }
+    
+        if (!empty($request->start_date) && !empty($request->end_date)) {
+            $start_date = date('Y-m-d 00:00:00', strtotime($request->start_date));
+            $end_date = date('Y-m-d 23:59:59', strtotime($request->end_date));
+        }
+    
+        if (!empty($request->month)) {
+            $month_year = date('Y', strtotime($request->month));
+            $month = date('m', strtotime($request->month));
+    
+            $start_date = date('Y-m-01', strtotime("$month_year-$month-01"));
+            $end_date = date('Y-m-t', strtotime("$month_year-$month-01"));
+        }
+    
+        if (!empty($request->year)) {
+            $start_date = date('Y-m-01', strtotime("$year-01-01"));
+            $end_date = date('Y-m-t', strtotime("$year-12-31"));
+        }
+    
+        if (!empty($user_id)) {
+            $orders->join('customers', 'customers.user_id', 'orders.user_id')
+                   ->where('customers.staff_id', $user_id);
+        }
+    
+        if (!empty($warehouse)) {
+            $orders->where('warehouse', $warehouse);
+        }
+    
+        $orders->whereBetween('delivered_date', [$start_date, $end_date]);
+    
+        return DataTables::of($orders)
+            ->addColumn('action', function ($order) {
+                return '<button class="btn btn-sm btn-info">Details</button>';
+            })
+            ->editColumn('delivered_date', function ($order) {
+                return date('Y-m-d', strtotime($order->delivered_date));
+            })
+            ->make(true);
+    }
+
+   
 
 
     public function POSsalesReport(Request $request)
@@ -4157,7 +4217,7 @@ public function transfer_list_details(Request $request)
 
     public function damage_report(Request $request)
     {
-        $wearhouse = Wearhouse::get();
+        $wearhouse = Warehouse::get();
         $sort_by = null;
         $start_date = date('Y-m-01 00:00:00');
         $end_date = date('Y-m-t 23:59:59');
@@ -4190,7 +4250,7 @@ public function transfer_list_details(Request $request)
         $year = $request->year;
         $wearhouse_id = null;
         $warehousearray = getWearhouseBuUserId(auth()->user()->id);
-        $wearhouses = Wearhouse::whereIn('id', $warehousearray)->get();
+        $wearhouses = Warehouse::whereIn('id', $warehousearray)->get();
         if (empty($request->start_date))
             $request->start_date = $start_date;
         if (empty($request->end_date))
@@ -4262,7 +4322,7 @@ public function transfer_list_details(Request $request)
         $supplier = Supplier::all();
         $title =  'Purchase Add';
         $warehousearray = getWearhouseBuUserId(auth()->user()->id);
-        $wearhouses = Wearhouse::whereIn('id', $warehousearray)->get();
+        $wearhouses = Warehouse::whereIn('id', $warehousearray)->get();
 
         return view('backend.staff_panel.purchase_executive.purchase', compact('products', 'supplier', 'title', 'wearhouses'));
     }

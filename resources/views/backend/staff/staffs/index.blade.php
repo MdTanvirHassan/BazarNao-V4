@@ -97,7 +97,7 @@
                                 <td>
                                     @php 
                                         $warehouseIds = getWearhouseBuUserId($staff->user_id);
-                                        $warehouseNames = $warehouseIds ? (\App\Models\Wearhouse::whereIn('id', $warehouseIds)->pluck('name')) : collect([]);
+                                        $warehouseNames = $warehouseIds ? (\App\Models\Warehouse::whereIn('id', $warehouseIds)->pluck('name')) : collect([]);
                                         $data['warehousearray'] = $warehouseNames;
                                     @endphp
                                     <span>{{ $warehouseNames->implode(', ') }}</span>

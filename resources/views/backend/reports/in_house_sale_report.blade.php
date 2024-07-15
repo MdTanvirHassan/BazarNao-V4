@@ -28,8 +28,8 @@
                             <label class="col-form-label">{{translate('Sort by Warehouse')}} :</label>
                             <select id="warehouse" class="aiz-selectpicker select2" name="warehouse" data-live-search="true">
                                 <option value=''>All</option>
-                                @foreach (\App\Models\Wearhouse::all() as $key => $warehous)
-                                <option @php if($warehouse ==$warehous->id) echo 'selected'; @endphp value="{{ $warehous->id }}">{{ $warehous->name}}</option>
+                                @foreach (\App\Models\Warehouse::all() as $key => $warehous)
+                                <option @php if($warehouse==$warehous->id) echo 'selected'; @endphp value="{{ $warehous->id }}">{{ $warehous->name}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -48,11 +48,11 @@
                             <select id="demo-ease" class="aiz-selectpicker select2" name="user_id" data-live-search="true">
                                 <option value=''>{{ __('All') }}</option>
                                 @foreach (DB::table('staff')->join('users','users.id','staff.user_id')->where('role_id',9)->get() as $key => $staff)
-                                    <option @if($pro_sort_by == $staff->user_id) selected @endif value="{{ $staff->user_id }}">{{ $staff->name }}</option>
+                                <option @if($pro_sort_by==$staff->user_id) selected @endif value="{{ $staff->user_id }}">{{ $staff->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        
+
                         <div class="col-md-3">
                             <label>Date Range :</label>
                             <div class="col-md-12">
@@ -77,7 +77,9 @@
 
                 <div class="printArea">
                     <style>
-                        th { text-align: center; }
+                        th {
+                            text-align: center;
+                        }
                     </style>
                     <h3 style="text-align: center;">{{translate('Product wise sales report')}}</h3>
                     <table class="table-bordered" style="width: 100%">
@@ -96,22 +98,32 @@
                         <tbody>
                             @php $total = 0; $qty = 1; $total_profit = 0; @endphp
                             @foreach ($products as $key => $product)
-                                @php
-                                    $total += $product->price;
-                                    $profit = $product->profit_loss;
-                                    $total_profit += $profit;
-                                    $qty = !empty($product->quantity) ? $product->quantity : 1;
-                                @endphp
-                                <tr>
-                                    <td>{{ ($key + 1) }}</td>
-                                    <td>{{ $product->product_name }}</td>
-                                    <td>{{ $product->category_name }}</td>
-                                    <td style="text-align: right;">{{ $product->quantity }}</td>
-                                    <td style="text-align: right;">{{ single_price($product->price / $qty) }}</td>
-                                    <td style="text-align: right;">{{ single_price($product->price) }}</td>
-                                    <td style="text-align: center;">{{ $product->num_of_sale }}</td>
-                                    <td style="text-align: center;">{{ single_price($profit) }}</td>
-                                </tr>
+                            @php
+                            $total += $product->price;
+                            $profit = $product->profit_loss;
+                            $total_profit += $profit;
+                            $qty = !empty($product->quantity) ? $product->quantity : 1;
+                            @endphp
+                            <tr>
+                                <td>{{ ($key + 1) }}</td>
+                                <td>{{ $product->product_name }}</td>
+                                <td>{{ $product->category_name }}</td>
+                                <td style="text-align: right;">{{ $product->quantity }}</td>
+                                <td style="text-align: right;">{{ single_price($product->price / $qty) }}</td>
+                                <td style="text-align: right;">{{ single_price($product->price) }}</td>
+                                <td style="text-align: center;">
+
+                                    <a href="{{ route('in_house_sale_report', [
+                                        'category_id' => request()->input(''),
+                                        'warehouse' => request()->input(''),
+                                        'product_id' => request()->input(''),
+                                        'user_id' => '',
+                                        'start_date' => ,
+                                        'end_date' => ]) }}">{{ $product->num_of_sale }}</a>
+                                </td>
+
+                                <td style="text-align: center;">{{ single_price($profit) }}</td>
+                            </tr>
                             @endforeach
                             <tr>
                                 <td style="text-align: right;" colspan="5"><b>Total</b></td>
@@ -128,8 +140,8 @@
 </div>
 
 <script>
-    function submitForm(url){
-        $('#prowasales').attr('action',url);
+    function submitForm(url) {
+        $('#prowasales').attr('action', url);
         $('#prowasales').submit();
     }
 </script>

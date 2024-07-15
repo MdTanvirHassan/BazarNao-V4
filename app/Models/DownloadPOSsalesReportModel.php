@@ -4,7 +4,7 @@ namespace App\Models;
 use DB;
 use App\Models\Order;
 use App\Models\User;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use App\Models\Search;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -146,7 +146,7 @@ class DownloadPOSsalesReportModel implements FromCollection, WithMapping, WithHe
         
         if( $error == 0)
         $i++;
-        $warehouse = Wearhouse::where('id',$orders->warehouse)->first();
+        $warehouse = Warehouse::where('id',$orders->warehouse)->first();
         
 
         if ($orders->user != null){

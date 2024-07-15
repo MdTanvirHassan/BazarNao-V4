@@ -5,11 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Group_product;
-use AizPackages\CombinationGenerate\Services\CombinationService;
 use App\Models\ProductTranslation;
 use App\Models\ProductStock;
 use App\Models\Category;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use Auth;
 
 use Illuminate\Support\Str;
@@ -24,15 +23,12 @@ class ProductController extends Controller
      */
     public function admin_products(Request $request)
     {
-    
         $type = 'In House';
         $col_name = null;
         $query = null;
         $sort_search = null;
         $pro_sort_by = null;
-
         $products = Product::where('added_by', 'admin');
-
         if ($request->type != null) {
             $var = explode(",", $request->type);
             $col_name = $var[0];
@@ -45,9 +41,7 @@ class ProductController extends Controller
                 ->where('name', 'like', '%' . $request->search . '%');
             $sort_search = $request->search;
         }
-
         $products = $products->where('digital', 0)->orderBy('created_at', 'desc')->paginate(15);
-
         return view('backend.product.products.index', compact('products', 'type', 'col_name', 'query', 'sort_search','pro_sort_by'));
     }
 
@@ -196,7 +190,7 @@ class ProductController extends Controller
         $categories = Category::where('parent_id', 0)
             ->with('childrenCategories')
             ->get();
-        $wearhouses = Wearhouse::get();
+        $wearhouses = Warehouse::get();
         return view('backend.product.products.group_product_create', compact('categories','wearhouses'));
     }
 
@@ -241,6 +235,7 @@ class ProductController extends Controller
         $product->min_qty = $request->min_qty;
         $product->max_qty = $request->max_qty;
         $product->is_group_product = 1;
+        $product->cash_on_delivery = 1;
         $product->save();  
 
         $product_stock = new ProductStock();
@@ -462,7 +457,7 @@ class ProductController extends Controller
         $categories = Category::where('parent_id', 0)
             ->with('childrenCategories')
             ->get();
-        $wearhouses = Wearhouse::get();
+        $wearhouses = Warehouse::get();
         return view('backend.product.products.create', compact('categories','wearhouses'));
     }
 
@@ -546,7 +541,7 @@ class ProductController extends Controller
 
             if (strpos($key, 'wearhouse_unit_price_') === 0) {
                 $wearhouseId = substr($key, strlen('wearhouse_unit_price_'));
-                $warehouse = Wearhouse::find($wearhouseId);
+                $warehouse = Warehouse::find($wearhouseId);
                 if ($warehouse) {
                     $wearhouseUnitPrices[] = [
                         'warehouse_id' => $warehouse->id,
@@ -685,7 +680,7 @@ class ProductController extends Controller
             foreach ($request->all() as $key => $value) {
                 if (strpos($key, 'wearhouse_unit_price_') === 0) {
                     $wearhouseId = substr($key, strlen('wearhouse_unit_price_'));
-                    $warehouse = Wearhouse::find($wearhouseId);
+                    $warehouse = Warehouse::find($wearhouseId);
                     if ($warehouse) {
                         $product_stock = new ProductStock;
                         $product_stock->product_id = $product->id;
@@ -699,7 +694,7 @@ class ProductController extends Controller
             
             if ($request->has('unit_price')) {
                 $default_price = $request->input('unit_price');
-                $wearhouses = Wearhouse::get();
+                $wearhouses = Warehouse::get();
 
                 foreach ($wearhouses as $wearhouse) {
                     if (!$request->has('wearhouse_unit_price_' . $wearhouse->id)) {
@@ -772,11 +767,11 @@ class ProductController extends Controller
         $categories = Category::where('parent_id', 0)
             ->with('childrenCategories')
             ->get();
-        $product_stocks = ProductStock::join('wearhouses','wearhouses.id','product_stocks.wearhouse_id')
+        $product_stocks = ProductStock::join('warehouses','warehouses.id','product_stocks.wearhouse_id')
         ->where('product_id',$id)
-        ->select('product_stocks.*','wearhouses.name')
+        ->select('product_stocks.*','warehouses.name')
         ->get();
-        $wearhouses = Wearhouse::get();
+        $wearhouses = Warehouse::get();
         // dd($product_stocks);
         return view('backend.product.products.edit', compact('product', 'categories', 'tags', 'lang','wearhouses','product_stocks'));
     }
@@ -986,7 +981,7 @@ class ProductController extends Controller
             foreach ($request->all() as $key => $value) {
                 if (strpos($key, 'wearhouse_unit_price_') === 0) {
                     $wearhouseId = substr($key, strlen('wearhouse_unit_price_'));
-                    $warehouse = Wearhouse::find($wearhouseId);
+                    $warehouse = Warehouse::find($wearhouseId);
                     if ($warehouse) {
                         $product_stock = ProductStock::where('product_id', $product->id)->where('wearhouse_id',$wearhouseId )->first();
                         if (Auth::user()->user_type == 'admin') {

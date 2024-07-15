@@ -10,15 +10,15 @@ class Staff extends Model
     {
     return $this->belongsTo(User::class);
     }
-
+    
     public function role()
     {
     return $this->belongsTo(Role::class);
     }
 
-    public function pick_up_point()
+    public function customers()
     {
-    	return $this->hasOne(PickupPoint::class);
+        return $this->hasMany(Customer::class);
     }
 
 }

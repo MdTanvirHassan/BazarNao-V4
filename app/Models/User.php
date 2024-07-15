@@ -47,48 +47,15 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Customer::class);
     }
 
-    public function affiliate_user()
-    {
-        return $this->hasOne(AffiliateUser::class);
-    }
-
-    public function affiliate_withdraw_request()
-    {
-        return $this->hasMany(AffiliateWithdrawRequest::class);
-    }
-
     public function products()
     {
         return $this->hasMany(Product::class);
     }
 
-    public function shop()
-    {
-        return $this->hasOne(Shop::class);
-    }
-    public function seller()
-    {
-        return $this->hasOne(Seller::class);
-    }
-
-
-    public function staff()
-    {
-        return $this->hasOne(Staff::class);
-    }
 
     public function orders()
     {
         return $this->hasMany(Order::class);
-    }
-
-    public function seller_orders()
-    {
-        return $this->hasMany(Order::class, "seller_id");
-    }
-    public function seller_sales()
-    {
-        return $this->hasMany(OrderDetail::class, "seller_id");
     }
 
     public function wallets()
@@ -101,26 +68,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(ClubPoint::class);
     }
 
-    public function customer_package()
-    {
-        return $this->belongsTo(CustomerPackage::class);
-    }
-
-    public function customer_package_payments()
-    {
-        return $this->hasMany(CustomerPackagePayment::class);
-    }
-
-    public function customer_products()
-    {
-        return $this->hasMany(CustomerProduct::class);
-    }
-
-    public function seller_package_payments()
-    {
-        return $this->hasMany(SellerPackagePayment::class);
-    }
-
+ 
     public function carts()
     {
         return $this->hasMany(Cart::class);
@@ -134,11 +82,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function addresses()
     {
         return $this->hasMany(Address::class);
-    }
-
-    public function affiliate_log()
-    {
-        return $this->hasMany(AffiliateLog::class);
     }
 
     public function product_queries(){

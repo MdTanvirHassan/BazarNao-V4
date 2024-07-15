@@ -24,7 +24,7 @@
                             <label>Filter By Warehouse :</label>
                             <select class="aiz-selectpicker select2" name="warehouse[]" id="warehouse" multiple>
                                 {{-- <option value="">All</option> --}}
-                                @foreach(\App\Models\Wearhouse::all() as $warehouse)
+                                @foreach(\App\Models\Warehouse::all() as $warehouse)
                                     <option value="{{ $warehouse->id }}" @if(in_array($warehouse->id, (array)$warehouseIds)) selected @endif>{{ $warehouse->name }}</option>
                                 @endforeach
                             </select>

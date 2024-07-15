@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Order;
-use App\Models\Product; //added by alauddin
-use App\Models\BusinessSetting; //added by alauddin
+use App\Models\Product;
+use App\Models\BusinessSetting;
 use Auth;
 use DB;
 
@@ -127,7 +127,7 @@ class PurchaseHistoryController extends Controller
             //$orderController->store($request);
 
             $request->session()->put('payment_type', 'cart_payment');
-            $request->session()->put('payment_from', 'purchase_history'); //added by alauddin
+            $request->session()->put('payment_from', 'purchase_history');
 
             if ($request->session()->get('order_id') != null) {
                 $order = Order::findOrFail($request->session()->get('order_id'));

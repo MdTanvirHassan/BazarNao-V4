@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoice_upload;
 use Illuminate\Http\Request;
 use App\Models\Upload;
 use Response;
@@ -54,11 +55,17 @@ class AizUploadController extends Controller
             : view('backend.uploaded_files.index', compact('all_uploads', 'search', 'sort_by'));
     }
 
+
     public function create()
     {
         return (auth()->user()->user_type == 'seller')
             ? view('seller.uploads.create')
             : view('backend.uploaded_files.create');
+    }
+
+    public function uploaded_create()
+    {
+        return view('backend.uploaded_invoice.create');
     }
 
     public function invoice_create()
@@ -74,8 +81,9 @@ class AizUploadController extends Controller
         return view('uploader.aiz-uploader');
     }
     
-    public function upload(Request $request)
+    public function upload(Request $request,$is_invoice=0)
     {
+        
         $type = array(
             "jpg" => "image",
             "jpeg" => "image",
@@ -113,117 +121,219 @@ class AizUploadController extends Controller
             "xlsx" => "document"
         );
 
-        if ($request->hasFile('aiz_file')) {
-            $upload = new Upload;
-            $extension = strtolower($request->file('aiz_file')->getClientOriginalExtension());
 
-            if (
-                env('DEMO_MODE') == 'On' &&
-                isset($type[$extension]) &&
-                $type[$extension] == 'archive'
-            ) {
+        if($is_invoice == 0){
+
+            if ($request->hasFile('aiz_file')) {
+                $upload = new Upload;
+                $extension = strtolower($request->file('aiz_file')->getClientOriginalExtension());
+                if (isset($type[$extension])) {
+                    $upload->file_original_name = null;
+                    $arr = explode('.', $request->file('aiz_file')->getClientOriginalName());
+                    for ($i = 0; $i < count($arr) - 1; $i++) {
+                        if ($i == 0) {
+                            $upload->file_original_name .= $arr[$i];
+                        } else {
+                            $upload->file_original_name .= "." . $arr[$i];
+                        }
+                    }
+    
+                    if($extension == 'svg') {
+                        $sanitizer = new Sanitizer();
+                        // Load the dirty svg
+                        $dirtySVG = file_get_contents($request->file('aiz_file'));
+    
+                        // Pass it to the sanitizer and get it back clean
+                        $cleanSVG = $sanitizer->sanitize($dirtySVG);
+    
+                        // Load the clean svg
+                        file_put_contents($request->file('aiz_file'), $cleanSVG);
+                    }
+    
+                    $path = $request->file('aiz_file')->store('uploads/all', 'local');
+                    $size = $request->file('aiz_file')->getSize();
+    
+                    // Return MIME type ala mimetype extension
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    
+                    // Get the MIME type of the file
+                    //$file_mime = finfo_file($finfo, base_path('public/') . $path);
+                    $file_mime = Storage::mimeType($path);
+    
+                    if ($type[$extension] == 'image' && get_setting('disable_image_optimization') != 1) {
+                        try {
+                            $img = Image::make($request->file('aiz_file')->getRealPath())->encode();
+                            $height = $img->height();
+                            $width = $img->width();
+                            if ($width > $height && $width > 1500) {
+                                $img->resize(1500, null, function ($constraint) {
+                                    $constraint->aspectRatio();
+                                });
+                            } elseif ($height > 1500) {
+                                $img->resize(null, 800, function ($constraint) {
+                                    $constraint->aspectRatio();
+                                });
+                            }
+                            $img->save(base_path('public/') . $path);
+                            clearstatcache();
+                            $size = $img->filesize();
+                        } catch (\Exception $e) {
+                            //dd($e);
+                        }
+                    }
+    
+                    if (env('FILESYSTEM_DRIVER') == 's3') {
+                        Storage::disk('s3')->put(
+                            $path,
+                            file_get_contents(base_path('public/') . $path),
+                            [
+                                'visibility' => 'public',
+                                'ContentType' =>  $extension == 'svg' ? 'image/svg+xml' : $file_mime
+                            ]
+                        );
+                        if ($arr[0] != 'updates') {
+                            unlink(base_path('public/') . $path);
+                        }
+                    }
+    
+                    $upload->extension = $extension;
+                    $upload->file_name = $path;
+                    $upload->user_id = Auth::user()->id;
+                    $upload->type = $type[$upload->extension];
+                    $upload->file_size = $size;
+                    $upload->save();
+                }
                 return '{}';
             }
 
-            if (isset($type[$extension])) {
-                $upload->file_original_name = null;
-                $arr = explode('.', $request->file('aiz_file')->getClientOriginalName());
-                for ($i = 0; $i < count($arr) - 1; $i++) {
-                    if ($i == 0) {
-                        $upload->file_original_name .= $arr[$i];
-                    } else {
-                        $upload->file_original_name .= "." . $arr[$i];
-                    }
-                }
+        }else{
 
-                if($extension == 'svg') {
-                    $sanitizer = new Sanitizer();
-                    // Load the dirty svg
-                    $dirtySVG = file_get_contents($request->file('aiz_file'));
-
-                    // Pass it to the sanitizer and get it back clean
-                    $cleanSVG = $sanitizer->sanitize($dirtySVG);
-
-                    // Load the clean svg
-                    file_put_contents($request->file('aiz_file'), $cleanSVG);
-                }
-
-                $path = $request->file('aiz_file')->store('uploads/all', 'local');
-                $size = $request->file('aiz_file')->getSize();
-
-                // Return MIME type ala mimetype extension
-                $finfo = finfo_open(FILEINFO_MIME_TYPE);
-
-                // Get the MIME type of the file
-                //$file_mime = finfo_file($finfo, base_path('public/') . $path);
-                $file_mime = Storage::mimeType($path);
-
-                if ($type[$extension] == 'image' && get_setting('disable_image_optimization') != 1) {
-                    try {
-                        $img = Image::make($request->file('aiz_file')->getRealPath())->encode();
-                        $height = $img->height();
-                        $width = $img->width();
-                        if ($width > $height && $width > 1500) {
-                            $img->resize(1500, null, function ($constraint) {
-                                $constraint->aspectRatio();
-                            });
-                        } elseif ($height > 1500) {
-                            $img->resize(null, 800, function ($constraint) {
-                                $constraint->aspectRatio();
-                            });
-                        }
-                        $img->save(base_path('public/') . $path);
-                        clearstatcache();
-                        $size = $img->filesize();
-                    } catch (\Exception $e) {
-                        //dd($e);
-                    }
-                }
-
-                if (env('FILESYSTEM_DRIVER') == 's3') {
-                    Storage::disk('s3')->put(
-                        $path,
-                        file_get_contents(base_path('public/') . $path),
-                        [
-                            'visibility' => 'public',
-                            'ContentType' =>  $extension == 'svg' ? 'image/svg+xml' : $file_mime
-                        ]
-                    );
-                    if ($arr[0] != 'updates') {
-                        unlink(base_path('public/') . $path);
-                    }
-                }
-
-                $upload->extension = $extension;
-                $upload->file_name = $path;
-                $upload->user_id = Auth::user()->id;
-                $upload->type = $type[$upload->extension];
-
-               
-                 // Set invoice_file based on the route parameter
-                $invoice_file = $request->invoice_file;
-                // dd($request->invoice_file);
-                // dd($request->all());
+            if ($request->hasFile('aiz_file')) {
                 
-                if($request()->is('admin/invoice-uploaded-files/create')){
-                    $upload->invoice_file = 1;
-                } else {
-                    $upload->invoice_file = 0;
+                $upload = new Invoice_upload();
+                $extension = strtolower($request->file('aiz_file')->getClientOriginalExtension());
+    
+                if (isset($type[$extension])) {
+                    $upload->file_original_name = null;
+                    $arr = explode('.', $request->file('aiz_file')->getClientOriginalName());
+                    for ($i = 0; $i < count($arr) - 1; $i++) {
+                        if ($i == 0) {
+                            $upload->file_original_name .= $arr[$i];
+                        } else {
+                            $upload->file_original_name .= "." . $arr[$i];
+                        }
+                    }
+    
+                    if($extension == 'svg') {
+                        $sanitizer = new Sanitizer();
+                        // Load the dirty svg
+                        $dirtySVG = file_get_contents($request->file('aiz_file'));
+    
+                        // Pass it to the sanitizer and get it back clean
+                        $cleanSVG = $sanitizer->sanitize($dirtySVG);
+    
+                        // Load the clean svg
+                        file_put_contents($request->file('aiz_file'), $cleanSVG);
+                    }
+    
+                    $path = $request->file('aiz_file')->store('uploads/invoice', 'local');
+                    $size = $request->file('aiz_file')->getSize();
+    
+                    // Return MIME type ala mimetype extension
+                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    
+                    // Get the MIME type of the file
+                    //$file_mime = finfo_file($finfo, base_path('public/') . $path);
+                    $file_mime = Storage::mimeType($path);
+    
+                    if ($type[$extension] == 'image' && get_setting('disable_image_optimization') != 1) {
+                        try {
+                            $img = Image::make($request->file('aiz_file')->getRealPath())->encode();
+                            $height = $img->height();
+                            $width = $img->width();
+                            if ($width > $height && $width > 1500) {
+                                $img->resize(1500, null, function ($constraint) {
+                                    $constraint->aspectRatio();
+                                });
+                            } elseif ($height > 1500) {
+                                $img->resize(null, 800, function ($constraint) {
+                                    $constraint->aspectRatio();
+                                });
+                            }
+                            $img->save(base_path('public/') . $path);
+                            clearstatcache();
+                            $size = $img->filesize();
+                        } catch (\Exception $e) {
+                            //dd($e);
+                        }
+                    }
+    
+                    if (env('FILESYSTEM_DRIVER') == 's3') {
+                        Storage::disk('s3')->put(
+                            $path,
+                            file_get_contents(base_path('public/') . $path),
+                            [
+                                'visibility' => 'public',
+                                'ContentType' =>  $extension == 'svg' ? 'image/svg+xml' : $file_mime
+                            ]
+                        );
+                        if ($arr[0] != 'updates') {
+                            unlink(base_path('public/') . $path);
+                        }
+                    }
+    
+                    $upload->extension = $extension;
+                    $upload->file_name = $path;
+                    $upload->user_id = Auth::user()->id;
+                    $upload->type = $type[$upload->extension];
+                    $upload->file_size = $size;
+                    $upload->save();
                 }
-
-                // if ($invoice_file == 0 || $invoice_file == null) {
-                //     $upload->invoice_file = 0;
-                // }else{
-                //     $upload->invoice_file = 1;
-                // }
-                // $invoice_file = $request->input('invoice_file', 0);
-                // $upload->invoice_file = $invoice_file == 1 ? 1 : 0;
-
-                $upload->file_size = $size;
-                $upload->save();
+                return '{}';
             }
-            return '{}';
+
+
+            
+            
+
         }
+
+        
+    }
+
+
+    public function uploaded_invoice(Request $request)
+    {
+        $all_uploads = Invoice_upload::query();
+        $search = null;
+        $sort_by = null;
+
+        if ($request->search != null) {
+            $search = $request->search;
+            $all_uploads->where('file_original_name', 'like', '%' . $request->search . '%');
+        }
+
+        $sort_by = $request->sort;
+        switch ($request->sort) {
+            case 'newest':
+                $all_uploads->orderBy('created_at', 'desc');
+                break;
+            case 'oldest':
+                $all_uploads->orderBy('created_at', 'asc');
+                break;
+            case 'smallest':
+                $all_uploads->orderBy('file_size', 'asc');
+                break;
+            case 'largest':
+                $all_uploads->orderBy('file_size', 'desc');
+                break;
+            default:
+                $all_uploads->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $all_uploads = $all_uploads->paginate(60)->appends(request()->query());
+        return view('backend.uploaded_invoice.index', compact('all_uploads', 'search', 'sort_by'));
     }
 
     public function get_uploaded_files(Request $request)

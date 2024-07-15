@@ -23,12 +23,12 @@ use App\Models\Offer;
 use App\Models\Referr_code;
 use App\Models\User;
 use App\Models\Wallet;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use App\Models\Staff;
 use App\Models\FirebaseNotification;
 use App\Models\Customer;
 use App\Models\Timezones;
-use AizPackages\ColorCodeConverter\Services\ColorCodeConverter;
+
 
 //highlights the selected navigation on admin panel
 if (! function_exists('sendSMS')) {
@@ -1991,7 +1991,7 @@ function getWearhouseId($order_id){
 }
 function getWearhouseName($id){
     
-    $wearhouse = Wearhouse::findOrFail($id);
+    $wearhouse = Warehouse::findOrFail($id);
     if($wearhouse){
         return $wearhouse->name;
      }else{

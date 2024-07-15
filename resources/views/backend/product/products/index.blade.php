@@ -201,7 +201,6 @@
     	                      <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('products.seller.edit', ['id'=>$product->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}" title="{{ translate('Edit') }}">
     	                          <i class="las la-edit"></i>
     	                      </a>
-                              
 							@else
                                 @if($product->is_group_product)
 								<a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('group_products.admin.edit', ['id'=>$product->id, 'lang'=>env('DEFAULT_LANGUAGE')] )}}" title="{{ translate('Group Product Edit') }}">

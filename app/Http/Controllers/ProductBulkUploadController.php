@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Product_stock_close; //added by alauddin
+use App\Product_stock_close;
 use App\Category;
 use App\Brand;
 use App\User;

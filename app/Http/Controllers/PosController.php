@@ -7,7 +7,7 @@ use App\Models\OrderDetail;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\User;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use App\Models\Address;
 use App\Models\Customer;
 use App\Models\Customer_ledger;
@@ -32,8 +32,15 @@ class PosController extends Controller
         if (Auth::user()->user_type == 'admin' || Auth::user()->user_type == 'staff') 
         {  
             $warehousearray = getWearhouseBuUserId(auth()->user()->id);
-            $wearhouses = Wearhouse::WhereIn('id',$warehousearray)->get();
-            return view('pos.index', compact('customers','wearhouses'));
+            $wearhouses = Warehouse::WhereIn('id',$warehousearray)->get();
+
+            if ($wearhouses->isEmpty()) {
+                flash("Warehouse Not Assained For Admin")->warning();
+                return back();
+            } else {
+                return view('pos.index', compact('customers','wearhouses'));
+            }
+           
         }
     }
 
@@ -88,7 +95,7 @@ class PosController extends Controller
             $data['quantity'] = $product->min_qty;
             
             $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-            $wearhouses = Wearhouse::WhereIn('id',$warehouseIds)->first();
+            $wearhouses = Warehouse::WhereIn('id',$warehouseIds)->first();
 
             $pos_price = ProductStock::where('wearhouse_id', $wearhouses->id)
                         ->where('product_id', $product->id)

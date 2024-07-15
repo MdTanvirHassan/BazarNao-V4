@@ -7,9 +7,7 @@ use App\Utility\NagadUtility;
 use App\Models\Order;
 use App\Models\CustomerPackage;
 use App\Models\SellerPackage;
-use App\Models\Seller;
-use App\Models\BusinessSetting;
-use DB; //added by alauddin
+use DB;
 use Session;
 
 class NagadController{
@@ -49,9 +47,9 @@ class NagadController{
     public function getSession()
     {
 
-        $payment_from = Session::get('payment_from'); //added by alauddin
-        $ledger_sql="select sum(credit) as total_credit from customer_ledger where type='Payment' and order_id=".Session::get('order_id'); //added by alauddin
-        $ledger_info=DB::select($ledger_sql); //added by alauddin
+        $payment_from = Session::get('payment_from'); 
+        $ledger_sql="select sum(credit) as total_credit from customer_ledger where type='Payment' and order_id=".Session::get('order_id');
+        $ledger_info=DB::select($ledger_sql);
 
 
         if(Session::has('payment_type')){
@@ -178,7 +176,7 @@ class NagadController{
         if(json_decode($json)->status == 'Success'){
             $payment_type = Session::get('payment_type');
 
-            $payment_from = Session::get('payment_from'); //added by alauddin
+            $payment_from = Session::get('payment_from');
 
             if ($payment_type == 'cart_payment') {
                 if($payment_from=="shopping_cart"){
@@ -189,7 +187,7 @@ class NagadController{
                     $purchaseHistoryController = new PurchaseHistoryController;
                     //$purchaseHistoryController->checkout_done(Session::get('order_id'), $request->payment_details);
                     $purchaseHistoryController->checkout_done(Session::get('order_id'),$json);
-                    Session::forget('payment_from'); //added by alauddin
+                    Session::forget('payment_from');
                     return redirect()->route('purchase_history.index');
 
                 }    

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Wearhouse;
+use App\Models\Warehouse;
 use App\Models\Damage;
 use App\Models\Product;
 use App\Models\ProductStock;
@@ -47,7 +47,7 @@ class DamageController extends Controller
         
         $products = Product::get();
         
-        $wearhouses = Wearhouse::WhereIn('id',$warehousearray)->get();
+        $wearhouses = Warehouse::WhereIn('id',$warehousearray)->get();
         return view('backend.staff_panel.operation_manager.damage_add', compact('wearhouses','products'));
     }
 
@@ -85,7 +85,7 @@ class DamageController extends Controller
      public function edit(Request $request, $id)
      {
         $products = Product::get();
-        $wearhouses = Wearhouse::get();
+        $wearhouses = Warehouse::get();
          $transfer  = Damage::findOrFail($id);
          return view('backend.staff_panel.operation_manager.damage_edit', compact('transfer','wearhouses','products'));
      }

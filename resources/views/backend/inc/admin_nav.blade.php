@@ -164,7 +164,7 @@
                             </span> --}}
                             @php 
                                 $warehouseIds = getWearhouseBuUserId(auth()->user()->id);
-                                $warehouseNames = $warehouseIds ? (\App\Models\Wearhouse::whereIn('id', $warehouseIds)->pluck('name')) : collect([]);
+                                $warehouseNames = $warehouseIds ? (\App\Models\Warehouse::whereIn('id', $warehouseIds)->pluck('name')) : collect([]);
                                 $data['warehousearray'] = $warehouseNames;
                             @endphp
 

@@ -1,19 +1,5 @@
 <?php
 
-/*
-  |--------------------------------------------------------------------------
-  | Web Routes
-  |--------------------------------------------------------------------------
-  |
-  | Here is where you can register web routes for your application. These
-  | routes are loaded by the RouteServiceProvider within a group which
-  | contains the "web" middleware group. Now create something great!
-  |
- */
-// use App\Mail\SupportMailManager;
-//demo
-
-
 
 Route::get('/refresh-csrf', function () {
     return csrf_token();
@@ -133,8 +119,8 @@ Route::group(['middleware' => ['user', 'verified', 'unbanned']], function () {
     Route::post('/seller/update-profile', 'HomeController@seller_update_profile')->name('seller.profile.update');
 
     Route::resource('purchase_history', 'PurchaseHistoryController');
-    Route::get('/order_payment/{id}/show', 'PurchaseHistoryController@order_payment')->name('order_payment.show'); //added by alauddin
-    Route::post('/purchase_history/checkout/payment', 'PurchaseHistoryController@checkout')->name('purchase_history.payment.checkout'); //added by alauddin
+    Route::get('/order_payment/{id}/show', 'PurchaseHistoryController@order_payment')->name('order_payment.show');
+    Route::post('/purchase_history/checkout/payment', 'PurchaseHistoryController@checkout')->name('purchase_history.payment.checkout');
 
     Route::post('/purchase_history/details', 'PurchaseHistoryController@purchase_history_details')->name('purchase_history.details');
     Route::get('/purchase_history/destroy/{id}', 'PurchaseHistoryController@destroy')->name('purchase_history.destroy');
@@ -197,8 +183,8 @@ Route::group(['middleware' => ['auth']], function () {
     //Product Bulk Upload
     Route::get('/product-bulk-upload/index', 'ProductBulkUploadController@index')->name('product_bulk_upload.index');
     Route::post('/bulk-product-upload', 'ProductBulkUploadController@bulk_upload')->name('bulk_product_upload');
-    Route::get('/opening-stock-upload', 'ProductBulkUploadController@stock_upload')->name('stock_upload'); //added by alauddin
-    Route::post('/opening-stock-upload-action', 'ProductBulkUploadController@stock_upload_action')->name('stock_upload_action'); //added by alauddin
+    Route::get('/opening-stock-upload', 'ProductBulkUploadController@stock_upload')->name('stock_upload');
+    Route::post('/opening-stock-upload-action', 'ProductBulkUploadController@stock_upload_action')->name('stock_upload_action');
     Route::get('/product-csv-download/{type}', 'ProductBulkUploadController@import_product')->name('product_csv.download');
     Route::get('/vendor-product-csv-download/{id}', 'ProductBulkUploadController@import_vendor_product')->name('import_vendor_product.download');
     Route::group(['prefix' => 'bulk-upload/download'], function () {
